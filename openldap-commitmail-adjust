@@ -1,0 +1,47 @@
+#!/bin/ksh
+##
+## OpenLDAP: Append `git log -p COMMIT~..COMMIT` to a OpenLDAP commit message
+## Copyright (c) 2012 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: GNU General Public License version 3 or later
+##
+
+## Example: In your maildropfilter(7):
+##
+## if (/^From: openldap-commit2devel@OpenLDAP.org$/)
+## {
+##   to "|cd $HOME/git/openldap && flock .git/config git pull >/dev/null && openldap-commitmail-adjust |maildir $MAILDIR >/dev/null"
+## }
+
+### For zsh
+builtin emulate -R ksh 2>/dev/null
+
+typeset -A commits
+
+while IFS= read -r line; do
+  if [[ $line = @(- Log -*) ]]; then
+    echo "$line"
+    break
+  fi
+
+  echo "$line" |read -r via commit garbage
+  if [[ $via = "via" ]]; then
+    commits[${#commits[@]}]="$commit"
+  fi
+
+  echo "$line"
+done
+
+if [[ ${#commits[@]} -eq 0 ]]; then
+  cat
+  exit 0
+fi
+
+cat >/dev/null
+for commit in "${commits[@]}"; do
+  git --no-pager log -p "$commit~..$commit"
+  echo
+done
+
+exit 0
+
