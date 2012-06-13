@@ -10,7 +10,8 @@
 ##
 ## if (/^From: openldap-commit2devel@OpenLDAP.org$/)
 ## {
-##   to "|cd $HOME/git/openldap && flock .git/config git pull >/dev/null && openldap-commitmail-adjust |maildir $MAILDIR >/dev/null"
+##    xfilter "cd $HOME/git/openldap && flock .git/config git pull >/dev/null && $HOME/bin/openldap-commitmail-adjust"
+##    to "$DEFAULT"
 ## }
 
 ### For zsh
