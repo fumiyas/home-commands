@@ -10,20 +10,45 @@
 ##
 ## if (/^From: openldap-commit2devel@OpenLDAP.org$/)
 ## {
-##    xfilter "cd $HOME/git/openldap && flock .git/config git pull >/dev/null && $HOME/bin/openldap-commitmail-adjust"
+##    flock "$HOME/git/openldap/.git/config" {
+##      xfilter "cd $HOME/git/openldap && git pull --quiet >/dev/null && $HOME/bin/openldap-commitmail-adjust"
+##    }
 ##    to "$DEFAULT"
 ## }
 
-### For zsh
+## For zsh
 builtin emulate -R ksh 2>/dev/null
+
+boundary="--------------boundary_$$_$RANDOM"
 
 typeset -A commits
 
 while IFS= read -r line; do
-  if [[ $line = @(- Log -*) ]]; then
-    echo "$line"
+  if [[ $line = @(Content-Type:*) ]]; then
+    continue
+  fi
+  if [[ -z $line ]]; then
     break
   fi
+
+  echo "$line"
+done
+
+echo "Content-Type: multipart/mixed; boundary=\"$boundary\""
+echo "MIME-Version: 1.0"
+echo
+echo "This is a multi-part message in MIME format."
+
+echo "--$boundary"
+echo "Content-Type: text/plain; charset=UTF-8"
+echo "Content-Transfer-Encoding: 8bit"
+echo
+
+while IFS= read -r line; do
+  #if [[ $line = @(- Log -*) ]]; then
+  #  echo "$line"
+  #  break
+  #fi
 
   echo "$line" |read -r via commit garbage
   if [[ $via = "via" ]]; then
@@ -40,9 +65,16 @@ fi
 
 cat >/dev/null
 for commit in "${commits[@]}"; do
+  echo "--$boundary"
+  echo "Content-Type: text/plain; charset=UTF-8"
+  echo "Content-Transfer-Encoding: 8bit"
+  echo
   git --no-pager log -p "$commit~..$commit"
   echo
 done
+
+echo
+echo "--$boundary--"
 
 exit 0
 
