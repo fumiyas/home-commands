@@ -1,6 +1,6 @@
 #!/bin/ksh
 ##
-## OpenLDAP: Append `git log -p COMMIT~..COMMIT` to a OpenLDAP commit message
+## OpenLDAP: Append `git log -p COMMIT~..COMMIT` to an OpenLDAP commit message
 ## Copyright (c) 2012 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##
 ## License: GNU General Public License version 3 or later
@@ -18,6 +18,8 @@
 
 ## For zsh
 builtin emulate -R ksh 2>/dev/null
+
+set -u
 
 boundary="--------------boundary_$$_$RANDOM"
 
@@ -69,11 +71,10 @@ for commit in "${commits[@]}"; do
   echo "Content-Type: text/plain; charset=UTF-8"
   echo "Content-Transfer-Encoding: 8bit"
   echo
-  git --no-pager log -p "$commit~..$commit"
+  git --no-pager log -p "$commit~..$commit" 2>&1
   echo
 done
 
-echo
 echo "--$boundary--"
 
 exit 0
