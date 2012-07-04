@@ -71,7 +71,7 @@ for commit in "${commits[@]}"; do
   echo "Content-Type: text/plain; charset=UTF-8"
   echo "Content-Transfer-Encoding: 8bit"
   echo
-  git --no-pager log -p "$commit~..$commit" 2>&1
+  git --no-pager log -p "$commit~..$commit" 2>&1 || exit 75
   echo
 done
 
