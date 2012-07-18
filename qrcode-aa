@@ -2,8 +2,15 @@
 
 require "rqrcode"
 
+if ARGV.size != 1
+  puts "Usage: #{$PROGRAM_NAME} TEXT"
+  exit(1)
+end
+
 qrc = RQRCode::QRCode.new(ARGV[0])
 black = `tput setab 7` + "  " + `tput sgr0`
 white = `tput setab 0` + "  " + `tput sgr0`
 puts qrc.to_s.gsub(" ", black).gsub("x", white)
+
+exit(0)
 
