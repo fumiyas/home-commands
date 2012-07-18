@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require "rqrcode"
+
+qrc = RQRCode::QRCode.new(ARGV[0])
+dot = `tput setab 7` + "  " + `tput setab 0`
+puts qrc.to_s.gsub(" ", dot).gsub("x", "  ")
+
