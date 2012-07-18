@@ -3,6 +3,7 @@
 require "rqrcode"
 
 qrc = RQRCode::QRCode.new(ARGV[0])
-dot = `tput setab 7` + "  " + `tput setab 0`
-puts qrc.to_s.gsub(" ", dot).gsub("x", "  ")
+black = `tput setab 7` + "  " + `tput sgr0`
+white = `tput setab 0` + "  " + `tput sgr0`
+puts qrc.to_s.gsub(" ", black).gsub("x", white)
 
