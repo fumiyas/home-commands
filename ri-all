@@ -1,0 +1,33 @@
+#!/bin/sh
+##
+## Ruby ri: Displays Ruby classes and modules information with ALL methods
+## Copyright (c) 2011 SATOH Fumiyasu @ OSS Technology, Corp.
+## License: You can redistribute it and/or modify it under the same term as Ruby.
+##
+
+ri_cmd="ri"
+pager_cmd="${PAGER-more}"
+
+index=`"$ri_cmd" --no-pager ${1+"$@"}`
+index_ret="$?"
+if [ "$index_ret" != "0" ]; then
+  exit "$index_ret"
+fi
+
+(
+  echo "$index"
+
+  echo "$index" \
+  |sed 's/[^m]*m//g' \
+  |col -b \
+  |sed  -n \
+    -e '/^[A-Z].*:$/N;s/\n$//' \
+    -e '/^Class methods:$/,/^$/s/^  */./p' \
+    -e '/^Instance methods:$/,/^$/s/^  */#/p' \
+  |while read method; do
+    echo ${1+"$@"}"$method"
+  done \
+  |xargs "$ri_cmd" --no-pager \
+  ;
+) |"$pager_cmd"
+
