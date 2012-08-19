@@ -8,7 +8,7 @@
 
 ## Example: In your maildropfilter(7):
 ##
-## if (/^From: openldap-commit2devel@OpenLDAP.org$/)
+## if (/^From: openldap-commit2devel@OpenLDAP.org/ && /^Subject: openldap\.git /)
 ## {
 ##    flock "$HOME/git/openldap/.git/config" {
 ##      xfilter "cd $HOME/git/openldap && git pull --quiet >/dev/null && $HOME/bin/openldap-commitmail-adjust"
