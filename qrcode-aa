@@ -8,9 +8,19 @@ if ARGV.size != 1
 end
 
 qrc = RQRCode::QRCode.new(ARGV[0])
-black = `tput setab 7` + "  " + `tput sgr0`
-white = `tput setab 0` + "  " + `tput sgr0`
-puts qrc.to_s.gsub(" ", black).gsub("x", white)
+black = `tput setab 7` + '  ' + `tput sgr0`
+white = `tput setab 0` + '  ' + `tput sgr0`
+puts qrc.
+  to_s.
+  gsub(/(^|$)/, ' ').
+  sub(/\A.*$/) {|m|
+    m.gsub(/./, ' ') + "\n" + m
+  }.
+  sub(/^.*\Z/) {|m|
+    m + "\n" + m.gsub(/./, ' ')
+  }.
+  gsub(' ', black).
+  gsub('x', white)
 
 exit(0)
 
