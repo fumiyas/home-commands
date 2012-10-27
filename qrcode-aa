@@ -1,4 +1,10 @@
 #!/usr/bin/env ruby
+##
+## Print QR Code by ASCII-Art
+## Copyright (c) 2012 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: GNU General Public License version 3
+##
 
 require "rqrcode"
 
