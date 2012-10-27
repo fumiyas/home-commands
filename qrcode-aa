@@ -7,7 +7,7 @@ if ARGV.size != 1
   exit(1)
 end
 
-qrc = RQRCode::QRCode.new(ARGV[0])
+qrc = RQRCode::QRCode.new(ARGV[0] == '-' ? $stdin.readline.chomp : ARGV[0])
 black = `tput setab 7` + '  ' + `tput sgr0`
 white = `tput setab 0` + '  ' + `tput sgr0`
 puts qrc.
