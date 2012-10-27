@@ -14,8 +14,9 @@ if ARGV.size != 1
 end
 
 qrc = RQRCode::QRCode.new(ARGV[0] == '-' ? $stdin.readline.chomp : ARGV[0])
-black = `tput setab 7` + '  ' + `tput sgr0`
-white = `tput setab 0` + '  ' + `tput sgr0`
+t_reset = `tput sgr0`
+t_white = `tput setab 7` + '  ' + t_reset
+t_black = `tput setab 0` + '  ' + t_reset
 puts qrc.
   to_s.
   gsub(/(^|$)/, ' ').
@@ -25,8 +26,8 @@ puts qrc.
   sub(/^.*\Z/) {|m|
     m + "\n" + m.gsub(/./, ' ')
   }.
-  gsub(' ', black).
-  gsub('x', white)
+  gsub(' ', t_white).
+  gsub('x', t_black)
 
 exit(0)
 
