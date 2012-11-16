@@ -1,0 +1,48 @@
+#!/bin/sh
+##
+## Solaris pwait(1) clone for Linux
+## Copyright (c) 2012 SATOH Fumiyasu @ OSS Technology Corp, Japan
+##
+## License: GNU General Public License version 3
+##
+
+perr()
+{
+  echo "$0: ERROR: $1" 1>&1
+}
+
+if [ "${1-}" = "-v" ]; then
+  verbose="set"
+  shift
+fi
+
+if [ $# -eq 0 ]; then
+  echo "Usage: $0 [-v] PID ..."
+  exit 1
+fi
+
+if type inotifywait >/dev/null 2>&1; then
+  inotifywait="set"
+fi
+
+for pid in "$@"; do
+  if ! cd "/proc/$pid" 2>/dev/null; then
+    perr "No such process: $pid"
+    continue
+  fi
+
+  while :; do
+    if [ -n "$inotifywait" ]; then
+      inotifywait --quiet --event close_nowrite exe >/dev/null || sleep 5
+    else
+      sleep 5
+    fi
+    if ! cd . 2>/dev/null; then
+      [ -n "$verbose" ] && echo "$pid: terminated"
+      exit 0
+    fi
+  done &
+done
+
+wait
+
