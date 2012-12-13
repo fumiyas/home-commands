@@ -1,14 +1,14 @@
 #!/bin/sh
 ##
 ## Solaris pwait(1) clone for Linux
-## Copyright (c) 2012 SATOH Fumiyasu @ OSS Technology Corp, Japan
+## Copyright (c) 2012 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##
 ## License: GNU General Public License version 3
 ##
 
 perr()
 {
-  echo "$0: ERROR: $1" 1>&1
+  echo "$0: ERROR: $1" 1>&2
 }
 
 if [ "${1-}" = "-v" ]; then
