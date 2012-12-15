@@ -1,0 +1,95 @@
+#!/usr/bin/perl
+##
+## ifne: Run a command if the standard input is not empty
+##       (a clone of moreutils ifne(1) command)
+## Copyright (c) 2011 SATOH Fumiyasu @ OSS Technology Corp.
+##               <http://www.OSSTech.co.jp/>
+##
+## License: GNU General Public License version 3
+## Date: 2011-02-09, since 2011-02-09
+##
+
+use strict;
+use warnings;
+use IO::File;
+
+use constant TRUE => 1;
+use constant FALSE => 0;
+
+sub perr {
+  print STDERR "$0: ERROR: $_[0]\n";
+}
+
+sub pdie {
+  perr($_[0]);
+  exit(defined($_[1]) ? $_[1] : 1);
+}
+
+## ======================================================================
+
+my $run_if_empty = FALSE;
+my $io_size = $ENV{'IFNE_IO_SIZE'} || 8192;
+my $cmd_usage = "Usage: $0 [-n] COMMAND [ARG ...]\n";
+
+if (defined($ARGV[0]) && $ARGV[0] eq '-n') {
+  $run_if_empty = TRUE;
+  shift(@ARGV);
+}
+
+if (@ARGV == 0) {
+  die $cmd_usage;
+}
+
+my $in = undef;
+my $in_len = STDIN->read($in, $io_size);
+
+if (!defined($in_len)) {
+  pdie "Read from STDIN failed: $!";
+}
+
+if ($in_len == 0 && !$run_if_empty) {
+  ## No run if STDIN is empty
+  exit(0);
+}
+
+my $pid = undef;
+if ($in_len > 0 && $run_if_empty) {
+  ## No run if STDIN is NOT empty
+}
+else {
+  ## Run if STDIN is NOT empty
+  ##  or
+  ## Run if STDIN is empty
+  $pid = open STDOUT, '|-';
+  if (!defined($pid)) {
+    pdie "Cannot fork child process: $!";
+  }
+
+  if ($pid == 0) {
+    {
+      ## Why `local $SIG{__WARN__} = 'IGNORE';` does NOT effect?;
+      local $SIG{__WARN__} = sub {};
+      exec { $ARGV[0] } @ARGV;
+    }
+    pdie "Cannot execute command: $ARGV[0]: $!";
+  }
+}
+
+while ($in_len > 0) {
+  if (!STDOUT->print($in)) {
+    pdie "Write to command process failed: $!";
+  }
+
+  $in_len = STDIN->read($in, $io_size);
+  if (!defined($in_len)) {
+    pdie "Read from STDIN failed: $!";
+  }
+}
+
+if ($pid) {
+  STDOUT->close;
+  exit($? >> 8);
+}
+
+exit(0);
+
