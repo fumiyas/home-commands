@@ -8,6 +8,11 @@
 
 set -u
 
+if [ X"`id |sed 's/).*//;s/.*(//'`" != X"root" ]; then
+  exec sudo -u root "$0" ${1+"$@"}
+  exit 1
+fi
+
 if="${1-wlan0}"; shift
 
 iwlist  "$if" scan \
