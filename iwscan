@@ -22,6 +22,9 @@ iwlist  "$if" scan \
     FS = "\t"
   }
   info["Channel"] > 0 && ($1 == "Cell" || $1 == "") {
+    if (info["Encryption"] == "?") {
+      info["Encryption"] =  "WEP?"
+  }
     printf "%3d %-5s %-8s %-40s %s\n",
       info["Channel"],
       info["Quality"],
@@ -40,10 +43,14 @@ iwlist  "$if" scan \
     }
   }
   $1 == "Encryption key" && $2 == "on" {
-    info["Encryption"] = "WEP?"
+    info["Encryption"] = "?"
   }
   $1 == "IE" && $2 ~ /WPA/ {
-    info["Encryption"] = $2
+    enc = $2
+    sub(/^IEEE 802\.11i\//, "", enc)
+    sub(/ Version /, " v", enc)
+    info["Encryption"] = (info["Encryption"] == "?") ?  "" : info["Encryption"] ","
+    info["Encryption"] = info["Encryption"] enc
   }
 ' \
 |sort -n \
