@@ -16,20 +16,31 @@ fi
 if="${1-wlan0}"; shift
 
 iwlist  "$if" scan \
-|sed 's/^\( *Cell\) \([0-9]*\) - /\1\t\2\n/;s/^ *\([^:=]*\)[:=]/\1\t/' \
+|sed 's/^\( *Cell\) \([0-9]*\) - /\1\t\2\n/;s/^ *\([^:=]*\)[:=] */\1\t/' \
 |awk '
   BEGIN {
     FS = "\t"
   }
   info["Channel"] > 0 && ($1 == "Cell" || $1 == "") {
-    printf "%2d %-5s %-8s %-40s %s\n", info["Channel"], info["Quality"], info["Mode"], info["ESSID"], info["Encryption"]
+    printf "%3d %-5s %-8s %-40s %s\n",
+      info["Channel"],
+      info["Quality"],
+      info["Mode"],
+      info["ESSID"],
+      info["Encryption"],
+      ""
+      ;
     delete info
+    info["Encryption"] = "-"
   }
   {
     info[$1] = $2
     if ($1 == "Quality") {
       sub(/ .*/, "", info[$1])
     }
+  }
+  $1 == "Encryption key" && $2 == "on" {
+    info["Encryption"] = "WEP?"
   }
   $1 == "IE" && $2 ~ /WPA/ {
     info["Encryption"] = $2
