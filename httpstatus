@@ -1,0 +1,122 @@
+#!/bin/bash
+## or
+#!/bin/ksh
+#!/bin/zsh
+##
+## httpstatus.sh で、HTTP のステータスコードをすばやくしらべる!
+##      by SATOH Fumiyasu @ OSS Technology Corp., Japan
+##         <https://GitHub.com/fumiyas/>
+##         <https://twitter.com/satoh_fumiyasu>
+##
+## 一般的な Web Programmer ならば、HTTP Status code はすべて
+## 暗記していると聞きました。
+##
+## しかし、僕は初心者なので、なかなか覚えきれていないので、
+## HTTPのステータスコードをさがすのに便利なツールを用意しました。
+## httpstatus.sh です。インストール方法は適当なディレクトリに
+## 放り込んで chmod +x してください。
+##
+## 今日の参考文献:
+##      http://blog.64p.org/entry/2013/02/21/121830
+##
+## 類似品:
+##      http://mattn.kaoriya.net/software/vim/20130221123856.htm
+##      http://yuroyoro.hatenablog.com/entry/2013/02/21/144004
+##      http://d.hatena.ne.jp/hasegawayosuke/20130221/p1
+##      http://blog.yappo.jp/yappo/archives/000805.html
+
+## For zsh
+builtin emulate -R ksh 2>/dev/null
+
+set -u
+
+httpstatus="\
+100 Continue
+101 Switching Protocols
+102 Processing
+200 OK
+201 Created
+202 Accepted
+203 Non-Authoritative Information
+204 No Content
+205 Reset Content
+206 Partial Content
+207 Multi-Status
+208 Already Reported
+300 Multiple Choices
+301 Moved Permanently
+302 Found
+303 See Other
+304 Not Modified
+305 Use Proxy
+307 Temporary Redirect
+400 Bad Request
+401 Unauthorized
+402 Payment Required
+403 Forbidden
+404 Not Found
+405 Method Not Allowed
+406 Not Acceptable
+407 Proxy Authentication Required
+408 Request Timeout
+409 Conflict
+410 Gone
+411 Length Required
+412 Precondition Failed
+413 Request Entity Too Large
+414 Request-URI Too Large
+415 Unsupported Media Type
+416 Request Range Not Satisfiable
+417 Expectation Failed
+418 I'm a teapot
+422 Unprocessable Entity
+423 Locked
+424 Failed Dependency
+425 No code
+426 Upgrade Required
+428 Precondition Required
+429 Too Many Requests
+431 Request Header Fields Too Large
+449 Retry with
+500 Internal Server Error
+501 Not Implemented
+502 Bad Gateway
+503 Service Unavailable
+504 Gateway Timeout
+505 HTTP Version Not Supported
+506 Variant Also Negotiates
+507 Insufficient Storage
+509 Bandwidth Limit Exceeded
+510 Not Extended
+511 Network Authentication Required
+"
+
+if [ $# -eq 0 ]; then
+  echo "$httpstatus"
+else
+  key_in="$*"
+  case "$key_in" in
+  [1-5][0-9][0-9])
+    key="$key_in *"
+    ;;
+  [1-5][0-9]|[1-5])
+    key="$key_in*"
+    ;;
+  *)
+    typeset -l key
+    key="*$key_in*"
+    ;;
+  esac
+
+  typeset -l line_lc
+
+  echo "$httpstatus" \
+  |while read line; do
+    line_lc="$line"
+    case "$line_lc" in
+    $key)
+      echo "$line"
+      ;;
+    esac
+  done
+fi
