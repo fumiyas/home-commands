@@ -1,19 +1,16 @@
 #!/usr/bin/env ruby
 ##
 ## Print QR Code by ASCII-Art
-## Copyright (c) 2012 SATOH Fumiyasu @ OSS Technology Corp., Japan
+## Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##
 ## License: GNU General Public License version 3
 ##
 
+## TODO: Print QR Code in sixel image
+
 require "rqrcode"
 
-if ARGV.size != 1
-  puts "Usage: #{$PROGRAM_NAME} TEXT"
-  exit(1)
-end
-
-qrc = RQRCode::QRCode.new(ARGV[0] == '-' ? $stdin.readline.chomp : ARGV[0])
+qrc = RQRCode::QRCode.new(ARGV.size == 0 ? $stdin.readline.chomp : ARGV[0])
 t_reset = `tput sgr0`
 t_white = `tput setab 7` + '  ' + t_reset
 t_black = `tput setab 0` + '  ' + t_reset
