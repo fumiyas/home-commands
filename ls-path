@@ -1,16 +1,34 @@
 #!/bin/ksh
+##
+## List specified files and all parent directories
+## Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: GNU General Public License version 3
+##
 
-for f in "$@"; do
-  if [[ -z "${f##-*}" ]]; then
-    echo "$f"
-    continue
+set -u
+
+if ! type tac >/dev/null 2>&1; then
+  tac() { tail -r "$@"; }
+fi
+
+typeset -a opts
+while [ $# -gt 0 ]; do
+  if [[ -n "${1##-*}" ]]; then
+    break
   fi
+  opts=("${opts[@]}" "$1")
+  shift
+done
+
+for fname in "$@"; do
   while :; do
-    echo "${f:-/}"
-    d="${f%/*}"
-    [[ "$d" = "$f" ]] && break
-    f="$d"
-  done
+    echo "${fname:-/}"
+    d="${fname%/*}"
+    [[ "$d" = "$fname" ]] && break
+    fname="$d"
+  done \
+  |tac
 done \
-|xargs ls -d
+|xargs ls -d "${opts[@]}" --
 
