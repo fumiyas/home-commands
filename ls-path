@@ -14,9 +14,7 @@ fi
 
 typeset -a opts
 while [ $# -gt 0 ]; do
-  if [[ -n "${1##-*}" ]]; then
-    break
-  fi
+  [[ -n "${1##-*}" ]] && break
   opts=("${opts[@]}" "$1")
   shift
 done
@@ -24,9 +22,9 @@ done
 for fname in "$@"; do
   while :; do
     echo "${fname:-/}"
-    d="${fname%/*}"
-    [[ "$d" = "$fname" ]] && break
-    fname="$d"
+    dname="${fname%/*}"
+    [[ "$dname" = "$fname" ]] && break
+    fname="$dname"
   done \
   |tac
 done \
