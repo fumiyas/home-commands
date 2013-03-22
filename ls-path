@@ -8,25 +8,43 @@
 
 set -u
 
-if ! type tac >/dev/null 2>&1; then
-  tac() { tail -r "$@"; }
-fi
-
 typeset -a opts
-while [ $# -gt 0 ]; do
+while [[ $# -gt 0 ]]; do
   [[ -n "${1##-*}" ]] && break
   opts=("${opts[@]}" "$1")
   shift
 done
 
 for fname in "$@"; do
+  if [[ -n "${fname##/*}" ]]; then
+    ## Convert a relative path to an absolute path
+    fname="${cwd=`pwd`}/$fname"
+    ## "/path/to/." -> "/path/to/./"
+    fname="${fname/%\/.//./}"
+    ## "/path/./to/./dir" -> "/path/to/dir"
+    fname="${fname//\/.\///}"
+    ## "/path/to/.." -> "/path/to/../"
+    fname="${fname/%\/..//../}"
+    while :; do
+      ## "/path/to/../dir" -> "/path/to"
+      fname_left="${fname%%/../*}"
+      [[ "$fname_left" = "$fname" ]] && break
+      ## "/path/to/../dir" -> "dir"
+      fname_right="${fname#*/../}"
+      ## -> "/path/dir"
+      fname="${fname_left%/*}/$fname_right"
+    done
+  fi
+  ## "/path/to/dir/" -> "/path/to/dir"
+  fname="${fname%/}"
+
   while :; do
     echo "${fname:-/}"
-    dname="${fname%/*}"
-    [[ "$dname" = "$fname" ]] && break
-    fname="$dname"
-  done \
-  |tac
+    fname_tmp="${fname%/*}"
+    [[ "$fname_tmp" = "$fname" ]] && break
+    fname="$fname_tmp"
+  done
 done \
+|sort -u \
 |xargs ls -d "${opts[@]}" --
 
