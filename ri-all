@@ -1,12 +1,15 @@
 #!/bin/sh
 ##
 ## Ruby ri: Displays Ruby classes and modules information with ALL methods
-## Copyright (c) 2011 SATOH Fumiyasu @ OSS Technology, Corp.
+## Copyright (c) 2011-2013 SATOH Fumiyasu @ OSS Technology, Corp.
 ## License: You can redistribute it and/or modify it under the same term as Ruby.
 ##
 
+set -u
+
 ri_cmd="ri"
-pager_cmd="${PAGER-more}"
+pager_cmd="${RI_PAGER-}"
+[ -z "$pager_cmd" ] && pager_cmd="${PAGER-more}"
 
 index=`"$ri_cmd" --no-pager ${1+"$@"}`
 index_ret="$?"
