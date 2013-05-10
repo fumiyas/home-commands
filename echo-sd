@@ -82,7 +82,7 @@ fi
 script="${1-突然の死}"
 
 if [[ -z ${vertical-} ]]; then
-  template="${script//[ -~]/ }"
+  template="${script//[ -~｡-ﾟ]/ }"
   template="${template//[! ]/  }"
 
   header="＿人${template//  /人}人＿"
