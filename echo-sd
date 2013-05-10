@@ -24,6 +24,7 @@
 ##   $ wget -q https://raw.github.com/fumiyas/home-commands/master/echo-sd
 ##   $ chmod +x echo-sd
 ##   $ export PATH="$HOME/bin:$PATH"
+##   $ alias echo=echo-sd
 ##
 ## Examples:
 ##
