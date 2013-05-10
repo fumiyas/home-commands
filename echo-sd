@@ -118,7 +118,7 @@ else
     if [[ -z ${map[$letter]-} ]]; then
       template2="${template#?}"
       ten="${script%$template2}"
-      if [[ $ten == @(ﾞ|ﾟ|\!|\?) ]]; then
+      if [[ $ten == @(ﾞ|ﾟ) ]] || [[ $letter == @(\!|\?) ]] && [[ $ten == @(\!|\?) ]]; then
 	letter="  $letter$ten "
 	template="${template#?}"
 	script="${script#?}"
