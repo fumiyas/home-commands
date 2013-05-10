@@ -114,20 +114,20 @@ function SD_echo_vertical {
   typeset script template header footer letter
 
   script="${1-突然の死}"
-  template="${script//./?}"
+  trailer="$script"
 
   echo "＿人人人＿"
   while [[ -n $script ]]; do
-    template="${template#?}"
-    letter="${script%$template}"
+    trailer="${trailer#?}"
+    letter="${script%$trailer}"
     script="${script#?}"
 
     if [[ -z ${SD_map[$letter]-} ]]; then
-      typeset template2="${template#?}"
-      typeset next="${script%$template2}"
+      typeset trailer2="${trailer#?}"
+      typeset next="${script%$trailer2}"
       if [[ $next == @(ﾞ|ﾟ) ]] || [[ $letter$next == @([\!|\?][\!|\?]) ]]; then
 	letter="  $letter$next "
-	template="${template#?}"
+	trailer="$trailer2"
 	script="${script#?}"
       else
 	letter="  $letter  "
