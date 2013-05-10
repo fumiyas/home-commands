@@ -59,6 +59,10 @@ typeset SD_lang_orig SD_lang
 typeset -A SD_map
 
 function _SD_init {
+  if [[ -n ${ZSH_NAME-} ]]; then
+    setopt KSH_GLOB
+  fi
+
   typeset lang_ja lang
 
   SD_lang_orig="${LANG-}"
