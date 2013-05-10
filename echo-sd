@@ -74,12 +74,23 @@ if [[ -z ${vertical-} ]]; then
   echo "＞　${script}　＜"
   echo "${footer/ /}"
 else
+  typeset -A map
+  map['。']='  。'
+  map['、']='  、'
+  map['ー']=' ｜ '
+  map['…']=' ︙ '
+  map['‥']=' ︰ '
+  map['「']='  ┐'
+  map['」']='└  '
+
   script="　${script}　"
   template="${script//./?}"
   echo "＿人人人＿"
   while [[ -n $script ]]; do
     template="${template#?}"
-    echo "＞　${script%$template}　＜"
+    letter="${script%$template}"
+    letter=" ${map[$letter]- $letter } "
+    echo "＞${letter//  /　}＜"
     script="${script#?}"
   done
   echo "￣Y^Y^Y^￣"
