@@ -61,6 +61,7 @@ typeset -A SD_map
 function _SD_init {
   if [[ -n ${ZSH_NAME-} ]]; then
     setopt KSH_GLOB
+    setopt KSH_ARRAYS
   fi
 
   typeset lang_ja lang
@@ -112,6 +113,10 @@ function _SD_fill_string_by_char {
   echo "$str"
 }
 
+function _SD_pad_space {
+  printf "%${1}s" ''
+}
+
 function _SD_string_width {
   typeset str
   str=$(_SD_fill_string_by_char "$1" ' ')
@@ -119,10 +124,20 @@ function _SD_string_width {
   echo "${#str}"
 }
 
+function _SD_echo_with_padding
+{
+  typeset str width
+  str="$1"; shift
+  width="$1"; shift
+
+  echo "${str}$(_SD_pad_space "$((width-$(_SD_string_width "${1-$str}")))")"
+}
+
 function SD_echo_horizontal {
   export LANG="$SD_lang"
 
-  typeset script script_tmp width=0 width_tmp
+  typeset script width width_tmp
+  width=0
   for script in ${1+"$@"}; do
     width_tmp=$(_SD_string_width "$script")
     if [[ $width_tmp -gt $width ]]; then
@@ -131,15 +146,14 @@ function SD_echo_horizontal {
   done
 
   typeset template header footer
-  template=$(printf "%${width}s" '')
+  template=$(_SD_pad_space "$width")
   header="＿人${template//  /人}人＿"
   footer="￣Y^${template//  /Y^}Y￣"
 
   echo "${header/ /}"
   typeset line
   for script in ${1+"$@"}; do
-    width_tmp=$(_SD_string_width "$script")
-    line="＞　${script}$(printf "%$((width-width_tmp))s")　＜"
+    line="＞　$(_SD_echo_with_padding "${script}" "$width")　＜"
     echo "${line//  /　}"
   done
   echo "${footer/ /}"
@@ -149,33 +163,61 @@ function SD_echo_horizontal {
 
 function SD_echo_vertical {
   export LANG="$SD_lang"
-  typeset script trailer trailer2 letter next
+  typeset script script_n trailer trailer2 letter letter_width next
+  typeset line line_n pad_n
+  typeset -a lines
 
-  script="　${1-突然の死}　"
-  trailer="$script"
+  ## FIXME: 5 for ASCII and JIS X 0201
+  letter_width=6
 
-  echo "＿人人人＿"
-  while [[ -n $script ]]; do
-    trailer="${trailer#?}"
-    letter="${script%$trailer}"
-    script="${script#?}"
+  script_n=0
+  for script in ${1+"$@"}; do
+    line_n=0
+    trailer="$script"
 
-    if [[ -z ${SD_map[$letter]-} ]]; then
-      trailer2="${trailer#?}"
-      next="${script%$trailer2}"
-      if [[ $next == @(ﾞ|ﾟ) ]] || [[ $letter$next == @([\?!][\?!]) ]]; then
-	letter="  $letter$next "
-	trailer="$trailer2"
-	script="${script#?}"
+    while [[ -n $script ]]; do
+      trailer="${trailer#?}"
+      letter="${script%$trailer}"
+      script="${script#?}"
+      if [[ -z ${SD_map[$letter]-} ]]; then
+	trailer2="${trailer#?}"
+	next="${script%$trailer2}"
+	if [[ $next == @(ﾞ|ﾟ) ]] || [[ $letter$next == @([\?!][\?!]) ]]; then
+	  line="  $letter$next "
+	  trailer="$trailer2"
+	  script="${script#?}"
+	else
+	  line="  ${letter}  "
+	fi
       else
-	letter="  ${letter}  "
+	line="${SD_map[$letter]}"
       fi
-    else
-      letter="${SD_map[$letter]}"
-    fi
-    echo "＞${letter//  /　}＜"
+
+      if [[ -z ${lines[$line_n]-} ]]; then
+	lines[$line_n]="$(_SD_pad_space $((script_n * $letter_width)))"
+      fi
+      lines[$line_n]="${line}${lines[$line_n]-}"
+      let line_n+=1
+    done
+
+    while [[ $line_n -lt ${#lines[@]} ]]; do
+      lines[$line_n]="$(_SD_pad_space $letter_width)${lines[$line_n]}"
+      let line_n+=1
+    done
+
+    let script_n+=1
   done
-  echo "￣Y^Y^Y￣"
+
+  typeset template header footer
+  template=$(_SD_pad_space $(((script_n - 1) * $letter_width)))
+  header="＿人${template//  /人}人＿"
+  footer="￣Y^${template//  /Y^}Y￣"
+
+  echo "${header/ /}"
+  for line in "${lines[@]}"; do
+    echo "＞${line//  /　}＜"
+  done
+  echo "${footer/ /}"
 
   export LANG="$SD_lang_orig"
 }
