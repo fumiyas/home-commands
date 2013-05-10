@@ -5,9 +5,8 @@
 #!/bin/zsh
 ## -*- encoding: utf-8 -*-
 ##
-## Echo "sudden death" message
 ## ＿人人人人人人＿
-## ＞　突然の死　＜ ジェネレーター
+## ＞　突然の死　＜ ジェネレーター (Echo "sudden death" message)
 ## ￣Y^Y^Y^Y^Y￣
 ## Copyright (C) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##               <https://github.com/fumiyas/home-commands/blob/master/echo-sd>
