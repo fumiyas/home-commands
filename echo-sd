@@ -7,7 +7,7 @@
 ##
 ## ＿人人人人人人＿
 ## ＞　突然の死　＜ ジェネレーター (Echo "sudden death" message)
-## ￣Y^Y^Y^Y^Y￣
+## ￣Y^Y^Y^Y^Y^Y￣
 ## Copyright (C) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##               <https://github.com/fumiyas/home-commands/blob/master/echo-sd>
 ##               <https://twitter.com/satoh_fumiyasu>
@@ -29,13 +29,13 @@
 ## Examples:
 ##
 ##   $ echo-sd
-##   ＿人人人人人人＿
+##    ＿人人人人人人＿
 ##   ＞　突然の死　＜
-##   ￣Y^Y^Y^Y^Y^Y^￣
+##   ￣Y^Y^Y^Y^Y^Y￣
 ##   $ echo-sd ぬるぽっ！!
 ##   ＿人人人人人人人人＿
 ##   ＞　ぬるぽっ！！　＜
-##   ￣Y^Y^Y^Y^Y^YY^^Y^￣
+##   ￣Y^Y^Y^Y^Y^YY^^Y￣
 ##   $ echo-sd -v ガッ！
 ##   ＿人人人＿
 ##   ＞　　　＜
@@ -43,7 +43,7 @@
 ##   ＞　ッ　＜
 ##   ＞　！　＜
 ##   ＞　　　＜
-##   ￣Y^Y^Y^￣
+##   ￣Y^Y^Y￣
 ##
 ## TODO:
 ##
@@ -86,7 +86,7 @@ if [[ -z ${vertical-} ]]; then
   template="${template//[! ]/  }"
 
   header="＿人${template//  /人}人＿"
-  footer="￣Y^${template//  /Y^}Y^￣"
+  footer="￣Y^${template//  /Y^}Y￣"
 
   echo "${header/ /}"
   echo "＞　${script}　＜"
@@ -130,7 +130,7 @@ else
     fi
     echo "＞${letter//  /　}＜"
   done
-  echo "￣Y^Y^Y^￣"
+  echo "￣Y^Y^Y￣"
 fi
 
 exit 0
