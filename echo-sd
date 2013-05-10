@@ -88,12 +88,10 @@ function SD_echo_horizontal {
   export LANG="$SD_lang"
   typeset script template header footer
 
-  script="$1"
-
+  script="${1-突然の死}"
   template="${script//[ -~｡-ﾟ]/ }"
   template="${script//[ -~¢£¥¦¬¯｡-ﾟ]/ }"
   template="${template//[! ]/  }"
-
   header="＿人${template//  /人}人＿"
   footer="￣Y^${template//  /Y^}Y￣"
 
@@ -108,8 +106,9 @@ function SD_echo_vertical {
   export LANG="$SD_lang"
   typeset script template header footer letter
 
-  script="　${1}　"
+  script="${1-突然の死}"
   template="${script//./?}"
+
   echo "＿人人人＿"
   while [[ -n $script ]]; do
     template="${template#?}"
@@ -148,10 +147,6 @@ function SD_echo_main
   if [[ ${1-} = -v ]]; then
     vertical="set"
     shift
-  fi
-
-  if [[ $# -eq 0 ]]; then
-    set -- '突然の死'
   fi
 
   if [[ -z ${vertical-} ]]; then
