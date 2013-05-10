@@ -56,7 +56,7 @@
 set -u
 
 typeset SD_lang_orig SD_lang
-typeset -A SD_map
+typeset -A SD_v_map
 
 function _SD_init {
   if [[ -n ${ZSH_NAME-} ]]; then
@@ -83,23 +83,23 @@ function _SD_init {
   SD_lang="${lang_ja-${lang-ja_JP.UTF-8}}"
 
   if [[ -n ${ZSH_NAME-} ]]; then
-    SD_map=()
+    SD_v_map=()
   else
-    SD_map=
+    SD_v_map=
   fi
-  SD_map[。]='   。 '
-  SD_map[、]='   、 '
-  SD_map[ー]='  ｜  '
-  SD_map[…]='  ︙  '
-  SD_map[‥]='  ︰  '
-  SD_map[「]='    ┐'
-  SD_map[」]='└    '
-  SD_map[｢]='   ┐ '
-  SD_map[｣]='└    '
-  SD_map[-]='  |   '
-  SD_map[ｰ]='  |   '
-  SD_map[,]="   '  "
-  SD_map[､]='   `  '
+  SD_v_map[。]='   。 '
+  SD_v_map[、]='   、 '
+  SD_v_map[ー]='  ｜  '
+  SD_v_map[…]='  ︙  '
+  SD_v_map[‥]='  ︰  '
+  SD_v_map[「]='    ┐'
+  SD_v_map[」]='└    '
+  SD_v_map[｢]='   ┐ '
+  SD_v_map[｣]='└    '
+  SD_v_map[-]='  |   '
+  SD_v_map[ｰ]='  |   '
+  SD_v_map[,]="   '  "
+  SD_v_map[､]='   `  '
 }
 
 function _SD_fill_string_by_char {
@@ -178,7 +178,9 @@ function SD_echo_vertical {
       trailer="${trailer#?}"
       letter="${script%$trailer}"
       script="${script#?}"
-      if [[ -z ${SD_map[$letter]-} ]]; then
+      if [[ -n ${SD_v_map[$letter]-} ]]; then
+	line="${SD_v_map[$letter]}"
+      else
 	trailer2="${trailer#?}"
 	next="${script%$trailer2}"
 	if [[ $next == @(ﾞ|ﾟ) ]] || [[ $letter$next == @([\?!][\?!]) ]]; then
@@ -188,8 +190,6 @@ function SD_echo_vertical {
 	else
 	  line="  ${letter}  "
 	fi
-      else
-	line="${SD_map[$letter]}"
       fi
 
       if [[ -z ${lines[$line_n]-} ]]; then
