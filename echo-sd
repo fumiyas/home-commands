@@ -121,10 +121,6 @@ function SD_echo_horizontal {
   header="＿人${template//  /人}人＿"
   footer="￣Y^${template//  /Y^}Y￣"
 
-  if [[ $# -ge 2 ]]; then
-    set -- '' "$@" ''
-  fi
-
   echo "${header/ /}"
   typeset line
   for script in ${1+"$@"}; do
