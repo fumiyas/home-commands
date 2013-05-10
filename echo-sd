@@ -15,6 +15,8 @@
 ##
 ## License: GNU General Public License version 3
 ##
+## Requirements: bash 4.0+, ksh93+ or zsh 4.3+
+##
 ## How to install:
 ##
 ##   $ mkdir -p $HOME/bin
