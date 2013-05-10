@@ -1,5 +1,5 @@
 #!/bin/bash
-## -*- encoding: utf-8 -*- vim: tabstop=8
+## -*- encoding: utf-8 -*- vim:tabstop=8:shiftwidth=2
 ##
 ## ＿人人人人人人＿
 ## ＞　突然の死　＜ ジェネレーター (Echo "sudden death" message)
