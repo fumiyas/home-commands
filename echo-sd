@@ -1,0 +1,32 @@
+#!/bin/bash
+## or
+#!/bin/ksh
+## or
+#!/bin/zsh
+## -*- encoding: utf-8 -*-
+##
+## ＿人人人人人人＿
+## ＞　突然の死　＜ ジェネレーター
+## ￣Y^Y^Y^Y^Y￣
+## Copyright (C) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+
+set -u
+export LC_ALL="ja_JP.UTF-8"
+
+script="${1-突然の死}"
+
+template="${script//[ -~]/ }"
+template="${template//[! ]/  }"
+
+header="＿人${template//  /人}人＿"
+footer="￣Y^${template//  /Y^}Y^￣"
+
+echo "${header/ /}"
+echo "＞　${script}　＜"
+echo "${footer/ /}"
+
+exit 0
+
