@@ -113,7 +113,7 @@ function SD_echo_vertical {
   export LANG="$SD_lang"
   typeset script template header footer letter
 
-  script="${1-突然の死}"
+  script="　${1-突然の死}　"
   trailer="$script"
 
   echo "＿人人人＿"
