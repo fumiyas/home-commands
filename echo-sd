@@ -118,9 +118,9 @@ function SD_echo_vertical {
 
     if [[ -z ${SD_map[$letter]-} ]]; then
       typeset template2="${template#?}"
-      typeset ten="${script%$template2}"
-      if [[ $ten == @(ﾞ|ﾟ) ]] || [[ $letter == @(\!|\?) ]] && [[ $ten == @(\!|\?) ]]; then
-	letter="  $letter$ten "
+      typeset next="${script%$template2}"
+      if [[ $next == @(ﾞ|ﾟ) ]] || [[ $letter$next == @([\!|\?][\!|\?]) ]]; then
+	letter="  $letter$next "
 	template="${template#?}"
 	script="${script#?}"
       else
