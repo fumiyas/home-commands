@@ -82,19 +82,19 @@ function _SD_init {
   else
     SD_map=
   fi
-  SD_map['。']='   。 '
-  SD_map['、']='   、 '
-  SD_map['ー']='  ｜  '
-  SD_map['…']='  ︙  '
-  SD_map['‥']='  ︰  '
-  SD_map['「']='    ┐'
-  SD_map['」']='└    '
-  SD_map['｢']='   ┐'
-  SD_map['｣']='└   '
-  SD_map['-']='  |  '
-  SD_map['ｰ']='  |  '
-  SD_map[',']="   ' "
-  SD_map['､']='   ` '
+  SD_map[。]='   。 '
+  SD_map[、]='   、 '
+  SD_map[ー]='  ｜  '
+  SD_map[…]='  ︙  '
+  SD_map[‥]='  ︰  '
+  SD_map[「]='    ┐'
+  SD_map[」]='└    '
+  SD_map[｢]='   ┐'
+  SD_map[｣]='└   '
+  SD_map[-]='  |  '
+  SD_map[ｰ]='  |  '
+  SD_map[,]="   ' "
+  SD_map[､]='   ` '
 }
 
 function _SD_fill_string_by_char {
