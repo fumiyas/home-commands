@@ -87,19 +87,51 @@ SD_map['ｰ']='  |  '
 SD_map[',']="   ' "
 SD_map['､']='   ` '
 
+function _SD_fill_string_by_char {
+  typeset str char
+  str="$1"; shift
+  char="$1"; shift
+
+  str="${str//[ -~｡-ﾟ¢£¥¦¬¯]/$char}"
+  str="${str//[! ]/$char$char}"
+
+  echo "$str"
+}
+
+function _SD_string_width {
+  typeset str
+  str=$(_SD_fill_string_by_char "$1" ' ')
+
+  echo "${#str}"
+}
+
 function SD_echo_horizontal {
   export LANG="$SD_lang"
-  typeset script template header footer
 
-  script="${1-突然の死}"
-  template="${script//[ -~｡-ﾟ]/ }"
-  template="${script//[ -~¢£¥¦¬¯｡-ﾟ]/ }"
-  template="${template//[! ]/  }"
+  typeset script script_tmp width=0 width_tmp
+  for script in ${1+"$@"}; do
+    width_tmp=$(_SD_string_width "$script")
+    if [[ $width_tmp -gt $width ]]; then
+      width="$width_tmp"
+    fi
+  done
+
+  typeset template header footer
+  template=$(printf "%${width}s" '')
   header="＿人${template//  /人}人＿"
   footer="￣Y^${template//  /Y^}Y￣"
 
+  if [[ $# -ge 2 ]]; then
+    set -- '' "$@" ''
+  fi
+
   echo "${header/ /}"
-  echo "＞　${script}　＜"
+  typeset line
+  for script in ${1+"$@"}; do
+    width_tmp=$(_SD_string_width "$script")
+    line="＞　${script}$(printf "%$((width-width_tmp))s")　＜"
+    echo "${line//  /　}"
+  done
   echo "${footer/ /}"
 
   export LANG="$SD_lang_orig"
@@ -150,6 +182,10 @@ function SD_echo_main
   if [[ ${1-} = -v ]]; then
     vertical="set"
     shift
+  fi
+
+  if [[ $# -eq 0 ]]; then
+    set -- '突然の死'
   fi
 
   if [[ -z ${vertical-} ]]; then
