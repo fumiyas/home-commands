@@ -52,36 +52,44 @@
 
 set -u
 
-locale="${LC_CTYPE-${LANG-}}"
-if [[ ${locale#*.} != @(UTF-8|utf-8|UTF8|utf8) ]]; then
-  lang="ja_JP.UTF-8"
-  if type locale >/dev/null 2>&1; then
-    while read -r locale; do
-      if [[ ${locale#*.} == @(UTF-8|utf-8|UTF8|utf8) ]]; then
-	if [[ ${locale%.*} == ja_JP ]]; then
-	  lang_ja="$locale"
+SD_lang_orig="${LANG-}"
+if [[ ${SD_lang_orig#*.} != @(UTF-8|utf-8|UTF8|utf8) ]]; then
+  if type SD_locale >/dev/null 2>&1; then
+    while read -r SD_locale; do
+      if [[ ${SD_locale#*.} == @(UTF-8|utf-8|UTF8|utf8) ]]; then
+	if [[ ${SD_locale%.*} == ja_JP ]]; then
+	  SD_lang_ja="$SD_locale"
 	else
-	  lang="$locale"
+	  SD_lang="$SD_locale"
 	fi
       fi
     done < <(locale -a)
   fi
-  export LANG="${lang_ja-$lang}"
 fi
+SD_lang="${SD_lang_ja-${SD_lang-ja_JP.UTF-8}}"
+${SD_lang_ja+unset SD_lang_ja}
 
-if [[ ${1-} = -h ]]; then
-  echo "Usage: echo-sd [-v] [script]"
-  exit 0
-fi
+typeset -A SD_map
+SD_map['。']='   。 '
+SD_map['、']='   、 '
+SD_map['ー']='  ｜  '
+SD_map['…']='  ︙  '
+SD_map['‥']='  ︰  '
+SD_map['「']='    ┐'
+SD_map['」']='└    '
+SD_map['｢']='   ┐'
+SD_map['｣']='└   '
+SD_map['-']='  |  '
+SD_map['ｰ']='  |  '
+SD_map[',']="   ' "
+SD_map['､']='   ` '
 
-if [[ ${1-} = -v ]]; then
-  vertical="set"
-  shift
-fi
+function SD_echo_horizontal {
+  export LANG="$SD_lang"
+  typeset script template header footer
 
-script="${1-突然の死}"
+  script="$1"
 
-if [[ -z ${vertical-} ]]; then
   template="${script//[ -~｡-ﾟ]/ }"
   template="${script//[ -~¢£¥¦¬¯｡-ﾟ]/ }"
   template="${template//[! ]/  }"
@@ -92,23 +100,15 @@ if [[ -z ${vertical-} ]]; then
   echo "${header/ /}"
   echo "＞　${script}　＜"
   echo "${footer/ /}"
-else
-  typeset -A map
-  map['。']='   。 '
-  map['、']='   、 '
-  map['ー']='  ｜  '
-  map['…']='  ︙  '
-  map['‥']='  ︰  '
-  map['「']='    ┐'
-  map['」']='└    '
-  map['｢']='   ┐'
-  map['｣']='└   '
-  map['-']='  |  '
-  map['ｰ']='  |  '
-  map[',']="   ' "
-  map['､']='   ` '
 
-  script="　${script}　"
+  export LANG="$SD_lang_orig"
+}
+
+function SD_echo_vertical {
+  export LANG="$SD_lang"
+  typeset script template header footer letter
+
+  script="　${1}　"
   template="${script//./?}"
   echo "＿人人人＿"
   while [[ -n $script ]]; do
@@ -116,9 +116,9 @@ else
     letter="${script%$template}"
     script="${script#?}"
 
-    if [[ -z ${map[$letter]-} ]]; then
-      template2="${template#?}"
-      ten="${script%$template2}"
+    if [[ -z ${SD_map[$letter]-} ]]; then
+      typeset template2="${template#?}"
+      typeset ten="${script%$template2}"
       if [[ $ten == @(ﾞ|ﾟ) ]] || [[ $letter == @(\!|\?) ]] && [[ $ten == @(\!|\?) ]]; then
 	letter="  $letter$ten "
 	template="${template#?}"
@@ -127,12 +127,44 @@ else
 	letter="  $letter  "
       fi
     else
-      letter="${map[$letter]}"
+      letter="${SD_map[$letter]}"
     fi
     echo "＞${letter//  /　}＜"
   done
   echo "￣Y^Y^Y￣"
+
+  export LANG="$SD_lang_orig"
+}
+
+function SD_echo_main
+{
+  typeset vertical=
+
+  if [[ ${1-} = -h ]]; then
+    echo "Usage: echo-sd [-v] [script]"
+    exit 0
+  fi
+
+  if [[ ${1-} = -v ]]; then
+    vertical="set"
+    shift
+  fi
+
+  if [[ $# -eq 0 ]]; then
+    set -- '突然の死'
+  fi
+
+  if [[ -z ${vertical-} ]]; then
+    SD_echo_horizontal ${1+"$@"}
+  else
+    SD_echo_vertical ${1+"$@"}
+  fi
+}
+
+if [[ ${zsh_eval_context-toplevel} == toplevel ]] && [[ ${0##*/} == echo-sd ]]; then
+  SD_echo_main "$@"
+  exit $?
 fi
 
-exit 0
+return 0
 
