@@ -94,12 +94,12 @@ function _SD_init {
   SD_map[‥]='  ︰  '
   SD_map[「]='    ┐'
   SD_map[」]='└    '
-  SD_map[｢]='   ┐'
-  SD_map[｣]='└   '
-  SD_map[-]='  |  '
-  SD_map[ｰ]='  |  '
-  SD_map[,]="   ' "
-  SD_map[､]='   ` '
+  SD_map[｢]='   ┐ '
+  SD_map[｣]='└    '
+  SD_map[-]='  |   '
+  SD_map[ｰ]='  |   '
+  SD_map[,]="   '  "
+  SD_map[､]='   `  '
 }
 
 function _SD_fill_string_by_char {
@@ -167,7 +167,6 @@ function SD_echo_vertical {
   typeset line line_n pad_n
   typeset -a lines
 
-  ## FIXME: 5 for ASCII and JIS X 0201
   letter_width=6
 
   script_n=0
@@ -196,7 +195,7 @@ function SD_echo_vertical {
       if [[ -z ${lines[$line_n]-} ]]; then
 	lines[$line_n]="$(_SD_pad_space $((script_n * $letter_width)))"
       fi
-      lines[$line_n]="${line}${lines[$line_n]-}"
+      lines[$line_n]="$(_SD_echo_with_padding "${line}" $letter_width)${lines[$line_n]}"
       let line_n+=1
     done
 
