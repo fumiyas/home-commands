@@ -55,37 +55,47 @@
 
 set -u
 
-SD_lang_orig="${LANG-}"
-if [[ ${SD_lang_orig#*.} != @(UTF-8|utf-8|UTF8|utf8) ]]; then
-  if type SD_locale >/dev/null 2>&1; then
-    while read -r SD_locale; do
-      if [[ ${SD_locale#*.} == @(UTF-8|utf-8|UTF8|utf8) ]]; then
-	if [[ ${SD_locale%.*} == ja_JP ]]; then
-	  SD_lang_ja="$SD_locale"
-	else
-	  SD_lang="$SD_locale"
-	fi
-      fi
-    done < <(locale -a)
-  fi
-fi
-SD_lang="${SD_lang_ja-${SD_lang-ja_JP.UTF-8}}"
-${SD_lang_ja+unset SD_lang_ja}
-
+typeset SD_lang_orig SD_lang
 typeset -A SD_map
-SD_map['。']='   。 '
-SD_map['、']='   、 '
-SD_map['ー']='  ｜  '
-SD_map['…']='  ︙  '
-SD_map['‥']='  ︰  '
-SD_map['「']='    ┐'
-SD_map['」']='└    '
-SD_map['｢']='   ┐'
-SD_map['｣']='└   '
-SD_map['-']='  |  '
-SD_map['ｰ']='  |  '
-SD_map[',']="   ' "
-SD_map['､']='   ` '
+
+function _SD_init {
+  typeset lang_ja lang
+
+  SD_lang_orig="${LANG-}"
+  if [[ ${SD_lang_orig#*.} != @(UTF-8|utf-8|UTF8|utf8) ]]; then
+    if type SD_locale >/dev/null 2>&1; then
+      while read -r SD_locale; do
+	if [[ ${SD_locale#*.} == @(UTF-8|utf-8|UTF8|utf8) ]]; then
+	  if [[ ${SD_locale%.*} == ja_JP ]]; then
+	    lang_ja="$SD_locale"
+	  else
+	    lang="$SD_locale"
+	  fi
+	fi
+      done < <(locale -a)
+    fi
+  fi
+  SD_lang="${lang_ja-${lang-ja_JP.UTF-8}}"
+
+  if [[ -n ${ZSH_NAME-} ]]; then
+    SD_map=()
+  else
+    SD_map=
+  fi
+  SD_map['。']='   。 '
+  SD_map['、']='   、 '
+  SD_map['ー']='  ｜  '
+  SD_map['…']='  ︙  '
+  SD_map['‥']='  ︰  '
+  SD_map['「']='    ┐'
+  SD_map['」']='└    '
+  SD_map['｢']='   ┐'
+  SD_map['｣']='└   '
+  SD_map['-']='  |  '
+  SD_map['ｰ']='  |  '
+  SD_map[',']="   ' "
+  SD_map['､']='   ` '
+}
 
 function _SD_fill_string_by_char {
   typeset str char
@@ -149,12 +159,12 @@ function SD_echo_vertical {
     if [[ -z ${SD_map[$letter]-} ]]; then
       typeset trailer2="${trailer#?}"
       typeset next="${script%$trailer2}"
-      if [[ $next == @(ﾞ|ﾟ) ]] || [[ $letter$next == @([\!|\?][\!|\?]) ]]; then
+      if [[ $next == @(ﾞ|ﾟ) ]] || [[ $letter$next == @([\?!][\?!]) ]]; then
 	letter="  $letter$next "
 	trailer="$trailer2"
 	script="${script#?}"
       else
-	letter="  $letter  "
+	letter="  ${letter}  "
       fi
     else
       letter="${SD_map[$letter]}"
@@ -190,6 +200,8 @@ function SD_echo_main
     SD_echo_vertical ${1+"$@"}
   fi
 }
+
+_SD_init
 
 if [[ ${zsh_eval_context-toplevel} == toplevel ]] && [[ ${0##*/} == echo-sd ]]; then
   SD_echo_main "$@"
