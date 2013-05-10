@@ -49,6 +49,13 @@
 ##
 ##   * 縦書きモードでの複数行のセリフ対応
 ##
+## Inspired by:
+##
+##   * 突然の死ジェネレータ - powered by starwing.net, created by @karno.
+##     http://starwing.net/suddenly_death.html
+##   * 突然の死ジェネレータ - 純粋関数空間
+##     http://tanakh.jp/tools/sudden.html
+##
 
 set -u
 
