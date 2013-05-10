@@ -1,9 +1,5 @@
 #!/bin/bash
-## or
-#!/bin/ksh
-## or
-#!/bin/zsh
-## -*- encoding: utf-8 -*-
+## -*- encoding: utf-8 -*- vim: tabstop=8
 ##
 ## ＿人人人人人人＿
 ## ＞　突然の死　＜ ジェネレーター (Echo "sudden death" message)
