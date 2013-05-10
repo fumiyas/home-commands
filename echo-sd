@@ -93,13 +93,19 @@ if [[ -z ${vertical-} ]]; then
   echo "${footer/ /}"
 else
   typeset -A map
-  map['。']='  。'
-  map['、']='  、'
-  map['ー']=' ｜ '
-  map['…']=' ︙ '
-  map['‥']=' ︰ '
-  map['「']='  ┐'
-  map['」']='└  '
+  map['。']='   。 '
+  map['、']='   、 '
+  map['ー']='  ｜  '
+  map['…']='  ︙  '
+  map['‥']='  ︰  '
+  map['「']='    ┐'
+  map['」']='└    '
+  map['｢']='   ┐'
+  map['｣']='└   '
+  map['-']='  |  '
+  map['ｰ']='  |  '
+  map[',']="   ' "
+  map['､']='   ` '
 
   script="　${script}　"
   template="${script//./?}"
@@ -107,9 +113,22 @@ else
   while [[ -n $script ]]; do
     template="${template#?}"
     letter="${script%$template}"
-    letter=" ${map[$letter]- $letter } "
-    echo "＞${letter//  /　}＜"
     script="${script#?}"
+
+    if [[ -z ${map[$letter]-} ]]; then
+      template2="${template#?}"
+      ten="${script%$template2}"
+      if [[ $ten == @(ﾞ|ﾟ|\!|\?) ]]; then
+	letter="  $letter$ten "
+	template="${template#?}"
+	script="${script#?}"
+      else
+	letter="  $letter  "
+      fi
+    else
+      letter="${map[$letter]}"
+    fi
+    echo "＞${letter//  /　}＜"
   done
   echo "￣Y^Y^Y^￣"
 fi
