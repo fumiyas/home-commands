@@ -35,7 +35,6 @@
 ##   ＿人人人人人人人人＿
 ##   ＞　仕事しろ！！　＜
 ##   ￣Y^Y^Y^Y^Y^YY^^Y^￣
-##
 ##   $ echo-sd -v ガッ！
 ##   ＿人人人＿
 ##   ＞　　　＜
@@ -51,7 +50,23 @@
 ##
 
 set -u
-export LC_ALL="ja_JP.UTF-8"
+
+locale="${LC_CTYPE-${LANG-}}"
+if [[ ${locale#*.} != @(UTF-8|utf-8|UTF8|utf8) ]]; then
+  lang="ja_JP.UTF-8"
+  if type locale >/dev/null 2>&1; then
+    while read -r locale; do
+      if [[ ${locale#*.} == @(UTF-8|utf-8|UTF8|utf8) ]]; then
+	if [[ ${locale%.*} == ja_JP ]]; then
+	  lang_ja="$locale"
+	else
+	  lang="$locale"
+	fi
+      fi
+    done < <(locale -a)
+  fi
+  export LANG="${lang_ja-$lang}"
+fi
 
 if [[ ${1-} = -h ]]; then
   echo "Usage: echo-sd [-v] [script]"
