@@ -13,6 +13,25 @@
 ## License: GNU General Public License version 3
 ##
 
+## How to install:
+##
+##   $ mkdir -p $HOME/bin
+##   $ cd $HOME/bin
+##   $ wget -q https://raw.github.com/fumiyas/home-commands/master/echo-sd
+##   $ chmod +x echo-sd
+##   $ export PATH="$HOME/bin:$PATH"
+
+## Examples:
+##
+##   $ echo-sd
+##   ＿人人人人人人＿
+##   ＞　突然の死　＜
+##   ￣Y^Y^Y^Y^Y^Y^￣
+##   $ echo-sd 仕事しろ!
+##   ＿人人人人人人＿
+##   ＞　仕事しろ!　＜
+##   ￣Y^Y^Y^Y^Y^Y^￣
+
 set -u
 export LC_ALL="ja_JP.UTF-8"
 
