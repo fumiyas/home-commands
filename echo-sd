@@ -42,9 +42,18 @@
 ##   ＞　　　＜
 ##   ￣Y^Y^Y^￣
 ##
+## TODO:
+##
+##   * 縦書きモードでも複数行のセリフ対応
+##
 
 set -u
 export LC_ALL="ja_JP.UTF-8"
+
+if [[ ${1-} = -h ]]; then
+  echo "Usage: echo-sd [-v] [script]"
+  exit 0
+fi
 
 if [[ ${1-} = -v ]]; then
   vertical="set"
