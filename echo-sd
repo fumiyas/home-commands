@@ -57,6 +57,9 @@
 set -u
 
 typeset SD_lang_orig SD_lang
+typeset SD_c_tl SD_c_t SD_c_tr
+typeset SD_c_l SD_c_r
+typeset SD_c_bl SD_c_b SD_c_br
 typeset -A SD_v_map
 
 function _SD_init {
@@ -82,6 +85,15 @@ function _SD_init {
     fi
   fi
   SD_lang="${lang_ja-${lang-ja_JP.UTF-8}}"
+
+  SD_c_tl="＿人"
+  SD_c_t="人"
+  SD_c_tr="人＿"
+  SD_c_l="＞"
+  SD_c_r="＜"
+  SD_c_bl="￣Y^"
+  SD_c_b="Y^"
+  SD_c_br="Y￣"
 
   if [[ -n ${ZSH_NAME-} ]]; then
     SD_v_map=()
@@ -148,13 +160,13 @@ function SD_echo_horizontal {
 
   typeset template header footer
   template=$(_SD_pad_space "$width")
-  header="＿人${template//  /人}人＿"
-  footer="￣Y^${template//  /Y^}Y￣"
+  header="${SD_c_tl}${template//  /${SD_c_t}}${SD_c_tr}"
+  footer="${SD_c_bl}${template//  /${SD_c_b}}${SD_c_br}"
 
   echo "${header/ /}"
   typeset line
   for script in ${1+"$@"}; do
-    line="＞　$(_SD_echo_with_padding "${script}" "$width")　＜"
+    line="${SD_c_l}　$(_SD_echo_with_padding "${script}" "$width")　${SD_c_r}"
     echo "${line//  /　}"
   done
   echo "${footer/ /}"
@@ -210,12 +222,12 @@ function SD_echo_vertical {
 
   typeset template header footer
   template=$(_SD_pad_space $(((script_n - 1) * $letter_width)))
-  header="＿人${template//  /人}人＿"
-  footer="￣Y^${template//  /Y^}Y￣"
+  header="${SD_c_tl}${template//  /${SD_c_t}}${SD_c_tr}"
+  footer="${SD_c_bl}${template//  /${SD_c_b}}${SD_c_br}"
 
   echo "${header/ /}"
   for line in "${lines[@]}"; do
-    echo "＞${line//  /　}＜"
+    echo "${SD_c_l}${line//  /　}${SD_c_r}"
   done
   echo "${footer/ /}"
 
