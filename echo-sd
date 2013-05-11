@@ -115,31 +115,31 @@ function _SD_init {
   else
     SD_v_map=
   fi
-  SD_v_map[。]='   。'
-  SD_v_map[、]='   、'
-  SD_v_map[ー]='  ｜ '
-  SD_v_map[…]='  ︙ '
-  SD_v_map[‥]='  ︰ '
-  SD_v_map[（]='  ⏜  '
-  SD_v_map[\(]='  ⏜  '
-  SD_v_map[）]='  ⏝  '
-  SD_v_map[\)]='  ⏝  '
-  SD_v_map[［]='  ⎴  '
-  SD_v_map[\[]='  ⎴  '
-  SD_v_map[］]='  ⎵  '
-  SD_v_map[\]]='  ⎵  '
-  SD_v_map[｛]='  ⏞  '
-  SD_v_map[\{]='  ⏞  '
-  SD_v_map[｝]='  ⏟  '
-  SD_v_map[\}]='  ⏟  '
-  SD_v_map[「]='   ┐'
-  SD_v_map[」]=' └  '
-  SD_v_map[｢]='   ┐'
-  SD_v_map[｣]='└   '
-  SD_v_map[-]='  |  '
-  SD_v_map[ｰ]='  |  '
-  SD_v_map[,]="   ' "
-  SD_v_map[､]='   ` '
+  SD_v_map[。]='  。'
+  SD_v_map[、]='  、'
+  SD_v_map[ー]=' ｜ '
+  SD_v_map[…]=' ︙ '
+  SD_v_map[‥]=' ︰ '
+  SD_v_map[（]=' ⏜  '
+  SD_v_map[\(]=' ⏜  '
+  SD_v_map[）]=' ⏝  '
+  SD_v_map[\)]=' ⏝  '
+  SD_v_map[［]=' ⎴  '
+  SD_v_map[\[]=' ⎴  '
+  SD_v_map[］]=' ⎵  '
+  SD_v_map[\]]=' ⎵  '
+  SD_v_map[｛]=' ⏞  '
+  SD_v_map[\{]=' ⏞  '
+  SD_v_map[｝]=' ⏟  '
+  SD_v_map[\}]=' ⏟  '
+  SD_v_map[「]='  ┐'
+  SD_v_map[」]='└  '
+  SD_v_map[｢]='  ┐'
+  SD_v_map[｣]='└  '
+  SD_v_map[-]=' |  '
+  SD_v_map[ｰ]=' |  '
+  SD_v_map[,]="  ' "
+  SD_v_map[､]='  ` '
 }
 
 function _SD_fill_string_by_char {
@@ -210,7 +210,7 @@ function SD_echo_vertical {
   typeset line line_n pad_n
   typeset -a lines
 
-  letter_width=5
+  letter_width=4
 
   script_n=0
   for script in ${1+"$@"}; do
@@ -227,11 +227,11 @@ function SD_echo_vertical {
 	trailer2="${trailer#?}"
 	next="${script%$trailer2}"
 	if [[ $next == @(ﾞ|ﾟ) ]] || [[ $letter$next == @([\?!][\?!]) ]]; then
-	  line="  $letter$next "
+	  line=" $letter$next "
 	  trailer="$trailer2"
 	  script="${script#?}"
 	else
-	  line="  ${letter} "
+	  line=" ${letter} "
 	fi
       fi
 
