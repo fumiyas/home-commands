@@ -147,7 +147,10 @@ function _SD_fill_string_by_char {
   str="$1"; shift
   char="$1"; shift
 
-  str="${str//[ -~｡-ﾟ¢£¥¦¬¯]/$char}"
+  ## I don't know why bash on ja_JP.UTF-8 locale replaces '︙' (and others?)
+  #str="${str//[ -~｡-ﾟ¢£¥¦¬¯]/$char}"
+  str="${str//[ -~｡-ﾟ¢£¦¬¯]/$char}"
+  str="${str//¥/$char}"
   str="${str//[! ]/$char$char}"
 
   echo "$str"
