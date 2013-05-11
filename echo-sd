@@ -21,6 +21,7 @@
 ##   $ chmod +x echo-sd
 ##   $ export PATH="$HOME/bin:$PATH"
 ##   $ alias echo=echo-sd
+##   $ alias banner=echo-sd
 ##
 ## Examples:
 ##
