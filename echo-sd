@@ -373,8 +373,9 @@ function SD_echo_cgi
 {
   typeset query="${QUERY_STRING-}"
   typeset param value
-  typeset -a scripts
   typeset text vmargin vertical
+  typeset -a prefaces
+  typeset -a scripts
 
   while [[ -n $query ]]; do
     param="${query%%&*}"
@@ -395,10 +396,16 @@ function SD_echo_cgi
 	;;
       esac
       ;;
+    p|prefaces)
+      while IFS= read -r line; do
+	prefaces[${#prefaces[@]}]="${line%}"
+      done < <(echo "$value")
+      ;;
     s|scripts)
       while IFS= read -r line; do
 	scripts[${#scripts[@]}]="${line%}"
       done < <(echo "$value")
+      ;;
     esac
 
     if [[ -n ${query##*&*} ]]; then
@@ -421,6 +428,9 @@ function SD_echo_cgi
   if [[ -n ${text-} ]]; then
     echo 'Content-Type: text/plain; charset=UTF-8'
     echo
+    for preface in ${prefaces[@]+"${prefaces[@]}"}; do
+      echo "$preface"
+    done
     SD_echo_command "$@"
   else
     echo 'Content-Type: text/html; charset=UTF-8'
@@ -450,11 +460,16 @@ function SD_echo_cgi
     echo "[$(_SD_escape_html "$*")]"
     echo '-->'
     echo '<pre>'
+    for preface in ${prefaces[@]+"${prefaces[@]}"}; do
+      _SD_escape_html "$preface"
+    done
     SD_echo_command "$@" |_SD_escape_html
     echo '</pre><hr>'
     _SD_escape_html "$SD_copyright"
     echo '<br>'
     echo "<a href='$(_SD_escape_html "$SD_url")'>$(_SD_escape_html "$SD_url")</a>"
+    echo '<br>'
+    echo "${SD_CGI_FOOTER_HTML-}"
     echo '</body></html>'
   fi
 }
