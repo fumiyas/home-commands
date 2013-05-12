@@ -390,7 +390,7 @@ function SD_echo_cgi
       esac
       ;;
     s|scripts)
-      while read -r line; do
+      while IFS= read -r line; do
 	scripts[${#scripts[@]}]="${line%}"
       done < <(echo "$value")
     esac
@@ -404,6 +404,7 @@ function SD_echo_cgi
   set -- \
     ${vmargin:+-1} \
     ${vertical:+-v} \
+    -- \
     ${scripts[@]+"${scripts[@]}"} \
     ;
 
