@@ -435,10 +435,15 @@ function SD_echo_cgi
   else
     echo 'Content-Type: text/html; charset=UTF-8'
     echo
-    echo '<html>'
-    echo '<head><title>＞　突然の死　＜ ジェネレーター</title></head>'
-    echo '<body><h1>＞　突然の死　＜ ジェネレーター</h1>'
-    echo '<form action="./echo-sd" method="GET">'
+    echo \
+      '<html>' \
+      '<head><title>＞　突然の死　＜ ジェネレーター</title></head>' \
+      '<style type="text/css"><!--' \
+      '.ul { text-decoration:underline; }' \
+      '--></style>' \
+      '<body><h1>＞　突然の死　＜ ジェネレーター</h1>' \
+      '<form action="./echo-sd" method="GET">' \
+      ;
     echo -n '<textarea name="scripts" cols="80" rows="4" tabindex="1">'
     for script in ${scripts[@]+"${scripts[@]}"}; do
       _SD_escape_html "$script"
@@ -446,13 +451,13 @@ function SD_echo_cgi
     echo '</textarea><br>'
     echo '<label>' \
       '<input type="checkbox" name="options" value="vmargin" accesskey="1" ' \
-      "${vmargin-}>上下空白</label>"
+      "${vmargin-}>上下空白(<span class='ul'>1</span>)</label>"
     echo '<label>' \
       '<input type="checkbox" name="options" value="vertical" accesskey="v" ' \
-      "${vertical-}>縦書き</label>"
+      "${vertical-}>縦書き(<span class='ul'>V</span>)</label>"
     echo '<label>' \
       '<input type="checkbox" name="options" value="text" accesskey="t" ' \
-      ">テキスト</label>"
+      ">テキスト(<span class='ul'>T</span>)</label>"
     echo '<br>'
     echo '<input type='submit' value='＞　ジェネレート　＜' tabindex="2"><br>'
     echo '</form>'
