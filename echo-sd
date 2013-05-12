@@ -264,7 +264,7 @@ function SD_echo_vertical {
   export LANG="$SD_lang_orig"
 }
 
-function SD_echo_main
+function SD_echo_command
 {
   typeset opt vmargin vertical
 
@@ -326,10 +326,52 @@ function SD_echo_main
   fi
 }
 
+function _SD_urldecode
+{
+  ## FIXME: Support ksh
+  echo -e "$(echo "$1" |sed 's/+/ /g;s/%\(..\)/\\x\1/g;')"
+}
+
+function SD_echo_cgi
+{
+  typeset query="${QUERY_STRING-}"
+  typeset param value
+
+  typeset -a options
+  typeset -a scripts
+  while [[ -n $query ]]; do
+    param="${query%%&*}"
+    name="$(_SD_urldecode "${param%%=*}")"
+    value="$(_SD_urldecode "${param#*=}")"
+
+    case "$name" in
+    o)
+      options[${#options[@]}]="$value"
+      ;;
+    s)
+      scripts[${#scripts[@]}]="$value"
+      ;;
+    esac
+
+    if [[ -n ${query##*&*} ]]; then
+      break
+    fi
+    query="${query#*&}"
+  done
+
+  echo 'Content-Type: text/plain; charset=UTF-8'
+  echo
+  SD_echo_command ${options+"${options[@]}"} ${scripts+"${scripts[@]}"}
+}
+
 _SD_init
 
 if [[ ${zsh_eval_context-toplevel} == toplevel ]] && [[ ${0##*/} == echo-sd ]]; then
-  SD_echo_main "$@"
+  if [[ ${GATEWAY_INTERFACE-} == @(CGI/*) ]]; then
+    SD_echo_cgi "$@"
+  else
+    SD_echo_command "$@"
+  fi
   exit $?
 fi
 
