@@ -95,7 +95,7 @@ typeset SD_c_bl SD_c_b SD_c_br
 typeset -A SD_v_map
 
 function _SD_init {
-  if [[ -n ${ZSH_NAME-} ]]; then
+  if [[ -n ${ZSH_VERSION-} ]]; then
     setopt KSH_GLOB
     setopt KSH_ARRAYS
   fi
@@ -127,7 +127,7 @@ function _SD_init {
   SD_c_b="Y^"
   SD_c_br="Y￣"
 
-  if [[ -n ${ZSH_NAME-} ]]; then
+  if [[ -n ${ZSH_VERSION-} ]]; then
     SD_v_map=()
   else
     SD_v_map=
@@ -390,10 +390,9 @@ function SD_echo_cgi
       esac
       ;;
     s|scripts)
-      if [[ -n $value ]]; then
-	scripts[${#scripts[@]}]="$value"
-      fi
-      ;;
+      while read -r line; do
+	scripts[${#scripts[@]}]="${line%}"
+      done < <(echo "$value")
     esac
 
     if [[ -n ${query##*&*} ]]; then
@@ -403,8 +402,8 @@ function SD_echo_cgi
   done
 
   set -- \
-    ${vmargin+-1} \
-    ${vertical+-v} \
+    ${vmargin:+-1} \
+    ${vertical:+-v} \
     ${scripts[@]+"${scripts[@]}"} \
     ;
 
@@ -419,15 +418,16 @@ function SD_echo_cgi
     echo '<head><title>＞　突然の死　＜ ジェネレーター</title></head>'
     echo '<body><h1>＞　突然の死　＜ ジェネレーター</h1>'
     echo '<form action="./echo-sd" method="GET">'
-    for n in 0 1 2 3; do
-      script=$(_SD_escape_html "${scripts[$n]-}")
-      echo "<input type='text' name='scripts' value='$script'><br>"
+    echo -n '<textarea name="scripts" cols="80" rows="4" tabindex="1">'
+    for script in ${scripts[@]+"${scripts[@]}"}; do
+      _SD_escape_html "$script"
     done
-    echo "<input type='checkbox' name='options' value='-1' ${vmargin-}>上下空白"
-    echo "<input type='checkbox' name='options' value='-v' ${vertical-}>縦書き"
-    echo "<input type='checkbox' name='options' value='text'>テキスト"
+    echo '</textarea><br>'
+    echo "<input type='checkbox' name='options' value='-1' accesskey='1' ${vmargin-}>上下空白"
+    echo "<input type='checkbox' name='options' value='-v' accesskey='v' ${vertical-}>縦書き"
+    echo "<input type='checkbox' name='options' value='text' accesskey='t'>テキスト"
     echo '<br>'
-    echo '<input type='submit' value='＞　ジェネレート　＜'><br>'
+    echo '<input type='submit' value='＞　ジェネレート　＜' tabindex="2"><br>'
     echo '</form>'
     echo '<!--'
     _SD_escape_html "$*"
