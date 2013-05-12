@@ -361,7 +361,7 @@ function SD_echo_cgi
     value="$(_SD_urldecode "${param#*=}")"
 
     case "$name" in
-    options)
+    o|options)
       case "$value" in
       text)
 	text="checked"
@@ -374,7 +374,7 @@ function SD_echo_cgi
 	;;
       esac
       ;;
-    scripts)
+    s|scripts)
       if [[ -n $value ]]; then
 	scripts[${#scripts[@]}]="$value"
       fi
@@ -430,7 +430,7 @@ function SD_echo_cgi
 _SD_init
 
 if [[ ${zsh_eval_context-toplevel} == toplevel ]] && [[ ${0##*/} == echo-sd ]]; then
-  if [[ ${GATEWAY_INTERFACE-} == @(CGI/*) ]]; then
+  if [[ ${GATEWAY_INTERFACE-} == @(CGI*) ]]; then
     SD_echo_cgi "$@"
   else
     SD_echo_command "$@"
