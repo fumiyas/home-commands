@@ -23,7 +23,7 @@
 ##   $ alias echo=echo-sd
 ##   $ alias banner=echo-sd
 ##
-## Examples:
+## Examples for Command-line mode:
 ##
 ##   $ echo-sd
 ##    ＿人人人人人人＿
@@ -56,6 +56,21 @@
 ##   ＞ ！　！ ＜
 ##   ＞　　　　＜
 ##   ￣Y^Y^Y^Y￣
+##
+## Examples for CGI mode:
+##
+##   $ GATEWAY_INTERFACE=CGI/1.0 QUERY_STRING=s=おっす！\&o=-v echo-sd
+##   Content-Type: text/html; charset=UTF-8
+##   ...
+##   <pre>
+##   ＿人人＿
+##   ＞ お ＜
+##   ＞ っ ＜
+##   ＞ す ＜
+##   ＞ ！ ＜
+##   ￣Y^Y￣
+##   </pre><hr>
+##   ...
 ##
 ## TODO:
 ##
