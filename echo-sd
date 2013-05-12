@@ -59,7 +59,7 @@
 ##
 ## Examples for CGI mode:
 ##
-##   $ GATEWAY_INTERFACE=CGI/1.0 QUERY_STRING=s=おっす！\&o=-v echo-sd
+##   $ GATEWAY_INTERFACE=CGI/1.0 QUERY_STRING=s=おっす！\&o=v echo-sd
 ##   Content-Type: text/html; charset=UTF-8
 ##   ...
 ##   <pre>
@@ -164,7 +164,7 @@ function _SD_fill_string_by_char {
   str="$1"; shift
   char="$1"; shift
 
-  ## I don't know why bash on ja_JP.UTF-8 locale replaces '︙' (and others?)
+  ## Why bash on ja_JP.UTF-8 locale matches '[¥]' with '︙' (and others?)
   #str="${str//[ -~｡-ﾟ¢£¥¦¬¯]/$char}"
   str="${str//[ -~｡-ﾟ¢£¦¬¯]/$char}"
   str="${str//¥/$char}"
@@ -273,7 +273,7 @@ function SD_echo_vertical {
   footer="${SD_c_bl}${template//  /${SD_c_b}}${SD_c_br}"
 
   echo "${header/ /}"
-  for line in "${lines[@]}"; do
+  for line in ${lines[@]+"${lines[@]}"}; do
     echo "${SD_c_l}${line//  /　}${SD_c_r}"
   done
   echo "${footer/ /}"
@@ -337,7 +337,7 @@ function SD_echo_command
       for arg in "$@"; do
 	args[${#args[@]}]=" $arg "
       done
-      set -- "${args[@]}"
+      set -- ${args[@]+"${args[@]}"}
     fi
     SD_echo_vertical ${1+"$@"}
   fi
@@ -381,10 +381,10 @@ function SD_echo_cgi
       text)
 	text="checked"
 	;;
-      -1)
+      1|vmargin)
 	vmargin="checked"
 	;;
-      -v)
+      v|vertical)
 	vertical="checked"
 	;;
       esac
@@ -405,8 +405,12 @@ function SD_echo_cgi
     ${vmargin:+-1} \
     ${vertical:+-v} \
     -- \
-    ${scripts[@]+"${scripts[@]}"} \
     ;
+  if [[ ${#scripts[@]} -eq 1 ]] && [[ -z ${scripts[0]} ]]; then
+    set -- ${1+"$@"} '突然の死'
+  else
+    set -- ${1+"$@"} ${scripts[@]+"${scripts[@]}"}
+  fi
 
   if [[ -n ${text-} ]]; then
     echo 'Content-Type: text/plain; charset=UTF-8'
@@ -425,10 +429,10 @@ function SD_echo_cgi
     done
     echo '</textarea><br>'
     echo '<label>' \
-      '<input type="checkbox" name="options" value="-1" accesskey="1" ' \
+      '<input type="checkbox" name="options" value="vmargin" accesskey="1" ' \
       "${vmargin-}>上下空白</label>"
     echo '<label>' \
-      '<input type="checkbox" name="options" value="-v" accesskey="v" ' \
+      '<input type="checkbox" name="options" value="vertical" accesskey="v" ' \
       "${vertical-}>縦書き</label>"
     echo '<label>' \
       '<input type="checkbox" name="options" value="text" accesskey="t" ' \
@@ -437,7 +441,7 @@ function SD_echo_cgi
     echo '<input type='submit' value='＞　ジェネレート　＜' tabindex="2"><br>'
     echo '</form>'
     echo '<!--'
-    _SD_escape_html "$*"
+    echo "[$(_SD_escape_html "$*")]"
     echo '-->'
     echo '<pre>'
     SD_echo_command "$@" |_SD_escape_html
