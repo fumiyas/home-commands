@@ -71,6 +71,8 @@
 
 set -u
 
+typeset SD_copyright='(C) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan'
+typeset SD_url='https://github.com/fumiyas/home-commands/blob/master/echo-sd'
 typeset SD_lang_orig SD_lang
 typeset SD_c_tl SD_c_t SD_c_tr
 typeset SD_c_l SD_c_r
@@ -326,6 +328,20 @@ function SD_echo_command
   fi
 }
 
+function _SD_escape_html
+{
+  if [[ -n ${1+set} ]]; then
+    echo "$1"
+  else
+    cat
+  fi \
+  |sed \
+    -e 's/&/\&amp;/g;' \
+    -e 's/</\&lt;/g;' \
+    -e 's/>/\&gt;/g;' \
+    ;
+}
+
 function _SD_urldecode
 {
   ## FIXME: Support ksh
@@ -336,20 +352,32 @@ function SD_echo_cgi
 {
   typeset query="${QUERY_STRING-}"
   typeset param value
-
-  typeset -a options
   typeset -a scripts
+  typeset text vmargin vertical
+
   while [[ -n $query ]]; do
     param="${query%%&*}"
     name="$(_SD_urldecode "${param%%=*}")"
     value="$(_SD_urldecode "${param#*=}")"
 
     case "$name" in
-    o)
-      options[${#options[@]}]="$value"
+    options)
+      case "$value" in
+      text)
+	text="checked"
+	;;
+      -1)
+	vmargin="checked"
+	;;
+      -v)
+	vertical="checked"
+	;;
+      esac
       ;;
-    s)
-      scripts[${#scripts[@]}]="$value"
+    scripts)
+      if [[ -n $value ]]; then
+	scripts[${#scripts[@]}]="$value"
+      fi
       ;;
     esac
 
@@ -359,9 +387,44 @@ function SD_echo_cgi
     query="${query#*&}"
   done
 
-  echo 'Content-Type: text/plain; charset=UTF-8'
-  echo
-  SD_echo_command ${options+"${options[@]}"} ${scripts+"${scripts[@]}"}
+  set -- \
+    ${vmargin+-1} \
+    ${vertical+-v} \
+    ${scripts[@]+"${scripts[@]}"} \
+    ;
+
+  if [[ -n ${text-} ]]; then
+    echo 'Content-Type: text/plain; charset=UTF-8'
+    echo
+    SD_echo_command "$@"
+  else
+    echo 'Content-Type: text/html; charset=UTF-8'
+    echo
+    echo '<html>'
+    echo '<head><title>＞　突然の死　＜ ジェネレーター</title></head>'
+    echo '<body><h1>＞　突然の死　＜ ジェネレーター</h1>'
+    echo '<form action="./echo-sd" method="GET">'
+    for n in 0 1 2 3; do
+      script=$(_SD_escape_html "${scripts[$n]-}")
+      echo "<input type='text' name='scripts' value='$script'><br>"
+    done
+    echo "<input type='checkbox' name='options' value='-1' ${vmargin-}>上下空白"
+    echo "<input type='checkbox' name='options' value='-v' ${vertical-}>縦書き"
+    echo "<input type='checkbox' name='options' value='text'>テキスト"
+    echo '<br>'
+    echo '<input type='submit' value='＞　ジェネレート　＜'><br>'
+    echo '</form>'
+    echo '<!--'
+    _SD_escape_html "$*"
+    echo '-->'
+    echo '<pre>'
+    SD_echo_command "$@" |_SD_escape_html
+    echo '</pre><hr>'
+    _SD_escape_html "$SD_copyright"
+    echo '<br>'
+    echo "<a href='$(_SD_escape_html "$SD_url")'>$(_SD_escape_html "$SD_url")</a>"
+    echo '</body></html>'
+  fi
 }
 
 _SD_init
