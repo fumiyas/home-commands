@@ -56,6 +56,14 @@
 ##   ＞ ！　！ ＜
 ##   ＞　　　　＜
 ##   ￣Y^Y^Y^Y￣
+##   $ echo-sd |echo-sd -r |echo-sd -r
+##   ＿人人人人人人人人人人人人人人＿
+##   ＞　＿人人人人人人人人人人＿　＜
+##   ＞　＞　＿人人人人人人＿　＜　＜
+##   ＞　＞　＞　突然の死　＜　＜　＜
+##   ＞　＞　￣Y^Y^Y^Y^Y^Y￣ 　＜　＜
+##   ＞　￣Y^Y^Y^Y^Y^Y^Y^Y^Y^Y￣ 　＜
+##   ￣Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y￣
 ##
 ## Examples for CGI mode:
 ##
@@ -289,7 +297,7 @@ function SD_echo_vertical {
 
 function SD_echo_command
 {
-  typeset opt vmargin vertical
+  typeset opt read_stdin vmargin vertical
 
   while [ "$#" -gt 0 ]; do
     opt="$1"; shift
@@ -307,6 +315,9 @@ function SD_echo_command
     -h|--help)
       echo "Usage: echo-sd [-v] [script]"
       exit 0
+      ;;
+    -r|--read-stdin)
+      read_stdin="set"
       ;;
     -1|--vmargin)
       vmargin="set"
@@ -326,6 +337,12 @@ function SD_echo_command
       ;;
     esac
   done
+
+  if [[ -n ${read_stdin-} ]]; then
+    while IFS= read -r line; do
+      set -- ${1+"$@"} "$line"
+    done
+  fi
 
   if [[ $# -eq 0 ]]; then
     set -- '突然の死'
