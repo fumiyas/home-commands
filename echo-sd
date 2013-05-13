@@ -108,6 +108,12 @@ typeset SD_c_l SD_c_r
 typeset SD_c_bl SD_c_b SD_c_br
 typeset -A SD_v_map
 
+SD_die() {
+  echo "$0: ERROR: $1" 1>&2
+  SD_echo_command 1>&2
+  exit ${2-1}
+}
+
 function _SD_init {
   if [[ -n ${ZSH_VERSION-} ]]; then
     setopt KSH_GLOB
@@ -329,7 +335,7 @@ function SD_echo_command
       break
       ;;
     -*)
-      pdie "Invalid option: $opt"
+      SD_die "Invalid option: $opt"
       ;;
     *)
       set -- "$opt" ${1+"$@"}
