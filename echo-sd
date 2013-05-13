@@ -210,6 +210,20 @@ function _SD_echo_with_padding {
   echo "${str}$(_SD_pad_space "$((width-$(_SD_string_width "${1-$str}")))")"
 }
 
+function SD_echo_header {
+  typeset template
+
+  template=$(_SD_pad_space "$1")
+  echo "${SD_c_tl}${template//  /${SD_c_t}}${SD_c_tr}"
+}
+
+function SD_echo_footer {
+  typeset template
+
+  template=$(_SD_pad_space "$1")
+  echo "${SD_c_bl}${template//  /${SD_c_b}}${SD_c_br}"
+}
+
 function SD_echo_horizontal {
   typeset opt
   typeset margin_top=0 margin_bottom=0 margin_left=0 margin_right=0
@@ -287,11 +301,6 @@ function SD_echo_horizontal {
     fi
   done
 
-  typeset template header footer
-  template=$(_SD_pad_space "$width")
-  header="${SD_c_tl}${template//  /${SD_c_t}}${SD_c_tr}"
-  footer="${SD_c_bl}${template//  /${SD_c_b}}${SD_c_br}"
-
   while [[ $margin_top -gt 0 ]]; do
     scripts=('' ${scripts[@]+"${scripts[@]}"})
     let margin_top--
@@ -301,13 +310,13 @@ function SD_echo_horizontal {
     let margin_bottom--
   done
 
-  echo "${header/ /}"
+  SD_echo_header "$width"
   typeset line
   for script in ${scripts[@]+"${scripts[@]}"}; do
     line="${SD_c_l}　$(_SD_echo_with_padding "${script}" "$width")　${SD_c_r}"
     echo "${line//  /　}"
   done
-  echo "${footer/ /}"
+  SD_echo_footer "$width"
 
   export LANG="$SD_lang_orig"
 }
@@ -423,21 +432,16 @@ function SD_echo_vertical {
   typeset line_width=$(((script_n - 1) * $letter_width))
   let line_width+=$margin_left+$margin_right
 
-  typeset template header footer
-  template=$(_SD_pad_space "$line_width")
-  header="${SD_c_tl}${template//  /${SD_c_t}}${SD_c_tr}"
-  footer="${SD_c_bl}${template//  /${SD_c_b}}${SD_c_br}"
-
   typeset margin_left_s margin_right_s
   margin_left_s=$(_SD_pad_space "$margin_left")
   margin_right_s=$(_SD_pad_space "$margin_right")
 
-  echo "${header/ /}"
+  SD_echo_header "$line_width"
   for line in ${lines[@]+"${lines[@]}"}; do
     line="$margin_left_s$line$margin_right_s"
     echo "${SD_c_l}${line//  /　}${SD_c_r}"
   done
-  echo "${footer/ /}"
+  SD_echo_footer "$line_width"
 
   export LANG="$SD_lang_orig"
 }
