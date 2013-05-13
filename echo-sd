@@ -138,10 +138,10 @@ function SD_init {
 
   SD_c_tl="＿人"
   SD_c_t="人"
-  SD_c_tr="人＿"
+  SD_c_tr="人_"
   SD_c_l="＞"
   SD_c_r="＜"
-  SD_c_bl="￣Y^"
+  SD_c_bl="~Y^"
   SD_c_b="Y^"
   SD_c_br="Y￣"
 
@@ -211,21 +211,86 @@ function _SD_echo_with_padding {
 }
 
 function SD_echo_header {
-  typeset template
+  typeset round="set"
+  if [[ ${1-} == @(-R|--no-round) ]]; then
+    round=""
+    shift
+  fi
+  typeset width="$1"; shift
+  typeset margin="$1"; shift
+  typeset template left=
+  typeset -a margins
 
-  template=$(_SD_pad_space "$1")
-  echo "${SD_c_tl}${template//  /${SD_c_t}}${SD_c_tr}"
+  if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
+    left=" "
+    let width--
+  else
+    left=""
+  fi
+  template=$(_SD_pad_space "$width")
+  while [[ $margin -gt 0 ]]; do
+    if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
+      template="${template#?}"
+      let width--
+    fi
+
+    margins=(
+      "$left${SD_c_l}　${template//  /　}　${SD_c_r}"
+      ${margins[@]+"${margins[@]}"}
+    )
+
+    if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
+      template="${template#?}"
+      left="$left "
+      let width--
+    fi
+    let margin--
+  done
+
+  template="${template//  /${SD_c_t}}"
+  echo "$left${SD_c_tl}${template// /}${SD_c_tr}"
+  for margin_s in ${margins[@]+"${margins[@]}"}; do
+    echo "$margin_s"
+  done
 }
 
 function SD_echo_footer {
-  typeset template
+  typeset round="set"
+  if [[ ${1-} == @(-R|--no-round) ]]; then
+    round=""
+    shift
+  fi
+  typeset width="$1"; shift
+  typeset margin="$1"; shift
+  typeset template left=
 
-  template=$(_SD_pad_space "$1")
-  echo "${SD_c_bl}${template//  /${SD_c_b}}${SD_c_br}"
+  if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
+    left=" "
+    let width--
+  fi
+  template=$(_SD_pad_space "$width")
+  while [[ $margin -gt 0 ]]; do
+    if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
+      template="${template#?}"
+      let width--
+    fi
+
+    echo "$left${SD_c_l}　${template//  /　}　${SD_c_r}"
+
+    if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
+      template="${template#?}"
+      left="$left "
+    fi
+    let margin--
+  done
+
+  template="${template//  /${SD_c_b}}"
+  echo "$left${SD_c_bl}${template// /}${SD_c_br}"
 }
 
 function SD_echo_horizontal {
   typeset opt
+  typeset round
   typeset margin_top=0 margin_bottom=0 margin_left=0 margin_right=0
 
   while [ "$#" -gt 0 ]; do
@@ -241,6 +306,9 @@ function SD_echo_horizontal {
     fi
 
     case "$opt" in
+    -R|--no-round)
+      no_round="set"
+      ;;
     -m|--margin)
       if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
 	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
@@ -301,28 +369,20 @@ function SD_echo_horizontal {
     fi
   done
 
-  while [[ $margin_top -gt 0 ]]; do
-    scripts=('' ${scripts[@]+"${scripts[@]}"})
-    let margin_top--
-  done
-  while [[ $margin_bottom -gt 0 ]]; do
-    scripts[${#scripts[@]}]=''
-    let margin_bottom--
-  done
-
-  SD_echo_header "$width"
+  SD_echo_header ${no_round:+-R} "$width" "$margin_top"
   typeset line
   for script in ${scripts[@]+"${scripts[@]}"}; do
     line="${SD_c_l}　$(_SD_echo_with_padding "${script}" "$width")　${SD_c_r}"
     echo "${line//  /　}"
   done
-  SD_echo_footer "$width"
+  SD_echo_footer ${no_round:+-R} "$width" "$margin_bottom"
 
   export LANG="$SD_lang_orig"
 }
 
 function SD_echo_vertical {
   typeset opt
+  typeset round
   typeset margin_top=0 margin_bottom=0 margin_left=0 margin_right=0
 
   while [ "$#" -gt 0 ]; do
@@ -338,6 +398,9 @@ function SD_echo_vertical {
     fi
 
     case "$opt" in
+    -R|--round)
+      round="set"
+      ;;
     -m|--margin)
       if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
 	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
@@ -386,14 +449,10 @@ function SD_echo_vertical {
   typeset -a lines
   typeset line line_n pad_n
   typeset script script_n trailer trailer2 letter letter_width next
-  typeset margin_top_s margin_bottom_s
   letter_width=4
   script_n=0
-  margin_top_s=$(_SD_pad_space "$margin_top")
-  margin_bottom_s=$(_SD_pad_space "$margin_bottom")
   for script in ${1+"$@"}; do
     line_n=0
-    script="$margin_top_s$script$margin_bottom_s"
     trailer="$script"
 
     while [[ -n $script ]]; do
@@ -430,18 +489,18 @@ function SD_echo_vertical {
   done
 
   typeset line_width=$(((script_n - 1) * $letter_width))
-  let line_width+=$margin_left+$margin_right
+  let line_width+=$margin_left+$margin_right+1
 
   typeset margin_left_s margin_right_s
   margin_left_s=$(_SD_pad_space "$margin_left")
   margin_right_s=$(_SD_pad_space "$margin_right")
 
-  SD_echo_header "$line_width"
+  SD_echo_header ${round:+-R} "$line_width" "$margin_top"
   for line in ${lines[@]+"${lines[@]}"}; do
-    line="$margin_left_s$line$margin_right_s"
+    line="$margin_left_s $line$margin_right_s"
     echo "${SD_c_l}${line//  /　}${SD_c_r}"
   done
-  SD_echo_footer "$line_width"
+  SD_echo_footer ${round:+-R} "$line_width" "$margin_bottom"
 
   export LANG="$SD_lang_orig"
 }
@@ -459,6 +518,8 @@ Options:
     Read scripts from stdin
  -v, --vertical
     Print scripts vertically
+ -R, --no-round
+    Do not round border
  -m, --margin MARGIN
  -t, --margin-top MARGIN
  -b, --margin-bottom MARGIN
@@ -470,7 +531,7 @@ EOT
 }
 
 function SD_echo_command {
-  typeset opt read_stdin vertical
+  typeset opt read_stdin vertical round
   typeset margin margin_top margin_bottom margin_left margin_right
 
   while [ "$#" -gt 0 ]; do
@@ -495,6 +556,9 @@ function SD_echo_command {
       ;;
     -v|--vertical)
       vertical="set"
+      ;;
+    -R|--round)
+      round="set"
       ;;
     -m|--margin)
       if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
@@ -548,6 +612,7 @@ function SD_echo_command {
 
   if [[ -z ${vertical-} ]]; then
     SD_echo_horizontal \
+      ${round:+-R} \
       ${margin:+-m "$margin"} \
       ${margin_top:+-t "$margin_top"} \
       ${margin_bottom:+-b "$margin_bottom"} \
@@ -558,6 +623,7 @@ function SD_echo_command {
       ;
   else
     SD_echo_vertical \
+      ${round:+-R} \
       ${margin:+-m "$margin"} \
       ${margin_top:+-t "$margin_top"} \
       ${margin_bottom:+-b "$margin_bottom"} \
@@ -590,7 +656,7 @@ function _SD_urldecode {
 function SD_echo_cgi {
   typeset query="${QUERY_STRING-}"
   typeset param value
-  typeset text vmargin vertical
+  typeset text vertical vmargin
   typeset -a prefaces
   typeset -a scripts
 
@@ -605,11 +671,11 @@ function SD_echo_cgi {
       text)
 	text="checked"
 	;;
-      1|vmargin)
-	vmargin="checked"
-	;;
       v|vertical)
 	vertical="checked"
+	;;
+      1|vmargin)
+	vmargin="checked"
 	;;
       esac
       ;;
@@ -632,15 +698,14 @@ function SD_echo_cgi {
   done
 
   set -- \
+    ${vertical:+-v} \
     ${vmargin:+-t 1} \
     ${vmargin:+-b 1} \
-    ${vertical:+-v} \
-    -- \
     ;
   if [[ ${#scripts[@]} -eq 1 ]] && [[ -z ${scripts[0]} ]]; then
-    set -- ${1+"$@"} '突然の死'
+    set -- ${1+"$@"} -- '突然の死'
   else
-    set -- ${1+"$@"} ${scripts[@]+"${scripts[@]}"}
+    set -- ${1+"$@"} -- ${scripts[@]+"${scripts[@]}"}
   fi
 
   if [[ -n ${text-} ]]; then
@@ -668,11 +733,11 @@ function SD_echo_cgi {
     done
     echo '</textarea><br>'
     echo '<label>' \
-      '<input type="checkbox" name="options" value="vmargin" accesskey="1" ' \
-      "${vmargin-}>上下空白(<span class='ul'>1</span>)</label>"
-    echo '<label>' \
       '<input type="checkbox" name="options" value="vertical" accesskey="v" ' \
       "${vertical-}>縦書き(<span class='ul'>V</span>)</label>"
+    echo '<label>' \
+      '<input type="checkbox" name="options" value="vmargin" accesskey="1" ' \
+      "${vmargin-}>上下空白(<span class='ul'>1</span>)</label>"
     echo '<label>' \
       '<input type="checkbox" name="options" value="text" accesskey="t" ' \
       ">テキスト(<span class='ul'>T</span>)</label>"
