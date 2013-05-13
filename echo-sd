@@ -443,7 +443,9 @@ function SD_echo_vertical {
 }
 
 function SD_echo_command_help {
-  SD_echo_command --read-stdin <<EOT
+  {
+    SD_c_r="＜ ジェネレーター" SD_echo_command
+    cat <<EOT
 Usage: ${SD_arg0##*/} [OPTIONS] [SCRIPT ...]
 
 Options:
@@ -460,6 +462,7 @@ Options:
  -r, --margin-right MARGIN
     Margin size
 EOT
+  } |SD_echo_command --read-stdin
 }
 
 function SD_echo_command {
