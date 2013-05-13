@@ -98,7 +98,9 @@
 ##     http://dic.nicovideo.jp/a/%E7%AA%81%E7%84%B6%E3%81%AE%E6%AD%BB
 ##
 
-set -u
+if [[ ${0##*/} == echo-sd ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; then
+  set -u
+fi
 
 typeset SD_copyright='(C) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan'
 typeset SD_url='https://github.com/fumiyas/home-commands/blob/master/echo-sd'
@@ -504,7 +506,7 @@ function SD_echo_cgi
 
 _SD_init
 
-if [[ ${zsh_eval_context-toplevel} == toplevel ]] && [[ ${0##*/} == echo-sd ]]; then
+if [[ ${0##*/} == echo-sd ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; then
   if [[ ${GATEWAY_INTERFACE-} == @(CGI*) ]]; then
     SD_echo_cgi "$@"
   else
