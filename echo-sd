@@ -443,7 +443,7 @@ function SD_echo_vertical {
 }
 
 function SD_echo_command_help {
-  echo "\
+  SD_echo_command --read-stdin <<EOT
 Usage: ${SD_arg0##*/} [OPTIONS] [SCRIPT ...]
 
 Options:
@@ -459,7 +459,7 @@ Options:
  -l, --margin-left MARGIN
  -r, --margin-right MARGIN
     Margin size
-"
+EOT
 }
 
 function SD_echo_command {
