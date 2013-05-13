@@ -518,6 +518,8 @@ Options:
     Read scripts from stdin
  -v, --vertical
     Print scripts vertically
+ --stress
+    "Stress" mode
  -R, --no-round
     Do not round border
  -m, --margin MARGIN
@@ -531,7 +533,7 @@ EOT
 }
 
 function SD_echo_command {
-  typeset opt read_stdin vertical round
+  typeset opt read_stdin vertical stress round
   typeset margin margin_top margin_bottom margin_left margin_right
 
   while [ "$#" -gt 0 ]; do
@@ -556,6 +558,9 @@ function SD_echo_command {
       ;;
     -v|--vertical)
       vertical="set"
+      ;;
+    --stress)
+      stress="set"
       ;;
     -R|--round)
       round="set"
@@ -607,7 +612,22 @@ function SD_echo_command {
   fi
 
   if [[ $# -eq 0 ]]; then
-    set -- '突然の死'
+    if [[ -n ${stress-} ]]; then
+      set -- '仕事のストレス'
+    else
+      set -- '突然の死'
+    fi
+  fi
+
+  if [[ -n ${stress-} ]]; then
+    echo "$1"
+    echo "	↘"
+    echo "	$1"
+    echo "	↙"
+    echo "$1"
+    echo "	↘"
+    echo "	$1"
+    echo "	↙"
   fi
 
   if [[ -z ${vertical-} ]]; then
