@@ -106,7 +106,7 @@ typeset SD_c_bl SD_c_b SD_c_br
 typeset -A SD_v_map
 
 function SD_die {
-  SD_echo_command "$SD_arg0: ERROR: $1" 1>&2
+  SD_echo_command "${SD_arg0##*/}: ERROR: $1" 1>&2
   SD_echo_command 1>&2
   exit ${2-1}
 }
