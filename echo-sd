@@ -39,31 +39,25 @@
 ##   ＞ ッ ＜
 ##   ＞ ！ ＜
 ##   ￣Y^Y￣
-##   $ echo-sd -1 ズキュウウゥン！！
-##   ＿人人人人人人人人人人人＿
-##   ＞　　　　　　　　　　　＜
-##   ＞　ズキュウウゥン！！　＜
-##   ＞　　　　　　　　　　　＜
-##   ￣Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y￣
-##   $ echo-sd -v1 「世界」ッ！ 時よ止まれ！
-##   ＿人人人人＿
-##   ＞　　　　＜
-##   ＞ 時　 ┐＜
-##   ＞ よ　世 ＜
-##   ＞ 止　界 ＜
-##   ＞ ま └　＜
-##   ＞ れ　ッ ＜
-##   ＞ ！　！ ＜
-##   ＞　　　　＜
-##   ￣Y^Y^Y^Y￣
-##   $ echo-sd |echo-sd -r |echo-sd -r
-##   ＿人人人人人人人人人人人人人人＿
-##   ＞　＿人人人人人人人人人人＿　＜
-##   ＞　＞　＿人人人人人人＿　＜　＜
-##   ＞　＞　＞　突然の死　＜　＜　＜
-##   ＞　＞　￣Y^Y^Y^Y^Y^Y￣ 　＜　＜
-##   ＞　￣Y^Y^Y^Y^Y^Y^Y^Y^Y^Y￣ 　＜
-##   ￣Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y￣
+##   $ echo-sd -m 1 ズキュウウゥン！！
+##   ＿人人人人人人人人人人人人＿
+##   ＞　　　　　　　　　　　　＜
+##   ＞　 ズキュウウゥン！！ 　＜
+##   ＞　　　　　　　　　　　　＜
+##   ￣Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y￣
+##   $ echo-sd -v -t 1 -b 1 -l 6 -r 8 ｺﾞｺﾞｺﾞｺﾞｺﾞｺﾞｺﾞｺﾞ 「世界」ッ！ 時よ止まれ！
+##   ＿人人人人人人人人人人人人人＿
+##   ＞　　　　　　　　　　　　　＜
+##   ＞　　　 時　 ┐ ｺﾞ　　　　 ＜
+##   ＞　　　 よ　世　ｺﾞ　　　　 ＜
+##   ＞　　　 止　界　ｺﾞ　　　　 ＜
+##   ＞　　　 ま └　 ｺﾞ　　　　 ＜
+##   ＞　　　 れ　ッ　ｺﾞ　　　　 ＜
+##   ＞　　　 ！　！　ｺﾞ　　　　 ＜
+##   ＞　　　　　　　 ｺﾞ　　　　 ＜
+##   ＞　　　　　　　 ｺﾞ　　　　 ＜
+##   ＞　　　　　　　　　　　　　＜
+##   ￣Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y￣
 ##
 ## Examples for CGI mode:
 ##
@@ -216,11 +210,76 @@ function _SD_echo_with_padding
 }
 
 function SD_echo_horizontal {
+  typeset opt
+  typeset margin_top=0 margin_bottom=0 margin_left=0 margin_right=0
+
+  while [ "$#" -gt 0 ]; do
+    opt="$1"; shift
+
+    if [[ -z "${opt##-[!-]?*}" ]]; then
+      set -- "-${opt#??}" ${1+"$@"}
+      opt="${opt%${1#-}}"
+    fi
+    if [[ -z "${opt##--*=*}" ]]; then
+      set -- "${opt#--*=}" ${1+"$@"}
+      opt="${opt%%=*}"
+    fi
+
+    case "$opt" in
+    -m|--margin)
+      if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
+	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
+      fi
+      margin_top="$((($1 + 1) / 2))"
+      margin_bottom="$margin_top"
+      margin_left="$1"
+      margin_right="$1"
+      shift
+      ;;
+    -[tblr]|--margin-top|--margin-bottom|--margin-left|--margin-right)
+      if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
+	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
+      fi
+      case "$opt" in
+      -t|--margin-top)
+	margin_top="$1"
+	;;
+      -b|--margin-bottom)
+	margin_bottom="$1"
+	;;
+      -l|--margin-left)
+	margin_left="$1"
+	;;
+      -r|--margin-right)
+	margin_right="$1"
+	;;
+      esac
+      shift
+      ;;
+    --)
+      break
+      ;;
+    -*)
+      SD_die "Invalid option: $opt"
+      ;;
+    *)
+      set -- "$opt" ${1+"$@"}
+      break
+      ;;
+    esac
+  done
+
   export LANG="$SD_lang"
 
+  typeset -a scripts
   typeset script width width_tmp
+  typeset margin_left_s margin_right_s
   width=0
+  margin_left_s=$(_SD_pad_space "$margin_left")
+  margin_right_s=$(_SD_pad_space "$margin_right")
   for script in ${1+"$@"}; do
+    script="$margin_left_s$script$margin_right_s"
+    scripts[${#scripts[@]}]="$script"
     width_tmp=$(_SD_string_width "$script")
     if [[ $width_tmp -gt $width ]]; then
       width="$width_tmp"
@@ -232,9 +291,18 @@ function SD_echo_horizontal {
   header="${SD_c_tl}${template//  /${SD_c_t}}${SD_c_tr}"
   footer="${SD_c_bl}${template//  /${SD_c_b}}${SD_c_br}"
 
+  while [[ $margin_top -gt 0 ]]; do
+    scripts=('' ${scripts[@]+"${scripts[@]}"})
+    let margin_top--
+  done
+  while [[ $margin_bottom -gt 0 ]]; do
+    scripts[${#scripts[@]}]=''
+    let margin_bottom--
+  done
+
   echo "${header/ /}"
   typeset line
-  for script in ${1+"$@"}; do
+  for script in ${scripts[@]+"${scripts[@]}"}; do
     line="${SD_c_l}　$(_SD_echo_with_padding "${script}" "$width")　${SD_c_r}"
     echo "${line//  /　}"
   done
@@ -244,16 +312,82 @@ function SD_echo_horizontal {
 }
 
 function SD_echo_vertical {
+  typeset opt
+  typeset margin_top=0 margin_bottom=0 margin_left=0 margin_right=0
+
+  while [ "$#" -gt 0 ]; do
+    opt="$1"; shift
+
+    if [[ -z "${opt##-[!-]?*}" ]]; then
+      set -- "-${opt#??}" ${1+"$@"}
+      opt="${opt%${1#-}}"
+    fi
+    if [[ -z "${opt##--*=*}" ]]; then
+      set -- "${opt#--*=}" ${1+"$@"}
+      opt="${opt%%=*}"
+    fi
+
+    case "$opt" in
+    -m|--margin)
+      if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
+	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
+      fi
+      margin_top="$((($1 + 1) / 2))"
+      margin_bottom="$margin_top"
+      margin_left="$1"
+      margin_right="$1"
+      shift
+      ;;
+    -[tblr]|--margin-top|--margin-bottom|--margin-left|--margin-right)
+      if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
+	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
+      fi
+      case "$opt" in
+      -t|--margin-top)
+	margin_top="$1"
+	;;
+      -b|--margin-bottom)
+	margin_bottom="$1"
+	;;
+      -l|--margin-left)
+	margin_left="$1"
+	;;
+      -r|--margin-right)
+	margin_right="$1"
+	;;
+      esac
+      shift
+      ;;
+    --)
+      break
+      ;;
+    -*)
+      SD_die "Invalid option: $opt"
+      ;;
+    *)
+      set -- "$opt" ${1+"$@"}
+      break
+      ;;
+    esac
+  done
+
   export LANG="$SD_lang"
-  typeset script script_n trailer trailer2 letter letter_width next
-  typeset line line_n pad_n
+
+  typeset margin_left_s typeset margin_right_s
+  margin_left_s=$(_SD_pad_space "$margin_left")
+  margin_right_s=$(_SD_pad_space "$margin_right")
+
   typeset -a lines
-
+  typeset line line_n pad_n
+  typeset script script_n trailer trailer2 letter letter_width next
+  typeset margin_top_s margin_bottom_s
   letter_width=4
-
   script_n=0
+  margin_top_s=$(_SD_pad_space "$margin_top")
+  margin_bottom_s=$(_SD_pad_space "$margin_bottom")
   for script in ${1+"$@"}; do
     line_n=0
+    script="$margin_top_s$script$margin_bottom_s"
     trailer="$script"
 
     while [[ -n $script ]]; do
@@ -289,13 +423,21 @@ function SD_echo_vertical {
     let script_n+=1
   done
 
+  typeset line_width=$(((script_n - 1) * $letter_width))
+  let line_width+=$margin_left+$margin_right
+
   typeset template header footer
-  template=$(_SD_pad_space $(((script_n - 1) * $letter_width)))
+  template=$(_SD_pad_space "$line_width")
   header="${SD_c_tl}${template//  /${SD_c_t}}${SD_c_tr}"
   footer="${SD_c_bl}${template//  /${SD_c_b}}${SD_c_br}"
 
+  typeset margin_left_s typeset margin_right_s
+  margin_left_s=$(_SD_pad_space "$margin_left")
+  margin_right_s=$(_SD_pad_space "$margin_right")
+
   echo "${header/ /}"
   for line in ${lines[@]+"${lines[@]}"}; do
+    line="$margin_left_s$line$margin_right_s"
     echo "${SD_c_l}${line//  /　}${SD_c_r}"
   done
   echo "${footer/ /}"
@@ -303,9 +445,15 @@ function SD_echo_vertical {
   export LANG="$SD_lang_orig"
 }
 
+SD_echo_command_help()
+{
+  echo "Usage: $0 [OPTIONS] [SCRIPT]"
+}
+
 function SD_echo_command
 {
-  typeset opt read_stdin vmargin vertical
+  typeset opt read_stdin vertical
+  typeset margin margin_top margin_bottom margin_left margin_right
 
   while [ "$#" -gt 0 ]; do
     opt="$1"; shift
@@ -321,17 +469,41 @@ function SD_echo_command
 
     case "$opt" in
     -h|--help)
-      echo "Usage: echo-sd [-v] [script]"
+      SD_echo_command_help
       exit 0
       ;;
-    -r|--read-stdin)
+    -s|--read-stdin)
       read_stdin="set"
-      ;;
-    -1|--vmargin)
-      vmargin="set"
       ;;
     -v|--vertical)
       vertical="set"
+      ;;
+    -m|--margin)
+      if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
+	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
+      fi
+      margin="$1"
+      shift
+      ;;
+    -[tblr]|--margin-top|--margin-bottom|--margin-left|--margin-right)
+      if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
+	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
+      fi
+      case "$opt" in
+      -t|--margin-top)
+	margin_top="$1"
+	;;
+      -b|--margin-bottom)
+	margin_bottom="$1"
+	;;
+      -l|--margin-left)
+	margin_left="$1"
+	;;
+      -r|--margin-right)
+	margin_right="$1"
+	;;
+      esac
+      shift
       ;;
     --)
       break
@@ -357,20 +529,23 @@ function SD_echo_command
   fi
 
   if [[ -z ${vertical-} ]]; then
-    if [[ -n ${vmargin-} ]]; then
-      set -- '' "$@" ''
-    fi
-    SD_echo_horizontal ${1+"$@"}
+    SD_echo_horizontal \
+      ${margin+-m "$margin"} \
+      ${margin_top+-t "$margin_top"} \
+      ${margin_bottom+-b "$margin_bottom"} \
+      ${margin_left+-l "$margin_left"} \
+      ${margin_right+-r "$margin_right"} \
+      ${1+"$@"} \
+      ;
   else
-    if [[ -n ${vmargin-} ]]; then
-      typeset arg
-      typeset -a args
-      for arg in "$@"; do
-	args[${#args[@]}]=" $arg "
-      done
-      set -- ${args[@]+"${args[@]}"}
-    fi
-    SD_echo_vertical ${1+"$@"}
+    SD_echo_vertical \
+      ${margin+-m "$margin"} \
+      ${margin_top+-t "$margin_top"} \
+      ${margin_bottom+-b "$margin_bottom"} \
+      ${margin_left+-l "$margin_left"} \
+      ${margin_right+-r "$margin_right"} \
+      ${1+"$@"} \
+      ;
   fi
 }
 
@@ -440,7 +615,8 @@ function SD_echo_cgi
   done
 
   set -- \
-    ${vmargin:+-1} \
+    ${vmargin:+-t 1} \
+    ${vmargin:+-b 1} \
     ${vertical:+-v} \
     -- \
     ;
