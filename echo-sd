@@ -116,7 +116,7 @@ SD_die() {
   exit ${2-1}
 }
 
-function _SD_init {
+function SD_init {
   if [[ -n ${ZSH_VERSION-} ]]; then
     setopt KSH_GLOB
     setopt KSH_ARRAYS
@@ -504,9 +504,9 @@ function SD_echo_cgi
   fi
 }
 
-_SD_init
-
 if [[ ${0##*/} == echo-sd ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; then
+  SD_init
+
   if [[ ${GATEWAY_INTERFACE-} == @(CGI*) ]]; then
     SD_echo_cgi "$@"
   else
