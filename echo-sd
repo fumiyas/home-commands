@@ -96,6 +96,7 @@ if [[ ${0##*/} == echo-sd ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; 
   set -u
 fi
 
+typeset SD_arg0="$0"
 typeset SD_copyright='(C) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan'
 typeset SD_url='https://github.com/fumiyas/home-commands/blob/master/echo-sd'
 typeset SD_lang_orig SD_lang
@@ -104,14 +105,15 @@ typeset SD_c_l SD_c_r
 typeset SD_c_bl SD_c_b SD_c_br
 typeset -A SD_v_map
 
-SD_die() {
-  SD_echo_command "$0: ERROR: $1" 1>&2
+function SD_die {
+  SD_echo_command "$SD_arg0: ERROR: $1" 1>&2
   SD_echo_command 1>&2
   exit ${2-1}
 }
 
 function SD_init {
   if [[ -n ${ZSH_VERSION-} ]]; then
+    setopt SH_WORD_SPLIT
     setopt KSH_GLOB
     setopt KSH_ARRAYS
   fi
@@ -200,8 +202,7 @@ function _SD_string_width {
   echo "${#str}"
 }
 
-function _SD_echo_with_padding
-{
+function _SD_echo_with_padding {
   typeset str width
   str="$1"; shift
   width="$1"; shift
@@ -373,10 +374,6 @@ function SD_echo_vertical {
 
   export LANG="$SD_lang"
 
-  typeset margin_left_s typeset margin_right_s
-  margin_left_s=$(_SD_pad_space "$margin_left")
-  margin_right_s=$(_SD_pad_space "$margin_right")
-
   typeset -a lines
   typeset line line_n pad_n
   typeset script script_n trailer trailer2 letter letter_width next
@@ -431,7 +428,7 @@ function SD_echo_vertical {
   header="${SD_c_tl}${template//  /${SD_c_t}}${SD_c_tr}"
   footer="${SD_c_bl}${template//  /${SD_c_b}}${SD_c_br}"
 
-  typeset margin_left_s typeset margin_right_s
+  typeset margin_left_s margin_right_s
   margin_left_s=$(_SD_pad_space "$margin_left")
   margin_right_s=$(_SD_pad_space "$margin_right")
 
@@ -445,10 +442,9 @@ function SD_echo_vertical {
   export LANG="$SD_lang_orig"
 }
 
-SD_echo_command_help()
-{
+function SD_echo_command_help {
   echo "\
-Usage: $0 [OPTIONS] [SCRIPT ...]
+Usage: ${SD_arg0##*/} [OPTIONS] [SCRIPT ...]
 
 Options:
  -h, --help
@@ -466,8 +462,7 @@ Options:
 "
 }
 
-function SD_echo_command
-{
+function SD_echo_command {
   typeset opt read_stdin vertical
   typeset margin margin_top margin_bottom margin_left margin_right
 
@@ -546,27 +541,26 @@ function SD_echo_command
 
   if [[ -z ${vertical-} ]]; then
     SD_echo_horizontal \
-      ${margin+-m "$margin"} \
-      ${margin_top+-t "$margin_top"} \
-      ${margin_bottom+-b "$margin_bottom"} \
-      ${margin_left+-l "$margin_left"} \
-      ${margin_right+-r "$margin_right"} \
+      ${margin:+-m "$margin"} \
+      ${margin_top:+-t "$margin_top"} \
+      ${margin_bottom:+-b "$margin_bottom"} \
+      ${margin_left:+-l "$margin_left"} \
+      ${margin_right:+-r "$margin_right"} \
       ${1+"$@"} \
       ;
   else
     SD_echo_vertical \
-      ${margin+-m "$margin"} \
-      ${margin_top+-t "$margin_top"} \
-      ${margin_bottom+-b "$margin_bottom"} \
-      ${margin_left+-l "$margin_left"} \
-      ${margin_right+-r "$margin_right"} \
+      ${margin:+-m "$margin"} \
+      ${margin_top:+-t "$margin_top"} \
+      ${margin_bottom:+-b "$margin_bottom"} \
+      ${margin_left:+-l "$margin_left"} \
+      ${margin_right:+-r "$margin_right"} \
       ${1+"$@"} \
       ;
   fi
 }
 
-function _SD_escape_html
-{
+function _SD_escape_html {
   if [[ -n ${1+set} ]]; then
     echo "$1"
   else
@@ -579,14 +573,12 @@ function _SD_escape_html
     ;
 }
 
-function _SD_urldecode
-{
+function _SD_urldecode {
   ## FIXME: Support ksh
   echo -e "$(echo "$1" |sed 's/+/ /g;s/%\(..\)/\\x\1/g;')"
 }
 
-function SD_echo_cgi
-{
+function SD_echo_cgi {
   typeset query="${QUERY_STRING-}"
   typeset param value
   typeset text vmargin vertical
