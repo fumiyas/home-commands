@@ -447,7 +447,23 @@ function SD_echo_vertical {
 
 SD_echo_command_help()
 {
-  echo "Usage: $0 [OPTIONS] [SCRIPT]"
+  echo "\
+Usage: $0 [OPTIONS] [SCRIPT ...]
+
+Options:
+ -h, --help
+    Print this message
+ -s, --read-stdin
+    Read scripts from stdin
+ -v, --vertical
+    Print scripts vertically
+ -m, --margin MARGIN
+ -t, --margin-top MARGIN
+ -b, --margin-bottom MARGIN
+ -l, --margin-left MARGIN
+ -r, --margin-right MARGIN
+    Margin size
+"
 }
 
 function SD_echo_command
