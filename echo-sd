@@ -546,6 +546,7 @@ function SD_echo_command {
       ${margin_bottom:+-b "$margin_bottom"} \
       ${margin_left:+-l "$margin_left"} \
       ${margin_right:+-r "$margin_right"} \
+      -- \
       ${1+"$@"} \
       ;
   else
@@ -555,6 +556,7 @@ function SD_echo_command {
       ${margin_bottom:+-b "$margin_bottom"} \
       ${margin_left:+-l "$margin_left"} \
       ${margin_right:+-r "$margin_right"} \
+      -- \
       ${1+"$@"} \
       ;
   fi
