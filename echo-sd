@@ -138,10 +138,10 @@ function SD_init {
 
   SD_c_tl="＿人"
   SD_c_t="人"
-  SD_c_tr="人_"
+  SD_c_tr="人＿"
   SD_c_l="＞"
   SD_c_r="＜"
-  SD_c_bl="~Y^"
+  SD_c_bl="￣Y^"
   SD_c_b="Y^"
   SD_c_br="Y￣"
 
