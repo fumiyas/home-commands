@@ -613,13 +613,13 @@ function SD_echo_command {
 
   if [[ -n ${stress-} ]]; then
     echo "${1-仕事のストレス}"; ${1+shift}
-    echo "        ↘"
-    echo "      ${1-仕事のストレス}"; ${1+shift}
-    echo "        ↙"
+    echo "　　　　↘"
+    echo "　　　${1-仕事のストレス}"; ${1+shift}
+    echo "　　　　↙"
     echo "${1-仕事のストレス}"; ${1+shift}
-    echo "        ↘"
-    echo "      ${1-仕事のストレス}"; ${1+shift}
-    echo "        ↙"
+    echo "　　　　↘"
+    echo "　　　${1-仕事のストレス}"; ${1+shift}
+    echo "　　　　↙"
   fi
 
   if [[ $# -eq 0 ]]; then
