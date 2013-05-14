@@ -676,7 +676,7 @@ function _SD_urldecode {
 function SD_echo_cgi {
   typeset query="${QUERY_STRING-}"
   typeset param value
-  typeset text vertical vmargin
+  typeset text vertical margin
   typeset -a prefaces
   typeset -a scripts
 
@@ -694,8 +694,8 @@ function SD_echo_cgi {
       v|vertical)
 	vertical="checked"
 	;;
-      1|vmargin)
-	vmargin="checked"
+      m|margin)
+	margin="checked"
 	;;
       esac
       ;;
@@ -719,8 +719,8 @@ function SD_echo_cgi {
 
   set -- \
     ${vertical:+-v} \
-    ${vmargin:+-t 1} \
-    ${vmargin:+-b 1} \
+    ${margin:+-t 1} \
+    ${margin:+-b 1} \
     ;
   if [[ ${#scripts[@]} -eq 1 ]] && [[ -z ${scripts[0]} ]]; then
     set -- ${1+"$@"} -- '突然の死'
@@ -756,8 +756,8 @@ function SD_echo_cgi {
       '<input type="checkbox" name="options" value="vertical" accesskey="v" ' \
       "${vertical-}>縦書き(<span class='ul'>V</span>)</label>"
     echo '<label>' \
-      '<input type="checkbox" name="options" value="vmargin" accesskey="1" ' \
-      "${vmargin-}>上下空白(<span class='ul'>1</span>)</label>"
+      '<input type="checkbox" name="options" value="margin" accesskey="m" ' \
+      "${margin-}>余白(<span class='ul'>M</span>)</label>"
     echo '<label>' \
       '<input type="checkbox" name="options" value="text" accesskey="t" ' \
       ">テキスト(<span class='ul'>T</span>)</label>"
