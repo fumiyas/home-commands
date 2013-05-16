@@ -1,6 +1,6 @@
 # 自分用コマンド群
 
-  * echo-sd (bash or ksh)
+  * echo-sd (bash 4 or ksh 93u or zsh 4.3)
     * ＞　突然の死　＜ ジェネレーター
   * httpstatus (sh)
     * httpstatus で、HTTP のステータスコードをすばやくしらべる!
