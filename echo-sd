@@ -97,7 +97,7 @@
 case "${BASH_VERSION-}" in
 [1-3].*)
   if type zsh >/dev/null 2>&1; then
-    exec zsh "$0" {1+"$@"}
+    exec zsh "$0" ${1+"$@"}
     exit 1
   fi
   echo "${0##*/}: ERROR: bash 4 or later required" 1>&2
