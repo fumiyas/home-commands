@@ -25,6 +25,8 @@
 ##
 ## Examples for Command-line mode:
 ##
+##   $ echo-sd --help
+##   ...
 ##   $ echo-sd
 ##    ＿人人人人人人＿
 ##   ＞　突然の死　＜
@@ -630,28 +632,21 @@ function SD_echo_command {
     fi
   fi
 
+  set -- \
+    ${round:+-R} \
+    ${margin:+-m "$margin"} \
+    ${margin_top:+-t "$margin_top"} \
+    ${margin_bottom:+-b "$margin_bottom"} \
+    ${margin_left:+-l "$margin_left"} \
+    ${margin_right:+-r "$margin_right"} \
+    -- \
+    ${1+"$@"} \
+    ;
+
   if [[ -z ${vertical-} ]]; then
-    SD_echo_horizontal \
-      ${round:+-R} \
-      ${margin:+-m "$margin"} \
-      ${margin_top:+-t "$margin_top"} \
-      ${margin_bottom:+-b "$margin_bottom"} \
-      ${margin_left:+-l "$margin_left"} \
-      ${margin_right:+-r "$margin_right"} \
-      -- \
-      ${1+"$@"} \
-      ;
+    SD_echo_horizontal ${1+"$@"}
   else
-    SD_echo_vertical \
-      ${round:+-R} \
-      ${margin:+-m "$margin"} \
-      ${margin_top:+-t "$margin_top"} \
-      ${margin_bottom:+-b "$margin_bottom"} \
-      ${margin_left:+-l "$margin_left"} \
-      ${margin_right:+-r "$margin_right"} \
-      -- \
-      ${1+"$@"} \
-      ;
+    SD_echo_vertical ${1+"$@"}
   fi
 }
 
