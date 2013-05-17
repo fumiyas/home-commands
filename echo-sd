@@ -94,6 +94,13 @@
 ##     http://dic.nicovideo.jp/a/%E7%AA%81%E7%84%B6%E3%81%AE%E6%AD%BB
 ##
 
+case "${BASH_VERSION-}" in
+[1-4].*)
+  echo "${0##*/}: ERROR: bash 4 or later required" 1>&2
+  exit 1
+  ;;
+esac
+
 if [[ ${0##*/} == echo-sd ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; then
   set -u
 fi
