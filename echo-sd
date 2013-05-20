@@ -534,6 +534,8 @@ Options:
     Print scripts vertically
  --stress
     "Stress" mode
+ --stream
+    Stream mode
  -R, --no-round
     Do not round border
  -m, --margin MARGIN
@@ -547,7 +549,7 @@ EOT
 }
 
 function SD_echo_command {
-  typeset opt read_stdin vertical stress round
+  typeset opt read_stdin vertical stress stream round
   typeset margin margin_top margin_bottom margin_left margin_right
 
   while [ "$#" -gt 0 ]; do
@@ -569,12 +571,17 @@ function SD_echo_command {
       ;;
     -s|--read-stdin)
       read_stdin="set"
+      stream=""
       ;;
     -v|--vertical)
       vertical="set"
       ;;
     --stress)
       stress="set"
+      ;;
+    --stream)
+      stream="set"
+      read_stdin=""
       ;;
     -R|--round)
       round="set"
@@ -619,11 +626,15 @@ function SD_echo_command {
     esac
   done
 
-  if [[ -n ${read_stdin-} ]]; then
-    while IFS= read -r line; do
-      set -- ${1+"$@"} "$line"
-    done
-  fi
+  typeset -a sd_opts
+  sd_opts=(
+    ${round:+-R}
+    ${margin:+-m "$margin"}
+    ${margin_top:+-t "$margin_top"}
+    ${margin_bottom:+-b "$margin_bottom"}
+    ${margin_left:+-l "$margin_left"}
+    ${margin_right:+-r "$margin_right"}
+  )
 
   if [[ -n ${stress-} ]]; then
     echo "${1-仕事のストレス}"; ${1+shift}
@@ -636,29 +647,38 @@ function SD_echo_command {
     echo "　　　　↙"
   fi
 
-  if [[ $# -eq 0 ]]; then
-    if [[ -n ${stress-} ]]; then
-      set -- '仕事のストレス'
-    else
-      set -- '突然の死'
-    fi
+  if [[ -n ${read_stdin-} ]]; then
+    while IFS= read -r line; do
+      set -- ${1+"$@"} "$line"
+    done
   fi
 
-  set -- \
-    ${round:+-R} \
-    ${margin:+-m "$margin"} \
-    ${margin_top:+-t "$margin_top"} \
-    ${margin_bottom:+-b "$margin_bottom"} \
-    ${margin_left:+-l "$margin_left"} \
-    ${margin_right:+-r "$margin_right"} \
-    -- \
-    ${1+"$@"} \
-    ;
+  if [[ -z ${stream-} ]]; then
+    if [[ $# -eq 0 ]]; then
+      if [[ -n ${stress-} ]]; then
+	set -- '仕事のストレス'
+      else
+	set -- '突然の死'
+      fi
+    fi
 
-  if [[ -z ${vertical-} ]]; then
-    SD_echo_horizontal ${1+"$@"}
+    if [[ -z ${vertical-} ]]; then
+      SD_echo_horizontal ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"}
+    else
+      SD_echo_vertical ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"}
+    fi
   else
-    SD_echo_vertical ${1+"$@"}
+    while :; do
+      IFS= read -r line || break
+      set -- ${1+"$@"} "$line"
+
+      if [[ -z ${vertical-} ]]; then
+	SD_echo_horizontal ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"}
+      else
+	SD_echo_vertical ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"}
+      fi
+      shift $#
+    done
   fi
 }
 
