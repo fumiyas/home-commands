@@ -41,7 +41,7 @@
 ##   ＞ ッ ＜
 ##   ＞ ！ ＜
 ##   ￣Y^Y￣
-##   $ echo-sd -m 1 ズキュウウゥン！！
+##   $ echo-sd -p 1 ズキュウウゥン！！
 ##   ＿人人人人人人人人人人人人＿
 ##   ＞　　　　　　　　　　　　＜
 ##   ＞　 ズキュウウゥン！！ 　＜
@@ -323,7 +323,7 @@ function SD_echo_horizontal {
     -R|--no-round)
       no_round="set"
       ;;
-    -m|--padding)
+    -p|--padding)
       if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
 	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
       fi
@@ -415,7 +415,7 @@ function SD_echo_vertical {
     -R|--round)
       round="set"
       ;;
-    -m|--padding)
+    -p|--padding)
       if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
 	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
       fi
@@ -538,7 +538,7 @@ Options:
     Stream mode
  -R, --no-round
     Do not round border
- -m, --padding SIZE
+ -p, --padding SIZE
  -t, --padding-top SIZE
  -b, --padding-bottom SIZE
  -l, --padding-left SIZE
@@ -586,7 +586,7 @@ function SD_echo_command {
     -R|--round)
       round="set"
       ;;
-    -m|--padding)
+    -p|--padding)
       if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
 	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
       fi
@@ -629,7 +629,7 @@ function SD_echo_command {
   typeset -a sd_opts
   sd_opts=(
     ${round:+-R}
-    ${padding:+-m "$padding"}
+    ${padding:+-p "$padding"}
     ${padding_top:+-t "$padding_top"}
     ${padding_bottom:+-b "$padding_bottom"}
     ${padding_left:+-l "$padding_left"}
