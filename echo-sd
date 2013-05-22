@@ -503,7 +503,7 @@ function SD_echo_vertical {
   done
 
   typeset line_width=$(((script_n - 1) * $letter_width))
-  let line_width+=$padding_left+$padding_right+1
+  let line_width+=$padding_left+$padding_right
 
   typeset padding_left_s padding_right_s
   padding_left_s=$(_SD_pad_space "$padding_left")
@@ -511,8 +511,8 @@ function SD_echo_vertical {
 
   SD_echo_header ${round:+-R} "$line_width" "$padding_top"
   for line in ${lines[@]+"${lines[@]}"}; do
-    line="$padding_left_s $line$padding_right_s"
-    echo "${SD_c_l}${line//  /　} ${SD_c_r}"
+    line="$padding_left_s$line$padding_right_s"
+    echo "${SD_c_l}${line//  /　}${SD_c_r}"
   done
   SD_echo_footer ${round:+-R} "$line_width" "$padding_bottom"
 
