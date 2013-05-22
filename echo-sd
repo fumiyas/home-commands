@@ -512,7 +512,7 @@ function SD_echo_vertical {
   SD_echo_header ${round:+-R} "$line_width" "$padding_top"
   for line in ${lines[@]+"${lines[@]}"}; do
     line="$padding_left_s $line$padding_right_s"
-    echo "${SD_c_l}${line//  /　}${SD_c_r}"
+    echo "${SD_c_l}${line//  /　} ${SD_c_r}"
   done
   SD_echo_footer ${round:+-R} "$line_width" "$padding_bottom"
 
