@@ -359,6 +359,7 @@ function SD_echo_horizontal {
   typeset round
   typeset bc_tl bc_t bc_tr bc_l bc_r bc_bl bc_b bc_br
   typeset padding_top=0 padding_bottom=0 padding_left=0 padding_right=0
+  typeset center
 
   while [ "$#" -gt 0 ]; do
     opt="$1"; shift
@@ -403,6 +404,9 @@ function SD_echo_horizontal {
 	;;
       esac
       shift
+      ;;
+    --center)
+      center="set"
       ;;
     --)
       break
@@ -447,6 +451,12 @@ function SD_echo_horizontal {
 
   typeset line
   for script in ${scripts[@]+"${scripts[@]}"}; do
+    if [[ -n ${center-} ]]; then
+      typeset padding=$(((width - $(_SD_string_width "$script")) / 2))
+      if [[ $padding -gt 0 ]]; then
+	script="$(_SD_pad_space "$padding")$script"
+      fi
+    fi
     line="${bc_l:-$SD_bc_l}　$(_SD_echo_with_padding "${script}" "$width")　${bc_r:-$SD_bc_r}"
     echo "${line//  /　}"
   done
@@ -470,6 +480,7 @@ function SD_echo_vertical {
   typeset no_round
   typeset bc_tl bc_t bc_tr bc_l bc_r bc_bl bc_b bc_br
   typeset padding_top=0 padding_bottom=0 padding_left=0 padding_right=0
+  typeset center
 
   while [ "$#" -gt 0 ]; do
     opt="$1"; shift
@@ -515,6 +526,9 @@ function SD_echo_vertical {
       esac
       shift
       ;;
+    --center)
+      center="set"
+      ;;
     --)
       break
       ;;
@@ -529,6 +543,8 @@ function SD_echo_vertical {
   done
 
   export LANG="$SD_lang"
+
+  ## FIXME: Implement --center option
 
   typeset -a lines
   typeset line line_n pad_n
@@ -626,6 +642,8 @@ Options:
     "Stress" mode
  --stream
     Stream mode
+ --center
+ Center scripts (not implemented in vertical mode yet)
  -R, --no-round
     Do not round border
  --square
@@ -641,8 +659,10 @@ EOT
 }
 
 function SD_echo_command {
-  typeset opt read_stdin vertical stress stream no_round square
+  typeset opt
+  typeset read_stdin vertical stress stream no_round square
   typeset padding padding_top padding_bottom padding_left padding_right
+  typeset center
 
   while [ "$#" -gt 0 ]; do
     opt="$1"; shift
@@ -683,10 +703,6 @@ function SD_echo_command {
     -R|--no-round)
       no_round="set"
       ;;
-    --square)
-      square="set"
-      no_round="set"
-      ;;
     -p|--padding)
       if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
 	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
@@ -714,6 +730,13 @@ function SD_echo_command {
       esac
       shift
       ;;
+    --square)
+      square="set"
+      no_round="set"
+      ;;
+    --center)
+      center="set"
+      ;;
     --)
       break
       ;;
@@ -730,6 +753,7 @@ function SD_echo_command {
   typeset -a sd_opts
   sd_opts=(
     ${no_round:+--no-round}
+    ${center:+--center}
     ${square:+--bc-tl '┌─' --bc-t '─' --bc-tr '─┐'}
     ${square:+--bc-l '│' --bc-r '│'}
     ${square:+--bc-bl '└─' --bc-b '─' --bc-br '─┘'}
