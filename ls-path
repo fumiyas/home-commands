@@ -1,4 +1,8 @@
+#!/bin/bash
+# or
 #!/bin/ksh
+# or
+#!/bin/zsh
 ##
 ## List specified files and all parent directories
 ## Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
@@ -11,7 +15,7 @@ set -u
 typeset -a opts
 while [[ $# -gt 0 ]]; do
   [[ -n "${1##-*}" ]] && break
-  opts=("${opts[@]}" "$1")
+  opts=(${opts[@]+"${opts[@]}"} "$1")
   shift
 done
 
@@ -46,5 +50,5 @@ for fname in "$@"; do
   done
 done \
 |sort -u \
-|xargs ls -d "${opts[@]}" --
+|xargs ls -d ${opts[@]+"${opts[@]}"} --
 
