@@ -249,7 +249,7 @@ function SD_echo_header {
     fi
 
     paddings=(
-      "$left${SD_bc_l}　${template//  /　}　${SD_bc_r}"
+      "$left${bc_l-$SD_bc_l}　${template//  /　}　${bc_r-$SD_bc_r}"
       ${paddings[@]+"${paddings[@]}"}
     )
 
@@ -261,8 +261,8 @@ function SD_echo_header {
     let padding--
   done
 
-  template="${template//  /${SD_bc_t}}"
-  echo "$left${SD_bc_tl}${template// /}${SD_bc_tr}"
+  template="${template//  /${bc_t-$SD_bc_t}}"
+  echo "$left${bc_tl-$SD_bc_tl}${template// /}${bc_tr-$SD_bc_tr}"
   for padding_s in ${paddings[@]+"${paddings[@]}"}; do
     echo "$padding_s"
   done
@@ -289,7 +289,7 @@ function SD_echo_footer {
       let width--
     fi
 
-    echo "$left${SD_bc_l}　${template//  /　}　${SD_bc_r}"
+    echo "$left${bc_l-$SD_bc_l}　${template//  /　}　${bc_r-$SD_bc_r}"
 
     if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
       template="${template#?}"
@@ -298,13 +298,14 @@ function SD_echo_footer {
     let padding--
   done
 
-  template="${template//  /${SD_bc_b}}"
-  echo "$left${SD_bc_bl}${template// /}${SD_bc_br}"
+  template="${template//  /${bc_b-$SD_bc_b}}"
+  echo "$left${bc_bl-$SD_bc_bl}${template// /}${bc_br-$SD_bc_br}"
 }
 
 function SD_echo_horizontal {
   typeset opt
   typeset round
+  typeset bc_tl bc_t bc_tr bc_l bc_r bc_bl bc_b bc_br
   typeset padding_top=0 padding_bottom=0 padding_left=0 padding_right=0
 
   while [ "$#" -gt 0 ]; do
@@ -322,6 +323,13 @@ function SD_echo_horizontal {
     case "$opt" in
     -R|--no-round)
       no_round="set"
+      ;;
+    --bc-[tblr]|--bc-t[lr]|--bc-b[lr])
+      if [[ ! -n ${1+set} ]]; then
+	SD_die "Option value required: $opt"
+      fi
+      eval "bc_${opt##*-}=\"\$1\""
+      shift
       ;;
     -p|--padding)
       if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
@@ -386,7 +394,7 @@ function SD_echo_horizontal {
   SD_echo_header ${no_round:+-R} "$width" "$padding_top"
   typeset line
   for script in ${scripts[@]+"${scripts[@]}"}; do
-    line="${SD_bc_l}　$(_SD_echo_with_padding "${script}" "$width")　${SD_bc_r}"
+    line="${bc_l-$SD_bc_l}　$(_SD_echo_with_padding "${script}" "$width")　${bc_r-$SD_bc_r}"
     echo "${line//  /　}"
   done
   SD_echo_footer ${no_round:+-R} "$width" "$padding_bottom"
@@ -397,6 +405,7 @@ function SD_echo_horizontal {
 function SD_echo_vertical {
   typeset opt
   typeset round
+  typeset bc_tl bc_t bc_tr bc_l bc_r bc_bl bc_b bc_br
   typeset padding_top=0 padding_bottom=0 padding_left=0 padding_right=0
 
   while [ "$#" -gt 0 ]; do
@@ -414,6 +423,13 @@ function SD_echo_vertical {
     case "$opt" in
     -R|--round)
       round="set"
+      ;;
+    --bc-[tblr]|--bc-t[lr]|--bc-b[lr])
+      if [[ ! -n ${1+set} ]]; then
+	SD_die "Option value required: $opt"
+      fi
+      eval "bc_${opt##*-}=\"\$1\""
+      shift
       ;;
     -p|--padding)
       if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
@@ -512,7 +528,7 @@ function SD_echo_vertical {
   SD_echo_header ${round:+-R} "$line_width" "$padding_top"
   for line in ${lines[@]+"${lines[@]}"}; do
     line="$padding_left_s$line$padding_right_s"
-    echo "${SD_bc_l}${line//  /　}${SD_bc_r}"
+    echo "${bc_l-$SD_bc_l}${line//  /　}${bc_r-$SD_bc_r}"
   done
   SD_echo_footer ${round:+-R} "$line_width" "$padding_bottom"
 
@@ -538,6 +554,8 @@ Options:
     Stream mode
  -R, --no-round
     Do not round border
+ --square
+    Square border
  -p, --padding SIZE
  -t, --padding-top SIZE
  -b, --padding-bottom SIZE
@@ -549,7 +567,7 @@ EOT
 }
 
 function SD_echo_command {
-  typeset opt read_stdin vertical stress stream round
+  typeset opt read_stdin vertical stress stream round square
   typeset padding padding_top padding_bottom padding_left padding_right
 
   while [ "$#" -gt 0 ]; do
@@ -584,6 +602,10 @@ function SD_echo_command {
       read_stdin=""
       ;;
     -R|--round)
+      round="set"
+      ;;
+    --square)
+      square="set"
       round="set"
       ;;
     -p|--padding)
@@ -629,6 +651,9 @@ function SD_echo_command {
   typeset -a sd_opts
   sd_opts=(
     ${round:+-R}
+    ${square:+--bc-tl '┌─' --bc-t '─' --bc-tr '─┐'}
+    ${square:+--bc-l '│' --bc-r '│'}
+    ${square:+--bc-bl '└─' --bc-b '─' --bc-br '─┘'}
     ${padding:+-p "$padding"}
     ${padding_top:+-t "$padding_top"}
     ${padding_bottom:+-b "$padding_bottom"}
