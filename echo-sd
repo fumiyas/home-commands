@@ -404,7 +404,7 @@ function SD_echo_horizontal {
 
 function SD_echo_vertical {
   typeset opt
-  typeset round
+  typeset no_round
   typeset bc_tl bc_t bc_tr bc_l bc_r bc_bl bc_b bc_br
   typeset padding_top=0 padding_bottom=0 padding_left=0 padding_right=0
 
@@ -421,8 +421,8 @@ function SD_echo_vertical {
     fi
 
     case "$opt" in
-    -R|--round)
-      round="set"
+    -R|--no-round)
+      no_round="set"
       ;;
     --bc-[tblr]|--bc-t[lr]|--bc-b[lr])
       if [[ ! -n ${1+set} ]]; then
@@ -525,12 +525,12 @@ function SD_echo_vertical {
   padding_left_s=$(_SD_pad_space "$padding_left")
   padding_right_s=$(_SD_pad_space "$padding_right")
 
-  SD_echo_header ${round:+-R} "$line_width" "$padding_top"
+  SD_echo_header ${no_round:+-R} "$line_width" "$padding_top"
   for line in ${lines[@]+"${lines[@]}"}; do
     line="$padding_left_s$line$padding_right_s"
     echo "${bc_l-$SD_bc_l}${line//  /　}${bc_r-$SD_bc_r}"
   done
-  SD_echo_footer ${round:+-R} "$line_width" "$padding_bottom"
+  SD_echo_footer ${no_round:+-R} "$line_width" "$padding_bottom"
 
   export LANG="$SD_lang_orig"
 }
@@ -567,7 +567,7 @@ EOT
 }
 
 function SD_echo_command {
-  typeset opt read_stdin vertical stress stream round square
+  typeset opt read_stdin vertical stress stream no_round square
   typeset padding padding_top padding_bottom padding_left padding_right
 
   while [ "$#" -gt 0 ]; do
@@ -601,12 +601,12 @@ function SD_echo_command {
       stream="set"
       read_stdin=""
       ;;
-    -R|--round)
-      round="set"
+    -R|--no-round)
+      no_round="set"
       ;;
     --square)
       square="set"
-      round="set"
+      no_round="set"
       ;;
     -p|--padding)
       if [[ ${1-BAD} == @(*[!0-9]*) ]]; then
@@ -650,7 +650,7 @@ function SD_echo_command {
 
   typeset -a sd_opts
   sd_opts=(
-    ${round:+-R}
+    ${no_round:+-R}
     ${square:+--bc-tl '┌─' --bc-t '─' --bc-tr '─┐'}
     ${square:+--bc-l '│' --bc-r '│'}
     ${square:+--bc-bl '└─' --bc-b '─' --bc-br '─┘'}
