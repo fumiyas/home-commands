@@ -114,9 +114,9 @@ typeset SD_arg0="$0"
 typeset SD_copyright='(C) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan'
 typeset SD_url='https://github.com/fumiyas/home-commands/blob/master/echo-sd'
 typeset SD_lang_orig SD_lang
-typeset SD_c_tl SD_c_t SD_c_tr
-typeset SD_c_l SD_c_r
-typeset SD_c_bl SD_c_b SD_c_br
+typeset SD_bc_tl SD_bc_t SD_bc_tr
+typeset SD_bc_l SD_bc_r
+typeset SD_bc_bl SD_bc_b SD_bc_br
 typeset -A SD_v_map
 
 function SD_die {
@@ -150,14 +150,14 @@ function SD_init {
   fi
   SD_lang="${lang_ja-${lang-ja_JP.UTF-8}}"
 
-  SD_c_tl="＿人"
-  SD_c_t="人"
-  SD_c_tr="人＿"
-  SD_c_l="＞"
-  SD_c_r="＜"
-  SD_c_bl="￣Y^"
-  SD_c_b="Y^"
-  SD_c_br="Y￣"
+  SD_bc_tl="＿人"
+  SD_bc_t="人"
+  SD_bc_tr="人＿"
+  SD_bc_l="＞"
+  SD_bc_r="＜"
+  SD_bc_bl="￣Y^"
+  SD_bc_b="Y^"
+  SD_bc_br="Y￣"
 
   if [[ -n ${ZSH_VERSION-} ]]; then
     SD_v_map=()
@@ -249,7 +249,7 @@ function SD_echo_header {
     fi
 
     paddings=(
-      "$left${SD_c_l}　${template//  /　}　${SD_c_r}"
+      "$left${SD_bc_l}　${template//  /　}　${SD_bc_r}"
       ${paddings[@]+"${paddings[@]}"}
     )
 
@@ -261,8 +261,8 @@ function SD_echo_header {
     let padding--
   done
 
-  template="${template//  /${SD_c_t}}"
-  echo "$left${SD_c_tl}${template// /}${SD_c_tr}"
+  template="${template//  /${SD_bc_t}}"
+  echo "$left${SD_bc_tl}${template// /}${SD_bc_tr}"
   for padding_s in ${paddings[@]+"${paddings[@]}"}; do
     echo "$padding_s"
   done
@@ -289,7 +289,7 @@ function SD_echo_footer {
       let width--
     fi
 
-    echo "$left${SD_c_l}　${template//  /　}　${SD_c_r}"
+    echo "$left${SD_bc_l}　${template//  /　}　${SD_bc_r}"
 
     if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
       template="${template#?}"
@@ -298,8 +298,8 @@ function SD_echo_footer {
     let padding--
   done
 
-  template="${template//  /${SD_c_b}}"
-  echo "$left${SD_c_bl}${template// /}${SD_c_br}"
+  template="${template//  /${SD_bc_b}}"
+  echo "$left${SD_bc_bl}${template// /}${SD_bc_br}"
 }
 
 function SD_echo_horizontal {
@@ -386,7 +386,7 @@ function SD_echo_horizontal {
   SD_echo_header ${no_round:+-R} "$width" "$padding_top"
   typeset line
   for script in ${scripts[@]+"${scripts[@]}"}; do
-    line="${SD_c_l}　$(_SD_echo_with_padding "${script}" "$width")　${SD_c_r}"
+    line="${SD_bc_l}　$(_SD_echo_with_padding "${script}" "$width")　${SD_bc_r}"
     echo "${line//  /　}"
   done
   SD_echo_footer ${no_round:+-R} "$width" "$padding_bottom"
@@ -512,7 +512,7 @@ function SD_echo_vertical {
   SD_echo_header ${round:+-R} "$line_width" "$padding_top"
   for line in ${lines[@]+"${lines[@]}"}; do
     line="$padding_left_s$line$padding_right_s"
-    echo "${SD_c_l}${line//  /　}${SD_c_r}"
+    echo "${SD_bc_l}${line//  /　}${SD_bc_r}"
   done
   SD_echo_footer ${round:+-R} "$line_width" "$padding_bottom"
 
@@ -521,7 +521,7 @@ function SD_echo_vertical {
 
 function SD_echo_command_help {
   {
-    SD_c_r="＜ ジェネレーター" SD_echo_command
+    SD_bc_r="＜ ジェネレーター" SD_echo_command
     cat <<EOT
 Usage: ${SD_arg0##*/} [OPTIONS] [SCRIPT ...]
 
