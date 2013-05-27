@@ -820,7 +820,7 @@ function SD_echo_cgi {
       "${padding-}>余白(<span class='ul'>P</span>)</label>"
     echo '<label>' \
       '<input type="checkbox" name="options" value="square" accesskey="s" ' \
-      "${padding-}>四角形(<span class='ul'>S</span>)</label>"
+      "${square-}>四角形(<span class='ul'>S</span>)</label>"
     echo '<label>' \
       '<input type="checkbox" name="options" value="text" accesskey="t" ' \
       ">テキスト形式(<span class='ul'>T</span>)</label>"
