@@ -573,11 +573,16 @@ function SD_echo_command {
   while [ "$#" -gt 0 ]; do
     opt="$1"; shift
 
-    if [[ -z "${opt##-[!-]?*}" ]]; then
+    ## -ovalue → -o value
+    if [[ -z "${opt##-[ptblr]?*}" ]]; then
+      set -- "${opt#??}" ${1+"$@"}
+      opt="${opt%$1}"
+    ## -abc → -a -bc
+    elif [[ -z "${opt##-[!-]?*}" ]]; then
       set -- "-${opt#??}" ${1+"$@"}
       opt="${opt%${1#-}}"
-    fi
-    if [[ -z "${opt##--*=*}" ]]; then
+    ## --option=value → --option value
+    elif [[ -z "${opt##--*=*}" ]]; then
       set -- "${opt#--*=}" ${1+"$@"}
       opt="${opt%%=*}"
     fi
