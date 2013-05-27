@@ -117,7 +117,7 @@ typeset SD_lang_orig SD_lang
 typeset SD_bc_tl SD_bc_t SD_bc_tr
 typeset SD_bc_l SD_bc_r
 typeset SD_bc_bl SD_bc_b SD_bc_br
-typeset -A SD_v_map
+typeset -A SD_vc_map
 
 function SD_die {
   SD_echo_command "${SD_arg0##*/}: ERROR: $1" 1>&2
@@ -160,35 +160,35 @@ function SD_init {
   SD_bc_br="Y￣"
 
   if [[ -n ${ZSH_VERSION-} ]]; then
-    SD_v_map=()
+    SD_vc_map=()
   else
-    SD_v_map=
+    SD_vc_map=
   fi
-  SD_v_map[。]='  。'
-  SD_v_map[、]='  、'
-  SD_v_map[ー]=' ｜ '
-  SD_v_map[…]=' ︙ '
-  SD_v_map[‥]=' ︰ '
-  SD_v_map[（]=' ⏜  '
-  SD_v_map[\(]=' ⏜  '
-  SD_v_map[）]=' ⏝  '
-  SD_v_map[\)]=' ⏝  '
-  SD_v_map[［]=' ⎴  '
-  SD_v_map[\[]=' ⎴  '
-  SD_v_map[］]=' ⎵  '
-  SD_v_map[\]]=' ⎵  '
-  SD_v_map[｛]=' ⏞  '
-  SD_v_map[\{]=' ⏞  '
-  SD_v_map[｝]=' ⏟  '
-  SD_v_map[\}]=' ⏟  '
-  SD_v_map[「]='  ┐'
-  SD_v_map[」]='└  '
-  SD_v_map[｢]='  ┐'
-  SD_v_map[｣]='└  '
-  SD_v_map[-]=' |  '
-  SD_v_map[ｰ]=' |  '
-  SD_v_map[,]="  ' "
-  SD_v_map[､]='  ` '
+  SD_vc_map[。]='  。'
+  SD_vc_map[、]='  、'
+  SD_vc_map[ー]=' ｜ '
+  SD_vc_map[…]=' ︙ '
+  SD_vc_map[‥]=' ︰ '
+  SD_vc_map[（]=' ⏜  '
+  SD_vc_map[\(]=' ⏜  '
+  SD_vc_map[）]=' ⏝  '
+  SD_vc_map[\)]=' ⏝  '
+  SD_vc_map[［]=' ⎴  '
+  SD_vc_map[\[]=' ⎴  '
+  SD_vc_map[］]=' ⎵  '
+  SD_vc_map[\]]=' ⎵  '
+  SD_vc_map[｛]=' ⏞  '
+  SD_vc_map[\{]=' ⏞  '
+  SD_vc_map[｝]=' ⏟  '
+  SD_vc_map[\}]=' ⏟  '
+  SD_vc_map[「]='  ┐'
+  SD_vc_map[」]='└  '
+  SD_vc_map[｢]='  ┐'
+  SD_vc_map[｣]='└  '
+  SD_vc_map[-]=' |  '
+  SD_vc_map[ｰ]=' |  '
+  SD_vc_map[,]="  ' "
+  SD_vc_map[､]='  ` '
 }
 
 function _SD_fill_string_by_char {
@@ -489,8 +489,8 @@ function SD_echo_vertical {
       trailer="${trailer#?}"
       letter="${script%$trailer}"
       script="${script#?}"
-      if [[ -n ${SD_v_map[$letter]-} ]]; then
-	line="${SD_v_map[$letter]}"
+      if [[ -n ${SD_vc_map[$letter]-} ]]; then
+	line="${SD_vc_map[$letter]}"
       else
 	trailer2="${trailer#?}"
 	next="${script%$trailer2}"
