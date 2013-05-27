@@ -249,7 +249,7 @@ function SD_echo_header {
     fi
 
     paddings=(
-      "$left${bc_l-$SD_bc_l}　${template//  /　}　${bc_r-$SD_bc_r}"
+      "$left${bc_l:-$SD_bc_l}　${template//  /　}　${bc_r:-$SD_bc_r}"
       ${paddings[@]+"${paddings[@]}"}
     )
 
@@ -261,8 +261,8 @@ function SD_echo_header {
     let padding--
   done
 
-  template="${template//  /${bc_t-$SD_bc_t}}"
-  echo "$left${bc_tl-$SD_bc_tl}${template// /}${bc_tr-$SD_bc_tr}"
+  template="${template//  /${bc_t:-$SD_bc_t}}"
+  echo "$left${bc_tl:-$SD_bc_tl}${template// /}${bc_tr:-$SD_bc_tr}"
   for padding_s in ${paddings[@]+"${paddings[@]}"}; do
     echo "$padding_s"
   done
@@ -289,7 +289,7 @@ function SD_echo_footer {
       let width--
     fi
 
-    echo "$left${bc_l-$SD_bc_l}　${template//  /　}　${bc_r-$SD_bc_r}"
+    echo "$left${bc_l:-$SD_bc_l}　${template//  /　}　${bc_r:-$SD_bc_r}"
 
     if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
       template="${template#?}"
@@ -298,8 +298,8 @@ function SD_echo_footer {
     let padding--
   done
 
-  template="${template//  /${bc_b-$SD_bc_b}}"
-  echo "$left${bc_bl-$SD_bc_bl}${template// /}${bc_br-$SD_bc_br}"
+  template="${template//  /${bc_b:-$SD_bc_b}}"
+  echo "$left${bc_bl:-$SD_bc_bl}${template// /}${bc_br:-$SD_bc_br}"
 }
 
 function SD_echo_horizontal {
@@ -394,7 +394,7 @@ function SD_echo_horizontal {
   SD_echo_header ${no_round:+-R} "$width" "$padding_top"
   typeset line
   for script in ${scripts[@]+"${scripts[@]}"}; do
-    line="${bc_l-$SD_bc_l}　$(_SD_echo_with_padding "${script}" "$width")　${bc_r-$SD_bc_r}"
+    line="${bc_l:-$SD_bc_l}　$(_SD_echo_with_padding "${script}" "$width")　${bc_r:-$SD_bc_r}"
     echo "${line//  /　}"
   done
   SD_echo_footer ${no_round:+-R} "$width" "$padding_bottom"
@@ -528,7 +528,7 @@ function SD_echo_vertical {
   SD_echo_header ${no_round:+-R} "$line_width" "$padding_top"
   for line in ${lines[@]+"${lines[@]}"}; do
     line="$padding_left_s$line$padding_right_s"
-    echo "${bc_l-$SD_bc_l}${line//  /　}${bc_r-$SD_bc_r}"
+    echo "${bc_l:-$SD_bc_l}${line//  /　}${bc_r:-$SD_bc_r}"
   done
   SD_echo_footer ${no_round:+-R} "$line_width" "$padding_bottom"
 
