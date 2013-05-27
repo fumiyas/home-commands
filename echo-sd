@@ -733,7 +733,7 @@ function _SD_urldecode {
 function SD_echo_cgi {
   typeset query="${QUERY_STRING-}"
   typeset param value
-  typeset text vertical padding
+  typeset text vertical padding square
   typeset -a prefaces
   typeset -a scripts
 
@@ -751,8 +751,11 @@ function SD_echo_cgi {
       v|vertical)
 	vertical="checked"
 	;;
-      m|padding)
+      p|padding)
 	padding="checked"
+	;;
+      square)
+	square="checked"
 	;;
       esac
       ;;
@@ -776,8 +779,8 @@ function SD_echo_cgi {
 
   set -- \
     ${vertical:+-v} \
-    ${padding:+-t 1} \
-    ${padding:+-b 1} \
+    ${padding:+-p 1} \
+    ${square:+--square} \
     ;
   if [[ ${#scripts[@]} -eq 1 ]] && [[ -z ${scripts[0]} ]]; then
     set -- ${1+"$@"} -- '突然の死'
@@ -815,6 +818,9 @@ function SD_echo_cgi {
     echo '<label>' \
       '<input type="checkbox" name="options" value="padding" accesskey="p" ' \
       "${padding-}>余白(<span class='ul'>P</span>)</label>"
+    echo '<label>' \
+      '<input type="checkbox" name="options" value="square" accesskey="s" ' \
+      "${padding-}>四角形(<span class='ul'>S</span>)</label>"
     echo '<label>' \
       '<input type="checkbox" name="options" value="text" accesskey="t" ' \
       ">テキスト形式(<span class='ul'>T</span>)</label>"
