@@ -437,6 +437,9 @@ function SD_echo_horizontal {
       width="$width_tmp"
     fi
   done
+  if [[ -n ${center-} && $((width % 2)) -eq 1 ]]; then
+    let width++
+  fi
 
   SD_echo_header \
     ${no_round:+--no-round} \
