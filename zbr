@@ -10,6 +10,7 @@
 
 set -u
 
+t_cols="`tput cols`"
 t_bg="`tput setab 8`"
 if [ -t 1 ]; then
   t_reset="`tput sgr0`"
@@ -21,7 +22,7 @@ x=0
 cat ${1+"$@"} \
 |while IFS= read -r line; do
   [ $x -eq 1 ] && echo -n "$t_bg"
-  echo "$line$t_reset"
+  printf "%-${t_cols}s%s\n" "$line" "$t_reset"
   let 'x^=1'
 done
 
