@@ -129,8 +129,15 @@ function SD_die {
 function SD_init {
   if [[ -n ${ZSH_VERSION-} ]]; then
     setopt SH_WORD_SPLIT
+    setopt BSD_ECHO
     setopt KSH_GLOB
     setopt KSH_ARRAYS
+  elif [[ -n ${BASH_VERSION-} ]]; then
+    shopt -u xpg_echo
+  else ## ksh
+    if [[ $(echo -n) == -n ]]; then
+      alias echo='print -r'
+    fi
   fi
 
   typeset lang_ja lang
