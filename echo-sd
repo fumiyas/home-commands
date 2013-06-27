@@ -140,17 +140,16 @@ function SD_init {
     fi
   fi
 
-  typeset lang_ja lang
-
+  typeset locale lang_ja lang
   SD_lang_orig="${LANG-}"
   if [[ ${SD_lang_orig#*.} != @(UTF-8|utf-8|UTF8|utf8) ]]; then
-    if type SD_locale >/dev/null 2>&1; then
-      while read -r SD_locale; do
-	if [[ ${SD_locale#*.} == @(UTF-8|utf-8|UTF8|utf8) ]]; then
-	  if [[ ${SD_locale%.*} == ja_JP ]]; then
-	    lang_ja="$SD_locale"
+    if type locale >/dev/null 2>&1; then
+      while read -r locale; do
+	if [[ ${locale#*.} == @(UTF-8|utf-8|UTF8|utf8) ]]; then
+	  if [[ ${locale%.*} == ja_JP ]]; then
+	    lang_ja="$locale"
 	  else
-	    lang="$SD_locale"
+	    lang="$locale"
 	  fi
 	fi
       done < <(locale -a)
