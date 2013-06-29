@@ -650,16 +650,21 @@ Usage: ${SD_arg0##*/} [OPTIONS] [SCRIPT ...]
 Options:
  -h, --help
     Print this message
- -s, --read-stdin
-    Read scripts from stdin
  -v, --vertical
     Print scripts vertically
+ -t, --tweet
+    Tweet in Twitter
+ --header HEADER
+ --footer FOOTER
+    Header and footer script(s)
+ -s, --read-stdin
+    Read scripts from stdin
  --stress
     "Stress" mode
  --stream
     Stream mode
  --center
- Center scripts (not implemented in vertical mode yet)
+    Center scripts (not implemented in vertical mode yet)
  -R, --no-round
     Do not round border
  --square
@@ -670,8 +675,6 @@ Options:
  --pl, --padding-left SIZE
  --pr, --padding-right SIZE
     Padding size
- -t, --tweet
-    Tweet in Twitter
 EOT
   } |SD_echo_command --read-stdin
 }
@@ -830,18 +833,19 @@ function SD_echo_command {
       fi
     fi
 
-    typeset sd
+    typeset sd="$header"
     if [[ -z ${vertical-} ]]; then
-      sd=$(SD_echo_horizontal ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"})
+      sd+=$(SD_echo_horizontal ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"})
     else
-      sd=$(SD_echo_vertical ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"})
+      sd+=$(SD_echo_vertical ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"})
     fi
+    sd+="${footer:+$SD_c_cr$footer}"
 
     if [[ -n ${tweet-} ]]; then
       Tweet_init
-      Tweet_command "$header$sd${footer:+$SD_c_cr$footer}"
+      Tweet_command "$sd"
     else
-      echo "$header$sd${footer:+$SD_c_cr$footer}"
+      echo "$sd"
     fi
   else
     echo -n "$header"
