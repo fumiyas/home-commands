@@ -842,6 +842,11 @@ function SD_echo_command {
     sd+="${footer:+$SD_c_cr$footer}"
 
     if [[ -n ${tweet-} ]]; then
+      if [[ $sd = @( *) ]]; then
+	sd=".${sd# }"
+      elif [[ $sd = @(　*) ]]; then
+	sd=". ${sd#　}"
+      fi
       Tweet_init
       Tweet_command "$sd"
     else
