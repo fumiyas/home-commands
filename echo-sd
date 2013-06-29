@@ -681,6 +681,7 @@ function SD_echo_command {
   typeset read_stdin vertical stress stream no_round square
   typeset padding padding_top padding_bottom padding_left padding_right
   typeset center
+  typeset header= footer=
   typeset tweet
 
   while [ "$#" -gt 0 ]; do
@@ -756,6 +757,20 @@ function SD_echo_command {
     --center)
       center="set"
       ;;
+    --header)
+      if [[ -z ${1-} ]]; then
+	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
+      fi
+      header+="$1"
+      shift
+      ;;
+    --footer)
+      if [[ -z ${1-} ]]; then
+	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
+      fi
+      footer+="$1"
+      shift
+      ;;
     -t|--tweet)
       tweet="set"
       ;;
@@ -786,7 +801,9 @@ function SD_echo_command {
     ${padding_right:+--padding-right "$padding_right"}
   )
 
-  typeset header=
+  header="$(echo -e "$header")${header:+$SD_c_cr}"
+  footer="$(echo -e "$footer")"
+
   if [[ -n ${stress-} ]]; then
     header+="${1-仕事のストレス}$SD_c_cr"; ${1+shift}
     header+="　　　　↘$SD_c_cr"
@@ -822,12 +839,12 @@ function SD_echo_command {
 
     if [[ -n ${tweet-} ]]; then
       Tweet_init
-      Tweet_command "$header$sd"
+      Tweet_command "$header$sd${footer:+$SD_c_cr$footer}"
     else
-      echo "$header$sd"
+      echo "$header$sd${footer:+$SD_c_cr$footer}"
     fi
   else
-    echo "$header"
+    echo -n "$header"
     while :; do
       IFS= read -r line || break
       set -- ${1+"$@"} "$line"
@@ -839,6 +856,7 @@ function SD_echo_command {
       fi
       shift $#
     done
+    echo "$footer"
   fi
 }
 
