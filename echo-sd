@@ -274,7 +274,7 @@ function SD_echo_header {
   typeset template left=
   typeset -a paddings
 
-  if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
+  if [[ -n ${round-} && $width -ge 2 && $padding -gt 0 ]]; then
     left=" "
     let width--
   else
@@ -343,7 +343,7 @@ function SD_echo_footer {
   typeset padding="$1"; shift
   typeset template left=
 
-  if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
+  if [[ -n ${round-} && $width -ge 2 && $padding -gt 0 ]]; then
     left=" "
     let width--
   fi
