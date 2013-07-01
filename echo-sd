@@ -648,14 +648,14 @@ function SD_echo_command_help {
 Usage: ${SD_arg0##*/} [OPTIONS] [SCRIPT ...]
 
 Options:
- -h, --help
+ --help
     Print this message
  -v, --vertical
     Print scripts vertically
  -t, --tweet
     Tweet in Twitter
- --header HEADER
- --footer FOOTER
+ -h, --header HEADER
+ -f, --footer FOOTER
     Header and footer script(s)
  -s, --read-stdin
     Read scripts from stdin
@@ -691,7 +691,7 @@ function SD_echo_command {
     opt="$1"; shift
 
     ## -ovalue → -o value
-    if [[ -z "${opt##-[p]?*}" ]]; then
+    if [[ -z "${opt##-[phf]?*}" ]]; then
       set -- "${opt#??}" ${1+"$@"}
       opt="${opt%$1}"
     ## -abc → -a -bc
@@ -705,7 +705,7 @@ function SD_echo_command {
     fi
 
     case "$opt" in
-    -h|--help)
+    --help)
       SD_echo_command_help
       exit 0
       ;;
@@ -760,14 +760,14 @@ function SD_echo_command {
     --center)
       center="set"
       ;;
-    --header)
+    -h|--header)
       if [[ -z ${1-} ]]; then
 	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
       fi
       header+="$1"
       shift
       ;;
-    --footer)
+    -f|--footer)
       if [[ -z ${1-} ]]; then
 	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
       fi
