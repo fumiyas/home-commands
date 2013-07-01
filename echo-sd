@@ -1004,6 +1004,8 @@ function SD_echo_cgi {
 
 ## ======================================================================
 
+## Import tweet.sh from https://github.com/fumiyas/Tweet.sh
+
 typeset Tweet_arg0="$0"
 typeset Tweet_lang=''
 typeset Tweet_conf_file="${TWEET_CONF-$HOME/.echo-sd.conf}"
