@@ -301,9 +301,9 @@ function SD_echo_header {
   done
 
   template="${template//  /${bc_t:-$SD_bc_t}}"
-  echo "$left${bc_tl:-$SD_bc_tl}${template// /}${bc_tr:-$SD_bc_tr}"
+  echo "${left//  /　}${bc_tl:-$SD_bc_tl}${template// /}${bc_tr:-$SD_bc_tr}"
   for padding_s in ${paddings[@]+"${paddings[@]}"}; do
-    echo "$padding_s"
+    echo "${padding_s//  /　}"
   done
 }
 
@@ -354,7 +354,7 @@ function SD_echo_footer {
       let width--
     fi
 
-    echo "$left${bc_l:-$SD_bc_l}　${template//  /　}　${bc_r:-$SD_bc_r}"
+    echo "${left//  /　}${bc_l:-$SD_bc_l}　${template//  /　}　${bc_r:-$SD_bc_r}"
 
     if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
       template="${template#?}"
@@ -364,7 +364,7 @@ function SD_echo_footer {
   done
 
   template="${template//  /${bc_b:-$SD_bc_b}}"
-  echo "$left${bc_bl:-$SD_bc_bl}${template// /}${bc_br:-$SD_bc_br}"
+  echo "${left//  /　}${bc_bl:-$SD_bc_bl}${template// /}${bc_br:-$SD_bc_br}"
 }
 
 function SD_echo_horizontal {
@@ -845,7 +845,7 @@ function SD_echo_command {
       if [[ $sd = @( *) ]]; then
 	sd=".${sd# }"
       elif [[ $sd = @(　*) ]]; then
-	sd=". ${sd#　}"
+	sd="．${sd#　}"
       fi
       Tweet_init
       Tweet_command "$sd"
