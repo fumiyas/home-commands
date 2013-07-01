@@ -30,13 +30,15 @@
 ##   $ echo-sd --help
 ##   ...
 ##   $ echo-sd
-##    ＿人人人人人＿
+##   ＿人人人人人人＿
 ##   ＞　突然の死　＜
-##    ￣Y^Y^Y^Y^Y￣
+##   ￣Y^Y^Y^Y^Y^Y￣
+##   $ echo-sd -t
+##   (Tweet message in Twitter)
 ##   $ echo-sd ぬるぽっ！!
-##    ＿人人人人人人人＿
+##   ＿人人人人人人人＿
 ##   ＞　ぬるぽっ！!　＜
-##    ￣Y^Y^Y^Y^Y^Y^Y￣
+##   ￣Y^Y^Y^Y^Y^Y^Y￣
 ##   $ echo-sd -v ガッ！
 ##   ＿人人＿
 ##   ＞ ガ ＜
