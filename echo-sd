@@ -1006,18 +1006,22 @@ function SD_echo_cgi {
 
 ## ======================================================================
 
+TWEET_CONF="${ECHO_SD_CONF-$HOME/.echo-sd.conf}"
+TWEET_OAUTH_CONSUMER_KEY="${ECHO_SD_OAUTH_CONSUMER_KEY-qMAuBmchzlryuQahRlnAeg}"
+TWEET_OAUTH_CONSUMER_SECRET="${ECHO_SD_OAUTH_CONSUMER_SECRET-JNSzHebO5N5h5nOcYFc1IILP8tqGP4fy28vCBBDFCA}"
+
 ## Import tweet.sh from https://github.com/fumiyas/Tweet.sh
 
 typeset Tweet_arg0="$0"
 typeset Tweet_lang=''
-typeset Tweet_conf_file="${TWEET_CONF-$HOME/.echo-sd.conf}"
+typeset Tweet_conf_file="${TWEET_CONF-$HOME/.tweet.conf}"
 typeset Tweet_api_host="api.twitter.com"
 typeset Tweet_api_url="https://$Tweet_api_host/1.1"
 typeset Tweet_api_url_request_token="https://$Tweet_api_host/oauth/request_token"
 typeset Tweet_api_url_authorize_token="https://$Tweet_api_host/oauth/authorize"
 typeset Tweet_api_url_access_token="https://$Tweet_api_host/oauth/access_token"
-typeset Tweet_oauth_consumer_key='qMAuBmchzlryuQahRlnAeg'
-typeset Tweet_oauth_consumer_secret='JNSzHebO5N5h5nOcYFc1IILP8tqGP4fy28vCBBDFCA'
+typeset Tweet_oauth_consumer_key="${TWEET_OAUTH_CONSUMER_KEY-C7IpNPso1IYdCweXYaJ0Q}"
+typeset Tweet_oauth_consumer_secret="${TWEET_OAUTH_CONSUMER_SECRET-LAsLscqNC4kBaDW8EtmxMIVCkY8nsw07NaN5PNBYuY}"
 typeset Tweet_oauth_access_token=''
 typeset Tweet_oauth_access_token_secret=''
 typeset Tweet_script_limit='140'
