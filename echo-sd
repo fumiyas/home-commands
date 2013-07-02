@@ -123,7 +123,7 @@ typeset SD_bc_tl SD_bc_t SD_bc_tr
 typeset SD_bc_l SD_bc_r
 typeset SD_bc_bl SD_bc_b SD_bc_br
 typeset -A SD_vc_map
-typeset SD_c_cr='
+typeset SD_c_lf='
 '
 
 ## ======================================================================
@@ -806,18 +806,18 @@ function SD_echo_command {
     ${padding_right:+--padding-right "$padding_right"}
   )
 
-  header="$(echo -e "$header")${header:+$SD_c_cr}"
+  header="$(echo -e "$header")${header:+$SD_c_lf}"
   footer="$(echo -e "$footer")"
 
   if [[ -n ${stress-} ]]; then
-    header+="${1-仕事のストレス}$SD_c_cr"; ${1+shift}
-    header+="　　　　↘$SD_c_cr"
-    header+="　　　${1-仕事のストレス}$SD_c_cr"; ${1+shift}
-    header+="　　　　↙$SD_c_cr"
-    header+="${1-仕事のストレス}$SD_c_cr"; ${1+shift}
-    header+="　　　　↘$SD_c_cr"
-    header+="　　　${1-仕事のストレス}$SD_c_cr"; ${1+shift}
-    header+="　　　　↙$SD_c_cr"
+    header+="${1-仕事のストレス}$SD_c_lf"; ${1+shift}
+    header+="　　　　↘$SD_c_lf"
+    header+="　　　${1-仕事のストレス}$SD_c_lf"; ${1+shift}
+    header+="　　　　↙$SD_c_lf"
+    header+="${1-仕事のストレス}$SD_c_lf"; ${1+shift}
+    header+="　　　　↘$SD_c_lf"
+    header+="　　　${1-仕事のストレス}$SD_c_lf"; ${1+shift}
+    header+="　　　　↙$SD_c_lf"
   fi
 
   if [[ -n ${read_stdin-} ]]; then
@@ -841,7 +841,7 @@ function SD_echo_command {
     else
       sd+=$(SD_echo_vertical ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"})
     fi
-    sd+="${footer:+$SD_c_cr$footer}"
+    sd+="${footer:+$SD_c_lf$footer}"
 
     if [[ -n ${tweet-} ]]; then
       if [[ $sd = @( *) ]]; then
@@ -1021,7 +1021,7 @@ typeset Tweet_oauth_consumer_secret='JNSzHebO5N5h5nOcYFc1IILP8tqGP4fy28vCBBDFCA'
 typeset Tweet_oauth_access_token=''
 typeset Tweet_oauth_access_token_secret=''
 typeset Tweet_script_limit='140'
-typeset Tweet_c_cr='
+typeset Tweet_c_lf='
 '
 
 function Tweet_error {
@@ -1155,7 +1155,7 @@ function HTTPS_request {
       esac
     done
     while IFS= read -r line; do
-      body+="$line$Tweet_c_cr"
+      body+="$line$Tweet_c_lf"
     done
     body+="$line"
   } < <(
@@ -1373,11 +1373,11 @@ function Tweet_authorize {
   )
   typeset ret="$?"
   if [[ $ret -ne 0 ]]; then
-    Tweet_error "OAuth request token failed: ${response%%$Tweet_c_cr*}"
+    Tweet_error "OAuth request token failed: ${response%%$Tweet_c_lf*}"
     return 1
   fi
 
-  typeset body="${response#*$Tweet_c_cr$Tweet_c_cr}"
+  typeset body="${response#*$Tweet_c_lf$Tweet_c_lf}"
   typeset oauth_token=$(HTTP_response_extract "$body" oauth_token)
   typeset oauth_token_secret=$(HTTP_response_extract "$body" oauth_token_secret)
 
@@ -1415,11 +1415,11 @@ function Tweet_authorize {
   )
   typeset ret="$?"
   if [[ $ret -ne 0 ]]; then
-    Tweet_error "OAuth access token failed: ${response%%$Tweet_c_cr*}"
+    Tweet_error "OAuth access token failed: ${response%%$Tweet_c_lf*}"
     return 1
   fi
 
-  typeset body="${response#*$Tweet_c_cr$Tweet_c_cr}"
+  typeset body="${response#*$Tweet_c_lf$Tweet_c_lf}"
   Tweet_oauth_access_token=$(HTTP_response_extract "$body" oauth_token)
   Tweet_oauth_access_token_secret=$(HTTP_response_extract "$body" oauth_token_secret)
 
@@ -1475,11 +1475,11 @@ function Tweet_tweet {
   )
   typeset ret="$?"
   if [[ $ret -ne 0 ]]; then
-    Tweet_error "Tweet failed: ${response%%$Tweet_c_cr*}"
+    Tweet_error "Tweet failed: ${response%%$Tweet_c_lf*}"
     return 1
   fi
 
-  typeset body="${response#*$Tweet_c_cr$Tweet_c_cr}"
+  typeset body="${response#*$Tweet_c_lf$Tweet_c_lf}"
 }
 
 function Tweet_command_help {
