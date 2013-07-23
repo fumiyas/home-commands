@@ -446,7 +446,7 @@ function SD_echo_horizontal {
   padding_right_s=$(_SD_pad_space "$padding_right")
   for script in ${1+"$@"}; do
     script="$padding_left_s$script$padding_right_s"
-    scripts[${#scripts[@]}]="$script"
+    scripts+=("$script")
     width_tmp=$(_SD_string_width "$script")
     if [[ $width_tmp -gt $width ]]; then
       width="$width_tmp"
@@ -920,12 +920,12 @@ function SD_echo_cgi {
       ;;
     p|prefaces)
       while IFS= read -r line; do
-	prefaces[${#prefaces[@]}]="${line%}"
+	prefaces+=("${line%}")
       done < <(echo "$value")
       ;;
     s|scripts)
       while IFS= read -r line; do
-	scripts[${#scripts[@]}]="${line%}"
+	scripts+=("${line%}")
       done < <(echo "$value")
       ;;
     esac
