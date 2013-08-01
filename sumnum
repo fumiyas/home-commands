@@ -1,0 +1,21 @@
+#!/bin/sh
+##
+## Sum up all numbers (ignore others) in stdin
+## Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+
+set -u
+set -f
+
+while read line; do
+  set - $line
+  while [ $# -gt 0 ]; do
+    let sum+="$1" 2>/dev/null
+    shift
+  done
+done
+
+echo "$sum"
+
