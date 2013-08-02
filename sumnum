@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/awk -f
 ##
 ## Sum up all numbers (ignore others) in stdin
 ## Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
@@ -6,16 +6,18 @@
 ## License: GNU General Public License version 3
 ##
 
-set -u
-set -f
+BEGIN {
+  sum=0
+}
 
-while read line; do
-  set - $line
-  while [ $# -gt 0 ]; do
-    let sum+="$1" 2>/dev/null
-    shift
-  done
-done
+{
+  while (NF) {
+    sum+=$(NF)
+    NF--
+  }
+}
 
-echo "$sum"
+END {
+  print sum
+}
 
