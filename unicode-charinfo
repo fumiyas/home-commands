@@ -1,0 +1,31 @@
+#!/usr/bin/env perl
+##
+## Print Unicode character informations
+## Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+
+use strict;
+use warnings;
+use utf8;
+use open OUT => ':utf8';
+use open ':std';
+use Encode qw(decode);
+use Unicode::UCD qw(charinfo);
+
+if (@ARGV == 0) {
+  print "Usage: $0 CHARACTERS ...\n";
+  exit(1);
+}
+
+for my $char (split(//, decode('UTF-8', join('', @ARGV)))) {
+  print "$char\n";
+  my $charinfo = charinfo(ord($char));
+  for my $key (sort keys $charinfo) {
+    printf "\t%-15s %s\n", $key, $charinfo->{$key};
+  }
+}
+
+exit(0);
+
