@@ -1,0 +1,36 @@
+#!/bin/bash
+##
+## jwdiff: Display word differences between Japanese text files
+## Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##               <http://fumiyas.github.io/>
+##
+## URL: https://github.com/fumiyas/home-commands/blob/master/jwdiff
+## License: GNU General Public License version 3
+##
+
+set -u
+
+wakati() {
+  expand "$1" \
+  |mecab \
+    --node-format '%M\t' \
+    --eos-format '\n' \
+    ;
+}
+
+args=("$@")
+args_last=$((${#args[@]} - 1))
+file2="${args[$args_last]}";
+unset args[$args_last]
+let args_last--
+file1="${args[$args_last]}";
+unset args[$args_last]
+let args_last--
+
+wdiff \
+  ${args+"${args[@]}"} \
+  <(wakati "$file1") \
+  <(wakati "$file2") \
+|sed 's/	//g' \
+;
+
