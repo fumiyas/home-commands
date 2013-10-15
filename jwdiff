@@ -18,6 +18,17 @@ wakati() {
     ;
 }
 
+usage="\
+Usage: ${0##*/} [OPTION] FILE1 FILE2
+
+Options: See wdiff(1) manpage except --diff-input (-d) option
+"
+
+if [ $# -lt 2 ]; then
+  echo "$usage" 1>&2
+  exit 1
+fi
+
 args=("$@")
 args_last=$((${#args[@]} - 1))
 file2="${args[$args_last]}";
@@ -25,7 +36,6 @@ unset args[$args_last]
 let args_last--
 file1="${args[$args_last]}";
 unset args[$args_last]
-let args_last--
 
 wdiff \
   ${args+"${args[@]}"} \
