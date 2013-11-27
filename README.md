@@ -12,6 +12,8 @@
     * 日本語対応 wdiff(1) (単語単位の差分表示)
   * ls-path (bash or ksh)
     * 指定したパスとパスまでの途中のディレクトリをすべて ls で表示
+  * movie2audio (sh + FFmpeg)
+    * 動画ファイルから音声ファイルに変換
   * pwait (sh + inotifywait (オプション), Linux 用)
     * 指定したプロセス ID が終了するまで待つ
   * qrcode-aa (Ruby + qrcode gem)

@@ -1,0 +1,59 @@
+#!/bin/sh
+##
+## Convert movie file to audio file by FFmpeg
+## Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE Version 2
+##
+
+set -u
+
+perr() {
+  echo "$0: ERROR: $1" 1>&2
+}
+
+pdie() {
+  perr "$1"
+  exit "${2-1}"
+}
+
+ffprobe="ffprobe"
+ffmpeg="ffmpeg"
+
+movie_fname="$1"; shift
+
+if [ ! -f "$movie_fname" ]; then
+  pdie "No such file: $movie_fname"
+fi
+if [ ! -r "$movie_fname" ]; then
+  pdie "Permission denied to read: $movie_fname"
+fi
+
+audio_codec=`
+  "$ffprobe" \
+    -loglevel warning \
+    -i "$movie_fname" \
+    -show_streams \
+    -select_streams a \
+  |sed -n 's/^codec_name=//p' \
+  ;
+`
+if [ -z "$audio_codec" ]; then
+  pdie "Cannot detect audio codec from movie file: $movie_fname"
+fi
+
+audio_fname="${movie_fname%.*}.$audio_codec"
+if [ x"$movie_fname" = x"$audio_fname" ]; then
+  exit 0
+fi
+
+"$ffmpeg" \
+  -loglevel warning \
+  -i "$movie_fname" \
+  -y \
+  -acodec copy \
+  "$audio_fname" \
+;
+
+exit $?
+
