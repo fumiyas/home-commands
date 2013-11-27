@@ -34,7 +34,7 @@ audio_codec=`
     -loglevel warning \
     -i "$movie_fname" \
     -show_streams \
-    -select_streams a \
+    -select_streams a:0 \
   |sed -n 's/^codec_name=//p' \
   ;
 `
@@ -51,7 +51,7 @@ fi
   -loglevel warning \
   -i "$movie_fname" \
   -y \
-  -acodec copy \
+  -codec:a:0 copy \
   "$audio_fname" \
 ;
 
