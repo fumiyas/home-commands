@@ -29,7 +29,7 @@ pattern="$1"; shift
 ## when the last command on the pipeline is terminated, whether the
 ## other command is terminated or not.
 tail -f "$@" \
-|while read -r line; do
+|while IFS= read -r line; do
   echo "$line"
   [[ $line = @($pattern) ]] && break
 done
