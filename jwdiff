@@ -16,7 +16,7 @@ pdie() {
 }
 
 wakati() {
-  expand "$1" \
+  expand ${1+"$1"} \
     |mecab \
       --node-format '%M\t' \
       --eos-format '\n' \
@@ -24,31 +24,37 @@ wakati() {
 }
 
 usage="\
-Usage: ${0##*/} [OPTION] FILE1 FILE2
+Usage:
+  ${0##*/} [OPTION] FILE1 FILE2
+  ${0##*/} -d [OPTION]
 
-Options: See wdiff(1) manpage except --diff-input (-d) option
+Options:
+  See wdiff(1) manpage
 "
 
-if [[ $# -lt 2 ]]; then
-  echo "$usage" 1>&2
-  exit 1
+if [[ ${1-} = -d ]] || [[ ${1-} = --diff-input ]]; then
+    wakati |wdiff "$@" |sed 's/	//g'
+else
+  if [[ $# -lt 2 ]]; then
+    echo "$usage" 1>&2
+    exit 1
+  fi
+
+  args=("$@")
+  args_last=$((${#args[@]} - 1))
+  file2="${args[$args_last]}";
+  unset args[$args_last]
+  let args_last--
+  file1="${args[$args_last]}";
+  unset args[$args_last]
+
+  [[ -f $file1 ]] || pdie "No such file: $file1"
+  [[ -f $file2 ]] || pdie "No such file: $file2"
+
+  wdiff \
+    ${args+"${args[@]}"} \
+    <(wakati "$file1") \
+    <(wakati "$file2") \
+    |sed 's/	//g' \
+  ;
 fi
-
-args=("$@")
-args_last=$((${#args[@]} - 1))
-file2="${args[$args_last]}";
-unset args[$args_last]
-let args_last--
-file1="${args[$args_last]}";
-unset args[$args_last]
-
-[[ -f $file1 ]] || pdie "No such file: $file1"
-[[ -f $file2 ]] || pdie "No such file: $file2"
-
-wdiff \
-  ${args+"${args[@]}"} \
-  <(wakati "$file1") \
-  <(wakati "$file2") \
-  |sed 's/	//g' \
-;
-
