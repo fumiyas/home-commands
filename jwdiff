@@ -10,6 +10,11 @@
 
 set -u
 
+pdie() {
+  echo "$0: ERROR: $1"
+  exit ${2-1}
+}
+
 wakati() {
   expand "$1" \
     |mecab \
@@ -37,10 +42,13 @@ let args_last--
 file1="${args[$args_last]}";
 unset args[$args_last]
 
+[[ -f $file1 ]] || pdie "No such file: $file1"
+[[ -f $file2 ]] || pdie "No such file: $file2"
+
 wdiff \
   ${args+"${args[@]}"} \
   <(wakati "$file1") \
   <(wakati "$file2") \
-|sed 's/	//g' \
+  |sed 's/	//g' \
 ;
 
