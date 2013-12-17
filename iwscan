@@ -25,7 +25,7 @@ iwlist  "$if" scan \
     if (info["Encryption"] == "?") {
       info["Encryption"] =  "WEP?"
   }
-    printf "%3d %-5s %-8s %-40s %s\n",
+    printf "%3d %-5s %-8s %-42s %s\n",
       info["Channel"],
       info["Quality"],
       info["Mode"],
