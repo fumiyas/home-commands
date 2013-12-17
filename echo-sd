@@ -6,8 +6,8 @@
 ## ￣Y^Y^Y^Y^Y^Y￣
 ## Copyright (C) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##               <https://github.com/fumiyas/home-commands/blob/master/echo-sd>
-##               <http://www.OSSTech.co.jp/cgi-bin/echo-sd>
-##               <https://twitter.com/satoh_fumiyasu>
+##               <http://fumiyas.github.io/>
+##               <http://www.osstech.co.jp/cgi-bin/echo-sd>
 ##
 ## License: GNU General Public License version 3
 ##
@@ -683,7 +683,8 @@ EOT
 
 function SD_echo_command {
   typeset opt
-  typeset read_stdin vertical stress stream no_round square
+  typeset read_stdin vertical stress stream
+  typeset no_round square tanzaku
   typeset padding padding_top padding_bottom padding_left padding_right
   typeset center
   typeset header= footer=
@@ -759,6 +760,11 @@ function SD_echo_command {
       square="set"
       no_round="set"
       ;;
+    --tanzaku)
+      tanzaku="set"
+      vertical="set"
+      no_round="set"
+      ;;
     --center)
       center="set"
       ;;
@@ -796,15 +802,28 @@ function SD_echo_command {
   sd_opts=(
     ${no_round:+--no-round}
     ${center:+--center}
-    ${square:+--bc-tl '┌─' --bc-t '─' --bc-tr '─┐'}
-    ${square:+--bc-l '│' --bc-r '│'}
-    ${square:+--bc-bl '└─' --bc-b '─' --bc-br '─┘'}
     ${padding:+--padding "$padding"}
     ${padding_top:+--padding-top "$padding_top"}
     ${padding_bottom:+--padding-bottom "$padding_bottom"}
     ${padding_left:+--padding-left "$padding_left"}
     ${padding_right:+--padding-right "$padding_right"}
   )
+  if [[ -n ${square-} ]]; then
+    sd_opts=(
+      "${sd_opts[@]}"
+      --bc-tl '┌─' --bc-t '─' --bc-tr '─┐'
+      --bc-l '│' --bc-r '│'
+      --bc-bl '└─' --bc-b '─' --bc-br '─┘'
+    )
+  fi
+  if [[ -n ${tanzaku-} ]]; then
+    sd_opts=(
+      "${sd_opts[@]}"
+      --bc-tl '┏━' --bc-t '┷' --bc-tr '━┓'
+      --bc-l '┃' --bc-r '┃'
+      --bc-bl '┗━' --bc-b '━' --bc-br '━┛'
+    )
+  fi
 
   header="$(echo -e "$header")${header:+$SD_c_lf}"
   footer="$(echo -e "$footer")"
