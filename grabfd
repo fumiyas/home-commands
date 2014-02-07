@@ -1,0 +1,150 @@
+#!/bin/sh
+##
+## Grab stdin/stdout/stderr from another process
+## Copyright (c) 2014 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+
+## Inspired by:
+##	http://yudoufu.hatenablog.jp/entry/2014/02/06/001440
+##	http://qiita.com/kawaz/items/96af6fa59fdf999b94bd
+
+set -u
+
+pdie() {
+  echo "$0: ERROR: $1"
+  exit ${2-1}
+}
+
+cmd_usage="Usage: $0 [OPTIONS] PID
+
+Options:
+ -w, --wait
+  Wait for process termination (default: Wait if stdout and/or stderr is tty)
+ -W, --no-wait
+  Do not wait for process termination
+ -i, --stdin
+  Grab process's stdin too (default: stdout and stderr only)
+"
+
+o_rdonly=00000000
+o_wronly=00000001
+if [ x"`uname`" = x"Linux" ]; then
+  o_append=00002000
+else
+  o_append=00000008
+fi
+
+unset wait_f
+stdin_f=''
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+  --wait|-w)
+    wait_f='set'
+    ;;
+  --no-wait|-W)
+    wait_f=''
+    ;;
+  --stdin|-i)
+    stdin_f='set'
+    ;;
+  --)
+    break
+    ;;
+  -*)
+    pdie "Unknown option: $1"
+    ;;
+  *)
+    break
+    ;;
+  esac
+  shift
+done
+
+if [ -n "$stdin_f" ] && [ -t 0 ] || [ -t 1 ] || [ -t 2 ]; then
+  wait_f='set'
+else
+  wait_f=''
+fi
+
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+  echo "$cmd_usage"
+  exit 1
+fi
+
+pid="$1"; shift
+kill -0 "$pid" || pdie "No such process ID: $pid"
+if [ -n "${1:+set}" ]; then
+  pid2="$1"; shift
+  kill -0 "$pid" || pdie "No such process ID: $pid2"
+else
+  pid2="$$"
+fi
+
+if [ -d "/proc/$pid2/fd" ]; then
+  stdin="/proc/$pid2/fd/0"
+  stdout="/proc/$pid2/fd/1"
+  stderr="/proc/$pid2/fd/2"
+else
+  if [ "$pid2" -ne "$$" ]; then
+    pdie "Cannot attach to another process's stdio on this platform"
+  fi
+  tty=`tty` || pdie "Tty not detected"
+  stdin="$tty"
+  stdout="$tty"
+  stderr="$tty"
+fi
+
+shift $#
+## FIXME: Only gdb 7.0+ support --eval-command option
+if [ -n "$stdin_f" ]; then
+  set -- "$@" --eval-command="print close(0)"
+  set -- "$@" --eval-command="print open(\"$stdin\", $o_rdonly)"
+fi
+set -- "$@" --eval-command="print close(1)"
+set -- "$@" --eval-command="print open(\"$stdout\", $o_wronly|$o_append)"
+set -- "$@" --eval-command="print close(2)"
+set -- "$@" --eval-command="print open(\"$stderr\", $o_wronly|$o_append)"
+set -- "$@" --eval-command="quit"
+
+gdb_out=`gdb --batch --quiet -p "$pid" "$@" 2>&1`
+if [ $? -ne 0 ]; then
+  echo "$gdb_out" 1>&2
+  pdie "gdb failed"
+fi
+
+if [ -z "$wait_f" ]; then
+  exit 0
+fi
+
+if type pwait >/dev/null 2>&1; then
+  pwait "$pid"
+if type procwait >/dev/null 2>&1; then
+  procwait "$pid"
+else
+  ## pwait(1) emulation
+
+  cd "/proc/$pid" 2>/dev/null || exit 0
+
+  if type inotifywait >/dev/null 2>&1; then
+    inotifywait='set'
+  else
+    inotifywait=
+  fi
+
+  while :; do
+    if [ -n "$inotifywait" ]; then
+      inotifywait --quiet --event close_nowrite exe >/dev/null || sleep 1
+    else
+      sleep 1
+    fi
+    if ! cd . 2>/dev/null; then
+      break
+    fi
+  done
+fi
+
+exit 0
+
