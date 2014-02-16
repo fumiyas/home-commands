@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+##
+## IMAP UTF-7 encode/decode data and print to standard output
+## Copyright (c) 2014 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+
+require 'net/imap'
+
+method = (ARGV[0] && ARGV[0] == '-d') ? :decode_utf7 : :encode_utf7
+
+$stdin.each do |line|
+  line.chomp!
+  print Net::IMAP.send(method, line), "\n"
+end
+
