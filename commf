@@ -1,0 +1,67 @@
+#!/usr/bin/python
+##
+## commf - Select or reject lines that have common field in two files
+## Copyright (c) 2014 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+
+## FIXME: Add -1, -2, -3 options for same as comm(1)
+
+import sys
+import getopt
+
+cmd_usage = """\
+Usage: %s [OPTIONS] INPUT_FILE KEY_FILE
+
+Options:
+ -d DELIMITER""" % (sys.argv[0])
+
+delim = "\t"
+
+## Command-line options
+## ----------------------------------------------------------------------
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:],
+	'hd:',
+	[
+	    'help',
+	    'delimiter=',
+	])
+except getopt.error, msg:
+    perr("%s", msg)
+    sys.exit(1)
+for opt, arg in opts:
+    if opt in ('-h', '--help'):
+	print cmd_usage
+	sys.exit(0)
+    if opt in ('-d', '--delimiter'):
+	delim = arg
+
+if len(args) != 2:
+    print cmd_usage
+    exit(1)
+
+input_f = open(args[0])
+key_f = open(args[1])
+
+input_k = key = 'dummy'
+
+## ======================================================================
+
+while True:
+    input_k_p = input_k
+    if input_k <= key:
+        input_l = input_f.readline()
+        if not input_l:
+            break
+        input_k = input_l.rstrip().split(delim)[0]
+    if input_k_p >= key:
+        key_l = key_f.readline()
+        if not key_l:
+            break
+        key = key_l.rstrip()
+    if input_k == key:
+        print input_l,
+
