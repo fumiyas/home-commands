@@ -1,6 +1,6 @@
 #!/bin/sh
 ##
-## Convert movie file to audio file by FFmpeg
+## Convert video file to audio file by FFmpeg
 ## Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##
 ## License: DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE Version 2
@@ -20,36 +20,36 @@ pdie() {
 ffprobe="ffprobe"
 ffmpeg="ffmpeg"
 
-movie_fname="$1"; shift
+video_fname="$1"; shift
 
-if [ ! -f "$movie_fname" ]; then
-  pdie "No such file: $movie_fname"
+if [ ! -f "$video_fname" ]; then
+  pdie "No such file: $video_fname"
 fi
-if [ ! -r "$movie_fname" ]; then
-  pdie "Permission denied to read: $movie_fname"
+if [ ! -r "$video_fname" ]; then
+  pdie "Permission denied to read: $video_fname"
 fi
 
 audio_codec=`
   "$ffprobe" \
     -loglevel warning \
-    -i "$movie_fname" \
+    -i "$video_fname" \
     -show_streams \
     -select_streams a:0 \
   |sed -n 's/^codec_name=//p' \
   ;
 `
 if [ -z "$audio_codec" ]; then
-  pdie "Cannot detect audio codec from movie file: $movie_fname"
+  pdie "Cannot detect audio codec from video file: $video_fname"
 fi
 
-audio_fname="${movie_fname%.*}.$audio_codec"
-if [ x"$movie_fname" = x"$audio_fname" ]; then
+audio_fname="${video_fname%.*}.$audio_codec"
+if [ x"$video_fname" = x"$audio_fname" ]; then
   exit 0
 fi
 
 "$ffmpeg" \
   -loglevel warning \
-  -i "$movie_fname" \
+  -i "$video_fname" \
   -y \
   -codec:a:0 copy \
   "$audio_fname" \
