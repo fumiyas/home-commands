@@ -6,6 +6,7 @@
 ## License: GNU General Public License version 3
 ##
 
+## TODO: Exit with error if pid not found
 perr()
 {
   echo "$0: ERROR: $1" 1>&2
@@ -23,6 +24,8 @@ fi
 
 if type inotifywait >/dev/null 2>&1; then
   inotifywait="set"
+else
+  inotifywait=""
 fi
 
 for pid in "$@"; do
@@ -31,17 +34,20 @@ for pid in "$@"; do
     continue
   fi
 
-  while :; do
-    if [ -n "$inotifywait" ]; then
-      inotifywait --quiet --event close_nowrite exe >/dev/null || sleep 5
-    else
-      sleep 5
-    fi
-    if ! cd . 2>/dev/null; then
-      [ -n "$verbose" ] && echo "$pid: terminated"
-      exit 0
-    fi
-  done &
+  (
+    [ -r exe ] || inotifywait=""
+    while :; do
+      if [ -n "$inotifywait" ]; then
+	inotifywait --quiet --event close_nowrite exe >/dev/null 2>&1
+      else
+	sleep 5
+      fi
+      if ! cd . 2>/dev/null; then
+	[ -n "$verbose" ] && echo "$pid: terminated"
+	exit 0
+      fi
+    done
+  ) &
 done
 
 wait
