@@ -681,6 +681,8 @@ Options:
     Read scripts from stdin
  --stress
     "Stress" mode
+ --tanzaku
+    "Tanzaku" mode
  --stream
     Stream mode
  --center
