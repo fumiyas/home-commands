@@ -1485,7 +1485,7 @@ function Tweet_tweet {
 
   typeset script_len=$(Tweet_string_length "$script")
   if [[ $script_len -gt $Tweet_script_limit ]]; then
-    Tweet_error "Script too long (>$Tweet_script_limit): $script_len"
+    Tweet_error "Script too long (>$Tweet_script_limit) to tweet: $script_len"
     return 1
   fi
 
