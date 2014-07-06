@@ -184,6 +184,8 @@ function SD_init {
   SD_vc_map[ー]=' ｜ '
   SD_vc_map[…]=' ︙ '
   SD_vc_map[‥]=' ︰ '
+  SD_vc_map[：]=' ‥ '
+  SD_vc_map[:]=' ‥ '
   SD_vc_map[（]=' ⏜  '
   SD_vc_map[\(]=' ⏜  '
   SD_vc_map[）]=' ⏝  '
