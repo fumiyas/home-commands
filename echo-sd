@@ -165,14 +165,14 @@ function SD_init {
   fi
   SD_lang="${lang_ja-${lang-ja_JP.UTF-8}}"
 
-  SD_bc_tl="＿人"
+  SD_bc_tl="＿"
   SD_bc_t="人"
-  SD_bc_tr="人＿"
+  SD_bc_tr="＿"
   SD_bc_l="＞"
   SD_bc_r="＜"
-  SD_bc_bl="￣Y^"
+  SD_bc_bl="￣"
   SD_bc_b="Y^"
-  SD_bc_br="Y￣"
+  SD_bc_br="￣"
 
   if [[ -n ${ZSH_VERSION-} ]]; then
     SD_vc_map=()
@@ -242,7 +242,7 @@ function _SD_echo_with_padding {
 function SD_echo_header {
   typeset opt
   typeset round="set"
-  typeset bc_tl bc_t bc_tr bc_l bc_r
+  typeset bc_tc bc_tl bc_t bc_tr bc_l bc_r
 
   while [ "$#" -gt 0 ]; do
     opt="$1"; shift
@@ -251,7 +251,7 @@ function SD_echo_header {
     --no-round)
       round=""
       ;;
-    --bc-[tlr]|--bc-t[lr])
+    --bc-[tlr]|--bc-t[clr])
       if [[ ! -n ${1+set} ]]; then
 	SD_die "Option value required: $opt"
       fi
@@ -302,8 +302,17 @@ function SD_echo_header {
     let padding--
   done
 
-  template="${template//  /${bc_t:-$SD_bc_t}}"
-  echo "${left//  /　}${bc_tl:-$SD_bc_tl}${template// /}${bc_tr:-$SD_bc_tr}"
+  typeset top
+  if [[ -n $bc_tc ]]; then
+    width=$(_SD_string_width "$template")
+    template="$(_SD_pad_space $((width / 2)))"
+    top="${template//  /${bc_t:-$SD_bc_t}}$bc_tc${template//  /${bc_t:-$SD_bc_t}}"
+  else
+    template+="    "
+    top="${template//  /${bc_t:-$SD_bc_t}}"
+  fi
+  echo "${left//  /　}${bc_tl:-$SD_bc_tl}${top// /}${bc_tr:-$SD_bc_tr}"
+
   for padding_s in ${paddings[@]+"${paddings[@]}"}; do
     echo "${padding_s//  /　}"
   done
@@ -365,8 +374,10 @@ function SD_echo_footer {
     let padding--
   done
 
-  template="${template//  /${bc_b:-$SD_bc_b}}"
-  echo "${left//  /　}${bc_bl:-$SD_bc_bl}${template// /}${bc_br:-$SD_bc_br}"
+  template+="    " ## FIXME: Support --bc-bc
+  typeset bottom
+  bottom="${template//  /${bc_b:-$SD_bc_b}}"
+  echo "${left//  /　}${bc_bl:-$SD_bc_bl}${bottom// /}${bc_br:-$SD_bc_br}"
 }
 
 function SD_echo_horizontal {
@@ -496,9 +507,10 @@ function SD_echo_horizontal {
 function SD_echo_vertical {
   typeset opt
   typeset no_round
-  typeset bc_tl bc_t bc_tr bc_l bc_r bc_bl bc_b bc_br
+  typeset bc_tc bc_tl bc_t bc_tr bc_l bc_r bc_bl bc_b bc_br
   typeset padding_top=0 padding_bottom=0 padding_left=0 padding_right=0
   typeset center
+  typeset tanzaku
 
   while [ "$#" -gt 0 ]; do
     opt="$1"; shift
@@ -507,7 +519,7 @@ function SD_echo_vertical {
     --no-round)
       no_round="set"
       ;;
-    --bc-[tblr]|--bc-t[lr]|--bc-b[lr])
+    --bc-[tblr]|--bc-t[clr]|--bc-b[lr])
       if [[ ! -n ${1+set} ]]; then
 	SD_die "Option value required: $opt"
       fi
@@ -546,6 +558,9 @@ function SD_echo_vertical {
       ;;
     --center)
       center="set"
+      ;;
+    --tanzaku)
+      tanzaku="set"
       ;;
     --)
       break
@@ -615,6 +630,7 @@ function SD_echo_vertical {
 
   SD_echo_header \
     ${no_round:+--no-round} \
+    ${bc_tc:+--bc-tc "$bc_tc"} \
     --bc-tl "${bc_tl:-$SD_bc_tl}" \
     --bc-t  "${bc_t:-$SD_bc_t}" \
     --bc-tr "${bc_tr:-$SD_bc_tr}" \
@@ -809,19 +825,18 @@ function SD_echo_command {
     ${padding_right:+--padding-right "$padding_right"}
   )
   if [[ -n ${square-} ]]; then
-    sd_opts=(
-      "${sd_opts[@]}"
-      --bc-tl '┌─' --bc-t '─' --bc-tr '─┐'
+    sd_opts+=(
+      --bc-tl '┌' --bc-t '─' --bc-tr '┐'
       --bc-l '│' --bc-r '│'
-      --bc-bl '└─' --bc-b '─' --bc-br '─┘'
+      --bc-bl '└' --bc-b '─' --bc-br '┘'
     )
   fi
   if [[ -n ${tanzaku-} ]]; then
-    sd_opts=(
-      "${sd_opts[@]}"
-      --bc-tl '┏━' --bc-t '┷' --bc-tr '━┓'
+    sd_opts+=(
+      --bc-tc '-┷-'
+      --bc-tl '┏' --bc-t '━' --bc-tr '┓'
       --bc-l '┃' --bc-r '┃'
-      --bc-bl '┗━' --bc-b '━' --bc-br '━┛'
+      --bc-bl '┗' --bc-b '━' --bc-br '┛'
     )
   fi
 
