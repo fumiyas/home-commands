@@ -242,7 +242,8 @@ function _SD_echo_with_padding {
 function SD_echo_header {
   typeset opt
   typeset round="set"
-  typeset bc_tc bc_tl bc_t bc_tr bc_l bc_r
+  typeset bc_t="$SD_bc_t" bc_tl="$SD_bc_tl" bc_tr="$SD_bc_tr" bc_tc=""
+  typeset bc_l="$SD_bc_l" bc_r="$SD_bc_r"
 
   while [ "$#" -gt 0 ]; do
     opt="$1"; shift
@@ -290,7 +291,7 @@ function SD_echo_header {
     fi
 
     paddings=(
-      "$left${bc_l:-$SD_bc_l}　${template//  /　}　${bc_r:-$SD_bc_r}"
+      "$left$bc_l　${template//  /　}　$bc_r"
       ${paddings[@]+"${paddings[@]}"}
     )
 
@@ -306,12 +307,12 @@ function SD_echo_header {
   if [[ -n $bc_tc ]]; then
     width=$(_SD_string_width "$template")
     template="$(_SD_pad_space $((width / 2)))"
-    top="${template//  /${bc_t:-$SD_bc_t}}$bc_tc${template//  /${bc_t:-$SD_bc_t}}"
+    top="${template//  /$bc_t}$bc_tc${template//  /$bc_t}"
   else
     template+="    "
-    top="${template//  /${bc_t:-$SD_bc_t}}"
+    top="${template//  /$bc_t}"
   fi
-  echo "${left//  /　}${bc_tl:-$SD_bc_tl}${top// /}${bc_tr:-$SD_bc_tr}"
+  echo "${left//  /　}$bc_tl${top// /}$bc_tr"
 
   for padding_s in ${paddings[@]+"${paddings[@]}"}; do
     echo "${padding_s//  /　}"
@@ -321,7 +322,8 @@ function SD_echo_header {
 function SD_echo_footer {
   typeset opt
   typeset round="set"
-  typeset bc_tl bc_t bc_tr bc_l bc_r
+  typeset bc_b="$SD_bc_b" bc_bl="$SD_bc_bl" bc_br="$SD_bc_br"
+  typeset bc_l="$SD_bc_l" bc_r="$SD_bc_r"
 
   while [ "$#" -gt 0 ]; do
     opt="$1"; shift
@@ -365,7 +367,7 @@ function SD_echo_footer {
       let width--
     fi
 
-    echo "${left//  /　}${bc_l:-$SD_bc_l}　${template//  /　}　${bc_r:-$SD_bc_r}"
+    echo "${left//  /　}$bc_l　${template//  /　}　$bc_r"
 
     if [[ -n ${round-} ]] && [[ $width -ge 2 ]]; then
       template="${template#?}"
@@ -376,8 +378,8 @@ function SD_echo_footer {
 
   template+="    " ## FIXME: Support --bc-bc
   typeset bottom
-  bottom="${template//  /${bc_b:-$SD_bc_b}}"
-  echo "${left//  /　}${bc_bl:-$SD_bc_bl}${bottom// /}${bc_br:-$SD_bc_br}"
+  bottom="${template//  /$bc_b}"
+  echo "${left//  /　}$bc_bl${bottom// /}$bc_br"
 }
 
 function SD_echo_horizontal {
