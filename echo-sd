@@ -116,7 +116,7 @@ if [[ ${0##*/} == echo-sd ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; 
 fi
 
 typeset SD_arg0="$0"
-typeset SD_copyright='(C) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan'
+typeset SD_copyright='(C) 2013-2014 SATOH Fumiyasu @ OSS Technology Corp., Japan'
 typeset SD_url='https://github.com/fumiyas/home-commands/blob/master/echo-sd'
 typeset SD_lang_orig SD_lang
 typeset SD_bc_tl SD_bc_t SD_bc_tr
@@ -921,7 +921,26 @@ function _SD_escape_html {
     -e 's/&/\&amp;/g;' \
     -e 's/</\&lt;/g;' \
     -e 's/>/\&gt;/g;' \
-    ;
+  ;
+}
+
+function _SD_urlencode {
+  ## FIXME: Unsafe?
+  if [[ -n ${1+set} ]]; then
+    echo "$1"
+  else
+    cat
+  fi \
+  |sed \
+    -e 's/%/%25/g;' \
+    -e 's/ /%20/g;' \
+    -e 's/#/%23/g;' \
+    -e 's/&/%26/g;' \
+    -e 's/+/%2B/g;' \
+    -e 's/;/%3B/g;' \
+    -e 's/=/%3D/g;' \
+    -e 's/?/%3F/g;' \
+  ;
 }
 
 function _SD_urldecode {
@@ -932,7 +951,7 @@ function _SD_urldecode {
 function SD_echo_cgi {
   typeset query="${QUERY_STRING-}"
   typeset param value
-  typeset text vertical padding square
+  typeset tweet text vertical padding square
   typeset -a prefaces
   typeset -a scripts
 
@@ -956,6 +975,10 @@ function SD_echo_cgi {
       square)
 	square="checked"
 	;;
+      tanzaku)
+	tanzaku="checked"
+	padding=""
+	;;
       esac
       ;;
     p|prefaces)
@@ -967,6 +990,9 @@ function SD_echo_cgi {
       while IFS= read -r line; do
 	scripts+=("${line%}")
       done < <(echo "$value")
+      ;;
+    tweet)
+      tweet="set"
       ;;
     esac
 
@@ -980,6 +1006,7 @@ function SD_echo_cgi {
     ${vertical:+--vertical} \
     ${padding:+--padding 1} \
     ${square:+--square} \
+    ${tanzaku:+--tanzaku} \
     ;
   if [[ ${#scripts[@]} -eq 1 ]] && [[ -z ${scripts[0]} ]]; then
     set -- ${1+"$@"} -- '突然の死'
@@ -987,7 +1014,17 @@ function SD_echo_cgi {
     set -- ${1+"$@"} -- ${scripts[@]+"${scripts[@]}"}
   fi
 
-  if [[ -n ${text-} ]]; then
+  if [[ -n ${tweet-} ]]; then
+    echo -n 'Location: https://twitter.com/intent/tweet?text='
+    SD_echo_command "$@" \
+    |while IFS= read -r line; do
+      echo -n "$line" |_SD_urlencode
+      echo -n '%0A'
+    done
+    echo -n 'http://t.co/o9H0oAzcIU' |_SD_urlencode
+    echo
+    echo
+  elif [[ -n ${text-} ]]; then
     echo 'Content-Type: text/plain; charset=UTF-8'
     echo
     for preface in ${prefaces[@]+"${prefaces[@]}"}; do
@@ -1010,7 +1047,7 @@ function SD_echo_cgi {
     for script in ${scripts[@]+"${scripts[@]}"}; do
       _SD_escape_html "$script"
     done
-    echo '</textarea><br>'
+    echo '</textarea><br />'
     echo '<label>' \
       '<input type="checkbox" name="options" value="vertical" accesskey="v" ' \
       "${vertical-}>縦書き(<span class='ul'>V</span>)</label>"
@@ -1018,13 +1055,22 @@ function SD_echo_cgi {
       '<input type="checkbox" name="options" value="padding" accesskey="p" ' \
       "${padding-}>余白(<span class='ul'>P</span>)</label>"
     echo '<label>' \
-      '<input type="checkbox" name="options" value="square" accesskey="s" ' \
+      '<input type="checkbox" name="options" value="text" accesskey="r" ' \
+      ">テキスト形式(<span class='ul'>R</span>)</label>"
+    echo '<br />'
+    echo '<label>' \
+      '<input type="radio" name="options" value="" accesskey="n" ' \
+      "${square-}>通常(<span class='ul'>N</span>)</label>"
+    echo '<label>' \
+      '<input type="radio" name="options" value="square" accesskey="s" ' \
       "${square-}>四角形(<span class='ul'>S</span>)</label>"
     echo '<label>' \
-      '<input type="checkbox" name="options" value="text" accesskey="t" ' \
-      ">テキスト形式(<span class='ul'>T</span>)</label>"
-    echo '<br>'
-    echo '<input type='submit' value='＞　ジェネレート　＜' tabindex="2"><br>'
+      '<input type="radio" name="options" value="tanzaku" accesskey="t" ' \
+      "${tanzaku-}>短冊(<span class='ul'>T</span>)</label>"
+    echo '<br />'
+    echo '<input type='submit' name="generate" value='＞　ジェネレート　＜' tabindex="2">'
+    echo '<input type='submit' name="tweet" value='＞　ツイート　＜' tabindex="2">'
+    echo '<br />'
     echo '</form>'
     echo '<!--'
     echo "[$(_SD_escape_html "$*")]"
@@ -1036,7 +1082,7 @@ function SD_echo_cgi {
     SD_echo_command "$@" |_SD_escape_html
     echo '</pre><hr>'
     _SD_escape_html "$SD_copyright"
-    echo '<br>'
+    echo '<br />'
     echo "<a href='$(_SD_escape_html "$SD_url")'>$(_SD_escape_html "$SD_url")</a>"
     echo '<br>'
     echo "${SD_CGI_FOOTER_HTML-}"
@@ -1045,6 +1091,8 @@ function SD_echo_cgi {
 }
 
 ## ======================================================================
+
+: ${HOME="/nonexistent"}
 
 TWEET_CONF="${ECHO_SD_CONF-$HOME/.echo-sd.conf}"
 TWEET_OAUTH_CONSUMER_KEY="${ECHO_SD_OAUTH_CONSUMER_KEY-qMAuBmchzlryuQahRlnAeg}"
