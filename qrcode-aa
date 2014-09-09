@@ -5,12 +5,13 @@
 ##
 ## License: GNU General Public License version 3
 ##
-
-## TODO: Print QR Code in sixel image
+## See also:
+##   QR code generator for terminals (ASCII art, Sixel)
+##   https://github.com/fumiyas/qrc
 
 require "rqrcode"
 
-qrc = RQRCode::QRCode.new(ARGV.size == 0 ? $stdin.readline.chomp : ARGV[0])
+qrc = RQRCode::QRCode.new(ARGV.size == 0 ? $stdin.readline.chomp : ARGV[0], :size=>1, :level=>:l)
 t_reset = `tput sgr0`
 t_white = `tput setab 7` + '  ' + t_reset
 t_black = `tput setab 0` + '  ' + t_reset
