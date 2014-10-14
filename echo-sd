@@ -982,7 +982,8 @@ function SD_echo_cgi {
 
   while [[ -n $query ]]; do
     param="${query%%&*}"
-    name="$(_SD_urldecode "${param%%=*}")"
+    ## '\' is workaround for zsh 4.3.x bug that causes "* not found" error
+    name="$(_SD_urldecode "${param%%\=*}")"
     value="$(_SD_urldecode "${param#*=}")"
 
     case "$name" in
