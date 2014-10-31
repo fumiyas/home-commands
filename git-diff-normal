@@ -89,8 +89,7 @@ function! GitDiffNormal()
   call extend(args, [v:fname_in, v:fname_new])
   let cmd="!" . join(args, " ") . ">" . v:fname_out
   silent execute cmd
-  "redraw!
-  "echo cmd
+  redraw!
 endfunction
 
 if executable(g:git_diff_normal)
