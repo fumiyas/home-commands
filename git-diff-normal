@@ -3,7 +3,7 @@
 ## Do git-diff(1) and convert into normal diff format for vimdiff(1)
 ## Copyright (c) 2014 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##	<https://github.com/fumiyas/home-commands/blob/master/git-diff-normal>
-##	<https://fumiyas.github.io>
+##	<https://fumiyas.github.io/>
 ##
 ## License: Do What The Fuck You Want To Public License (WTFPL) version 2
 ##
