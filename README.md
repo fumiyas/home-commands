@@ -2,23 +2,31 @@
 
   * echo-sd (bash 4 or ksh 93u or zsh 4.3)
     * ＞　突然の死　＜ ジェネレーター
+  * git-diff-normal (sh, sed, awk)
+    * vimdiff(1) で git-diff(1) を利用するためのラッパー
+    * 参考: vimdiffでより賢いアルゴリズム (patience, histogram) を使う - Qiita
+      * http://qiita.com/takaakikasai/items/3d4f8a4867364a46dfa3
   * httpstatus (sh)
     * httpstatus で、HTTP のステータスコードをすばやくしらべる!
   * ifne (Perl)
     * 入力があった場合だけ指定のコマンドを実行
-  * iwscan (sh + iwlist)
+  * imaputf7 (Ruby)
+    * IMAP UTF-7 (Modified UTF-7) エンコーダー/デコーダー
+  * iwscan (sh, iwlist)
     * アクセスポイントをスキャンして概要を一覧表示
   * jwdiff (sh, mecab, wdiff)
     * 日本語対応 wdiff(1) (単語単位の差分表示)
   * ls-path (bash or ksh)
     * 指定したパスとパスまでの途中のディレクトリをすべて ls で表示
-  * movie2audio (sh + FFmpeg)
+  * movie2audio (sh, FFmpeg)
     * 動画ファイルから音声ファイルに変換
-  * pwait (sh + inotifywait (オプション), Linux 用)
+  * pwait (sh, inotifywait (オプション), Linux)
     * 指定したプロセス ID が終了するまで待つ
-  * qrcode-aa (Ruby + qrcode gem)
+  * qrcode-aa (Ruby, qrcode gem)
     * 指定した文字列を QR コードに変換してアスキーアートで表示
-  * ri-all (sh + Ruby ri)
+    * 参考: QR code generator for text terminals (ASCII art, Sixel)
+      * https://github.com/fumiyas/qrc
+  * ri-all (sh, Ruby ri)
     * Ruby の ri コマンドラッパー
     * 例えばクラスを指定するとクラスの概要説明だけなく全メソッドの説明も表示する
   * sumnum (awk)
