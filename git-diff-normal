@@ -17,6 +17,8 @@
 ##
 
 set -u
+[ -n "${BASH_VERSION-}" ] && [ "${BASH_VERSION%%.*}" -ge 3 ] && set -o pipefail
+[ -n "${ZSH_VERSION-}" ] && [ "${ZSH_VERSION%%.*}" -ge 5 ] && set -o pipefail
 
 git="${GIT:-git}"
 
