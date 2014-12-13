@@ -1297,6 +1297,7 @@ function HTTPS_request {
     } \
     |openssl s_client \
       -no_ssl2 \
+      -no_ssl3 \
       -crlf \
       -quiet \
       -connect "$url_host:$url_port" \
