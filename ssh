@@ -1,0 +1,29 @@
+#!/bin/ksh
+##
+## ssh: Use OS-specific ssh_config(5) in $HOME/.ssh if available
+## Copyright (c) 2015 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+
+set -u
+
+uname=`uname`
+urel=`uname -r`
+
+case "$uname" in
+SunOS)
+  uname="Solaris"
+  urel="${urel#*.}"
+  ;;
+*)
+  urel="${urel%%.*}"
+  ;;
+esac
+
+for ssh_config in "$HOME/.ssh/config.$uname$urel" "$HOME/.ssh/config.$uname"; do
+  if [[ -f $ssh_config ]]; then
+    set - -F "$ssh_config" "$@"
+  fi
+done
+
+exec /usr/bin/ssh "$@"
+
