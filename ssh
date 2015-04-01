@@ -6,8 +6,11 @@
 
 set -u
 
+ssh_config="$HOME/.ssh/config"
+
 uname=`uname`
 urel=`uname -r`
+hostname=`uname -n`
 
 case "$uname" in
 SunOS)
@@ -19,7 +22,7 @@ SunOS)
   ;;
 esac
 
-for ssh_config in "$HOME/.ssh/config.$uname$urel" "$HOME/.ssh/config.$uname"; do
+for ssh_config in "$ssh_config.$hostname" "$ssh_config.$uname$urel" "$ssh_config.$uname"; do
   if [[ -f $ssh_config ]]; then
     set - -F "$ssh_config" "$@"
   fi
