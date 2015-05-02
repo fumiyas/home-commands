@@ -603,7 +603,7 @@ function SD_echo_vertical {
   ## FIXME: Implement --center option
 
   typeset -a lines
-  typeset line line_n pad_n
+  typeset line line_n
   typeset script script_n trailer trailer2 letter letter_width next
   letter_width=4
   script_n=0
@@ -630,7 +630,7 @@ function SD_echo_vertical {
       fi
 
       if [[ -z ${lines[$line_n]-} ]]; then
-	lines[$line_n]="$(_SD_pad_space $((script_n * $letter_width)))"
+	lines[$line_n]="$(_SD_pad_space $((script_n * letter_width)))"
       fi
       lines[$line_n]="$(_SD_echo_with_padding "${line}" $letter_width)${lines[$line_n]}"
       let line_n+=1
@@ -644,7 +644,7 @@ function SD_echo_vertical {
     let script_n+=1
   done
 
-  typeset line_width=$(((script_n - 1) * $letter_width))
+  typeset line_width=$(((script_n - 1) * letter_width))
   let line_width+=$padding_left+$padding_right
 
   typeset padding_left_s padding_right_s
@@ -1094,8 +1094,8 @@ function SD_echo_cgi {
       '<input type="radio" name="options" value="tanzaku" accesskey="t" ' \
       "${tanzaku-}>短冊(<span class='ul'>T</span>)</label>"
     echo '<br />'
-    echo '<input type='submit' name="generate" value='＞　ジェネレート　＜' tabindex="2">'
-    echo '<input type='submit' name="tweet" value='＞　ツイート　＜' tabindex="2">'
+    echo '<input type="submit" name="generate" value="＞　ジェネレート　＜" tabindex="2">'
+    echo '<input type="submit" name="tweet" value="＞　ツイート　＜" tabindex="2">'
     echo '<br />'
     echo '</form>'
     echo '<!--'
@@ -1237,7 +1237,7 @@ function HTTPS_request {
   typeset method="$1"; shift
 
   typeset url_tmp
-  typeset url_scheme="${url%%://*}"
+  #typeset url_scheme="${url%%://*}"
   url_tmp="${url#*://}"
   typeset url_path="/${url_tmp#*/}"
   url_tmp="${url_tmp%%/*}"
@@ -1330,7 +1330,7 @@ function HTTP_response_extract {
 
   value="${response#*\&$name=}"
   value="${value#$name=}"
-  if [[ $value == $response ]]; then
+  if [[ $value == "$response" ]]; then
     return 1
   fi
   value="${value%%\&*}"
