@@ -1,6 +1,6 @@
 #!/bin/ksh
 ##
-## ssh: Use OS-specific ssh_config(5) in $HOME/.ssh if available
+## ssh: Use environment-specific ssh_config(5) in $HOME/.ssh if available
 ## Copyright (c) 2015 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##
 
@@ -8,9 +8,12 @@ set -u
 
 ssh_config="$HOME/.ssh/config"
 
-uname=`uname`
-urel=`uname -r`
-hostname=`uname -n`
+uname=$(uname)
+urel=$(uname -r)
+hostname=$(uname -n)
+domain=$(sed -n 's/^domain \(.*\)$/\1/p' /etc/resolv.conf)
+
+## ----------------------------------------------------------------------
 
 case "$uname" in
 SunOS)
@@ -22,11 +25,34 @@ SunOS)
   ;;
 esac
 
-for ssh_config in "$ssh_config.$hostname" "$ssh_config.$uname$urel" "$ssh_config.$uname"; do
+case "$domain" in
+lan.osstech.co.jp)
+  domain="osstech"
+  ;;
+lan.sfo.jp)
+  domain="sfo"
+  ;;
+esac
+
+## ======================================================================
+
+ssh_config_list=(
+  "$ssh_config.$hostname"
+  "$ssh_config.$domain"
+  "$ssh_config.$uname$urel"
+  "$ssh_config.$uname"
+)
+
+for ssh_config in "${ssh_config_list[@]}"; do
   if [[ -f $ssh_config ]]; then
-    set - -F "$ssh_config" "$@"
+    set -- -F "$ssh_config" "$@"
   fi
 done
 
-exec /usr/bin/ssh "$@"
+## ======================================================================
+
+set -- /usr/bin/ssh "$@"
+
+echo "$*" 1>&2
+exec "$@"
 
