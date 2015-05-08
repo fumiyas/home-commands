@@ -1,30 +1,33 @@
 #!/bin/sh
 ##
 ## Zebra-ize text lines
-## Copyright (C) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
+## Copyright (C) 2013-2015 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##               <https://github.com/fumiyas/home-commands/blob/master/zbr>
-##               <https://twitter.com/satoh_fumiyasu>
+##               <https://fumiyas.github.io/>
 ##
 ## License: GNU General Public License version 3
 ##
 
+## TODO: zbr-ize numbers
+
 set -u
 
-t_cols="`tput cols`"
-t_bg="`tput setab 8`"
-if [ -t 1 ]; then
-  t_reset="`tput sgr0`"
-else
-  t_reset=''
-fi
+t_cr=`tput cr`
+t_cols=`tput cols`
+#t_deco=`tput smul`
+t_deco=`tput setab 8`
+t_reset=`tput sgr0`
 
-x=0
-cat ${1+"$@"} \
-|while IFS= read -r line; do
-  [ $x -eq 1 ] && echo -n "$t_bg"
-  printf "%-${t_cols}s%s\n" "$line" "$t_reset"
-  let 'x^=1'
-done
+l_deco=`printf '%s%*s%s%s' "$t_deco" "$t_cols" ' ' "$t_reset" "$t_cr"`
+
+sed \
+  -e 'n;n;n' \
+  -e "s/\(\[[0-9;]*m\)/\1$t_deco/g" \
+  -e "s/^/$l_deco/" \
+  -e "s/$t_cr/$t_cr$t_deco/" \
+  -e "s/\$/$t_reset/" \
+  "$@" \
+;
 
 exit 0
 
