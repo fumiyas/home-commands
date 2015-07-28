@@ -1,0 +1,61 @@
+#!/bin/sh
+##
+## Do dd(1) with progress information
+## Copyright (c) 2015 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+
+set -u
+
+pdie() {
+  echo "$0: ERROR: $1" 1>&2
+  exit "${2-1}"
+}
+
+case `uname` in
+Darwin|*BSD)
+  dd_signal='INFO'
+  ;;
+*)
+  dd_signal='USR1'
+  ;;
+esac
+
+if [ $# -lt 1 ]; then
+  echo "Usage: ddi INTERVAL [dd(1) argument ...]" 1>&2
+  exit 1
+fi
+
+kicker_interval="$1"; shift
+case "$kicker_interval" in
+*[!0-9]*)
+  pdie "Invalid interval value: $kicker_interval"
+  ;;
+esac
+
+if [ "$kicker_interval" -eq 0 ]; then
+  pdie "Interval value must be greater than 0"
+fi
+
+if [ -t 0 ]; then
+  dd ${1+"$@"} </dev/tty &
+else
+  dd ${1+"$@"} &
+fi
+dd_pid="$!"
+trap 'kill "$dd_pid" 2>/dev/null' EXIT INT
+
+while :; do
+  sleep "$kicker_interval"
+  kill "-$dd_signal" "$dd_pid" 2>/dev/null || exit 0
+done &
+kicker_pid="$!"
+
+wait "$dd_pid"
+dd_exit="$?"
+
+kill "$kicker_pid"
+
+exit "$dd_exit"
+
