@@ -1171,7 +1171,7 @@ function HTTP_browser {
       if [[ -z $browsers ]]; then
 	browsers="www-browser:links2:elinks:links:lynx:w3m"
 	if [[ -n ${DISPLAY-} ]]; then
-	  browsers="x-www-browser:firefox:seamonkey:mozilla:epiphany:konqueror:chromium-browser:google-chrome:$browsers"
+	  browsers="x-www-browser:firefox:seamonkey:mozilla:epiphany:konqueror:chromium:chromium-browser:google-chrome:$browsers"
 	fi
       fi
 
