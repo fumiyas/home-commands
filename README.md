@@ -2,6 +2,8 @@
 
   * echo-sd (bash 4 or ksh 93u or zsh 4.3)
     * ＞　突然の死　＜ ジェネレーター
+    * ＞突然の死＜ジェネレーター - 拡張 POSIX シェルスクリプト Advent Calendar 2013 - ダメ出し Blog
+      * https://fumiyas.github.io/2013/12/25/echo-sd.sh-advent-calendar.html
   * git-diff-normal (sh, sed, awk)
     * vimdiff(1) で git-diff(1) を利用するためのラッパー
     * 参考: vimdiffでより賢いアルゴリズム (patience, histogram) を使う - Qiita
