@@ -4,8 +4,8 @@
 ##
 ## Do `tail -f FILE` and exit when PATTERN is found
 ## Copyright (c) 2012-2016 SATOH Fumiyasu @ OSS Technology Corp, Japan
+##               <https://GitHub.com/fumiyas/home-commands/blob/master/tail-fp>
 ##               <http://www.OSSTech.co.jp/>
-##               <https://GitHub.com/fumiyas/>
 ##
 ## License: GNU General Public License version 3
 ##
