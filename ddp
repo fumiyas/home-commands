@@ -23,7 +23,7 @@ Darwin|*BSD)
 esac
 
 if [ $# -lt 1 ]; then
-  echo "Usage: ddi INTERVAL [dd(1) argument ...]" 1>&2
+  echo "Usage: ${0##*/} INTERVAL [dd(1) argument ...]" 1>&2
   exit 1
 fi
 
