@@ -4,6 +4,8 @@
     * ＞　突然の死　＜ ジェネレーター
     * ＞突然の死＜ジェネレーター - 拡張 POSIX シェルスクリプト Advent Calendar 2013 - ダメ出し Blog
       * https://fumiyas.github.io/2013/12/25/echo-sd.sh-advent-calendar.html
+  * ddp (sh, GNU or Mac OS X dd)
+    * dd(1) の実行と転送量を一定時間ごとに出力
   * git-diff-normal (sh, sed, awk)
     * vimdiff(1) で git-diff(1) を利用するためのラッパー
     * 参考: vimdiffでより賢いアルゴリズム (patience, histogram) を使う - Qiita
