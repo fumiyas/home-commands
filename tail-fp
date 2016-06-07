@@ -19,7 +19,8 @@ if [[ $# -lt 2 ]]; then
   exit 1
 fi
 
-pattern="${1//\//\\\/}"; shift
+pattern="${1//\\/\\\\}"; shift
+pattern="${pattern//\//\\\/}"
 
 tail -f "$@" |(sed "/$pattern/q"; kill -TERM -$$)
 
