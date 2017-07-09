@@ -296,7 +296,7 @@ function SD_echo_header {
   typeset width="$1"; shift
   typeset padding="$1"; shift
   typeset template left=
-  typeset -a paddings
+  typeset -a paddings=()
 
   if [[ -n ${round-} && $width -ge 2 && $padding -gt 0 ]]; then
     left=" "
@@ -472,7 +472,7 @@ function SD_echo_horizontal {
 
   export LANG="$SD_lang"
 
-  typeset -a scripts
+  typeset -a scripts=()
   typeset script width width_tmp
   typeset padding_left_s padding_right_s
   width=0
@@ -602,7 +602,7 @@ function SD_echo_vertical {
 
   ## FIXME: Implement --center option
 
-  typeset -a lines
+  typeset -a lines=()
   typeset line line_n
   typeset script script_n trailer trailer2 letter letter_width next
   letter_width=4
@@ -839,8 +839,7 @@ function SD_echo_command {
     esac
   done
 
-  typeset -a sd_opts
-  sd_opts=(
+  typeset -a sd_opts=(
     ${no_round:+--no-round}
     ${center:+--center}
     ${padding:+--padding "$padding"}
@@ -977,8 +976,8 @@ function SD_echo_cgi {
   typeset query="${QUERY_STRING-}"
   typeset param value
   typeset tweet text vertical padding square
-  typeset -a prefaces
-  typeset -a scripts
+  typeset -a prefaces=()
+  typeset -a scripts=()
 
   while [[ -n $query ]]; do
     param="${query%%&*}"
@@ -1368,8 +1367,7 @@ function OAuth_generate {
   typeset method="$1"; shift
 
   typeset hmac_key="$consumer_secret&$token_secret"
-  typeset -a oauth
-  oauth=(
+  typeset -a oauth=(
     "oauth_consumer_key=$consumer_key"
     "oauth_signature_method=HMAC-SHA1"
     "oauth_version=1.0"
