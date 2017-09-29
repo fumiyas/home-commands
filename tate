@@ -158,10 +158,6 @@ function _TATE_fill_string_by_char {
   echo "$str"
 }
 
-function _TATE_pad_space {
-  printf "%${1}s" ''
-}
-
 function _TATE_string_width {
   typeset str
   str=$(_TATE_fill_string_by_char "$1" ' ')
