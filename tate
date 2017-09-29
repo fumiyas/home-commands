@@ -5,6 +5,7 @@
 ## Copyright (C) 2017 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##               <https://github.com/fumiyas/home-commands/blob/master/tate>
 ##               <https://fumiyas.github.io/>
+##               <https://www.osstech.co.jp/cgi-bin/tate>
 ##
 ## License: GNU General Public License version 3
 ##
@@ -19,6 +20,23 @@
 ##   $ chmod +x tate
 ##   $ export PATH="$HOME/bin:$PATH"
 ##   $ alias banner=tate
+##
+## Examples for CGI mode:
+##
+##   $ GATEWAY_INTERFACE=CGI/1.0 QUERY_STRING=s=おっす！ tate
+##   Content-Type: text/html; charset=UTF-8
+##   ...
+##   <pre>
+##   お
+##   っ
+##   す
+##   ！
+##   </pre><hr>
+##   ...
+##
+## On-line demo site:
+##
+##   https://www.OSSTech.co.jp/cgi-bin/tate
 
 if [[ ${0##*/} == tate ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; then
   set -u
@@ -310,7 +328,7 @@ function TATE_echo_command {
   fi
 
   if [[ $# -eq 0 ]]; then
-    set -- '突然の死'
+    set -- '気軽に「殺す」とツイートできる、' 'そんな素敵なソリュションを' 'ご提供！(無保証)'
   fi
 
   typeset sd=$(TATE_echo_vertical ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"})
@@ -415,7 +433,7 @@ function TATE_echo_cgi {
 
   set --;
   if [[ ${#scripts[@]} -eq 1 ]] && [[ -z ${scripts[0]} ]]; then
-    set -- ${1+"$@"} -- '突然の死'
+    set -- ${1+"$@"} -- '縦書きジェネレーター'
   else
     set -- ${1+"$@"} -- ${scripts[@]+"${scripts[@]}"}
   fi
@@ -427,7 +445,7 @@ function TATE_echo_cgi {
       echo -n "$line" |_TATE_urlencode
       echo -n '%0A'
     done
-    echo -n 'http://t.co/o9H0oAzcIU' |_TATE_urlencode
+    echo -n 'https://t.co/yjkVpkGJfB' |_TATE_urlencode
     echo
     echo
   elif [[ -n ${text-} ]]; then
@@ -442,11 +460,11 @@ function TATE_echo_cgi {
     echo
     echo \
       '<html>' \
-      '<head><title>＞　突然の死　＜ ジェネレーター</title></head>' \
+      '<head><title>縦書きジェネレーター</title></head>' \
       '<style type="text/css"><!--' \
       '.ul { text-decoration:underline; }' \
       '--></style>' \
-      '<body><h1>＞　突然の死　＜ ジェネレーター</h1>' \
+      '<body><h1>縦書きジェネレーター</h1>' \
       '<form action="./tate" method="GET">' \
       ;
     echo -n '<textarea name="scripts" cols="80" rows="4" tabindex="1">'
