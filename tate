@@ -107,6 +107,8 @@ function TATE_init {
   TATE_vc_map[‥]='︰'
   TATE_vc_map[：]='︓'
   TATE_vc_map[:]='︓'
+  TATE_vc_map[；]='︔'
+  TATE_vc_map[;]='︔'
   TATE_vc_map[＝]='॥'
   TATE_vc_map[=]='॥'
   TATE_vc_map[（]='︵'
