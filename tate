@@ -1,0 +1,1016 @@
+#!/bin/bash
+## -*- encoding: utf-8 -*- vim:tabstop=8:shiftwidth=2
+##
+## 縦書きジェネレーター
+## Copyright (C) 2017 SATOH Fumiyasu @ OSS Technology Corp., Japan
+##               <https://github.com/fumiyas/home-commands/blob/master/tate>
+##               <https://fumiyas.github.io/>
+##
+## License: GNU General Public License version 3
+##
+## Requirements:
+##   * bash(1) 4.0, ksh(1) 93u or zsh(1) 4.3
+##
+## How to install:
+##
+##   $ mkdir -p $HOME/bin
+##   $ cd $HOME/bin
+##   $ wget -nv https://raw.githubusercontent.com/fumiyas/home-commands/master/tate
+##   $ chmod +x tate
+##   $ export PATH="$HOME/bin:$PATH"
+##   $ alias banner=tate
+
+if [[ ${0##*/} == tate ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; then
+  set -u
+
+  case "${BASH_VERSION-}" in
+  [1-3].*)
+    if type zsh >/dev/null 2>&1; then
+      unset BASH_VERSION
+      exec zsh "$0" ${1+"$@"}
+      exit 1
+    fi
+    echo "${0##*/}: ERROR: bash 4 or later required" 1>&2
+    exit 1
+    ;;
+  esac
+fi
+
+typeset TATE_arg0="$0"
+typeset TATE_copyright='(C) 2017 SATOH Fumiyasu @ OSS Technology Corp., Japan'
+typeset TATE_url='https://github.com/fumiyas/home-commands/blob/master/tate'
+typeset TATE_lang_orig TATE_lang
+typeset -A TATE_vc_map
+typeset TATE_c_lf='
+'
+
+## ======================================================================
+
+function TATE_die {
+  TATE_echo_command "${TATE_arg0##*/}: ERROR: $1" 1>&2
+  TATE_echo_command 1>&2
+  exit ${2-1}
+}
+
+function TATE_init {
+  if [[ -n ${ZSH_VERSION-} ]]; then
+    setopt SH_WORD_SPLIT
+    setopt BTATE_ECHO
+    setopt KSH_GLOB
+    setopt KSH_ARRAYS
+  elif [[ -n ${BASH_VERSION-} ]]; then
+    shopt -u xpg_echo
+  else ## ksh
+    if [[ $(echo -n) == -n ]]; then
+      alias echo='print -r'
+    fi
+  fi
+
+  typeset locale lang_ja lang
+  TATE_lang_orig="${LANG-}"
+  if [[ ${TATE_lang_orig#*.} != @(UTF-8|utf-8|UTF8|utf8) ]]; then
+    if type locale >/dev/null 2>&1; then
+      while read -r locale; do
+	if [[ ${locale#*.} == @(UTF-8|utf-8|UTF8|utf8) ]]; then
+	  if [[ ${locale%.*} == ja_JP ]]; then
+	    lang_ja="$locale"
+	  else
+	    lang="$locale"
+	  fi
+	fi
+      done < <(locale -a)
+    fi
+  fi
+  TATE_lang="${lang_ja-${lang-ja_JP.UTF-8}}"
+
+  if [[ -n ${ZSH_VERSION-} ]]; then
+    TATE_vc_map=()
+  else
+    TATE_vc_map=
+  fi
+  TATE_vc_map[↑]='→'
+  TATE_vc_map[↓]='←'
+  TATE_vc_map[←]='↑'
+  TATE_vc_map[→]='↓'
+  TATE_vc_map[。]='︒'
+  TATE_vc_map[、]='︑'
+  TATE_vc_map[ー]='｜'
+  TATE_vc_map[─]='｜'
+  TATE_vc_map[−]='｜'
+  TATE_vc_map[－]='｜'
+  TATE_vc_map[—]='︱'
+  TATE_vc_map[〜]='∫'
+  TATE_vc_map[～]='∫'
+  TATE_vc_map[／]='＼'
+  TATE_vc_map[…]='︙'
+  TATE_vc_map[‥]='︰'
+  TATE_vc_map[：]='‥'
+  TATE_vc_map[:]='‥'
+  TATE_vc_map[＝]='॥'
+  TATE_vc_map[=]='॥'
+  TATE_vc_map[（]='︵'
+  TATE_vc_map[\(]='︵'
+  TATE_vc_map[）]='︶'
+  TATE_vc_map[\)]='︶'
+  TATE_vc_map[［]='﹇'
+  TATE_vc_map[\[]='﹇'
+  TATE_vc_map[］]='﹈'
+  TATE_vc_map[\]]='﹈'
+  TATE_vc_map[｛]='︷'
+  TATE_vc_map[\{]='︷'
+  TATE_vc_map[＜]='︿'
+  TATE_vc_map[\<]='︿'
+  TATE_vc_map[＞]='﹀'
+  TATE_vc_map[\>]='﹀'
+  TATE_vc_map[｝]='︸'
+  TATE_vc_map[\}]='︸'
+  TATE_vc_map[「]='﹁'
+  TATE_vc_map[」]='﹂'
+  TATE_vc_map[『]='﹃'
+  TATE_vc_map[』]='﹄'
+  TATE_vc_map[【]='︻'
+  TATE_vc_map[】]='︼'
+  TATE_vc_map[〖]='︗'
+  TATE_vc_map[〗]='︘'
+  TATE_vc_map[｢]='﹁'
+  TATE_vc_map[｣]='﹂'
+  TATE_vc_map[-]='| '
+  TATE_vc_map[ｰ]='| '
+  TATE_vc_map[_]='| '
+  TATE_vc_map[,]="︐"
+  TATE_vc_map[､]='︑'
+}
+
+function _TATE_fill_string_by_char {
+  typeset str char
+  str="$1"; shift
+  char="$1"; shift
+
+  ## Why bash on ja_JP.UTF-8 locale matches '[¥]' with '︙' (and others?)
+  #str="${str//[ -~｡-ﾟ¢£¥¦¬¯]/$char}"
+  str="${str//[ -~｡-ﾟ¢£¦¬¯]/$char}"
+  str="${str//¥/$char}"
+  str="${str//[! ]/$char$char}"
+
+  echo "$str"
+}
+
+function _TATE_pad_space {
+  printf "%${1}s" ''
+}
+
+function _TATE_string_width {
+  typeset str
+  str=$(_TATE_fill_string_by_char "$1" ' ')
+
+  echo "${#str}"
+}
+
+function TATE_echo_vertical {
+  typeset opt
+
+  while [[ $# -gt 0 ]]; do
+    opt="$1"; shift
+
+    case "$opt" in
+    --)
+      break
+      ;;
+    -*)
+      TATE_die "Invalid option: $opt"
+      ;;
+    *)
+      set -- "$opt" ${1+"$@"}
+      break
+      ;;
+    esac
+  done
+
+  export LANG="$TATE_lang"
+
+  typeset -a lines=()
+  typeset line line_n
+  typeset script script_n trailer trailer2 letter next
+  script_n=0
+  for script in ${1+"$@"}; do
+    line_n=0
+    trailer="$script"
+
+    while [[ -n $script ]]; do
+      trailer="${trailer#?}"
+      letter="${script%$trailer}"
+      script="${script#?}"
+      if [[ -n ${TATE_vc_map[$letter]-} ]]; then
+	line="${TATE_vc_map[$letter]}"
+      else
+	trailer2="${trailer#?}"
+	next="${script%$trailer2}"
+	if [[ $next == @(ﾞ|ﾟ) ]] || [[ $letter$next == @([\?!][\?!]) ]]; then
+	  line="$letter$next"
+	  trailer="$trailer2"
+	  script="${script#?}"
+	else
+	  line="$letter"
+	fi
+      fi
+
+      if [[ -n "${lines[$line_n]-}" ]]; then
+	if [[ $(_TATE_string_width "$line") -eq 1 ]]; then
+	  line+=" "
+	fi
+	lines[$line_n]="$line ${lines[$line_n]}"
+      else
+	lines[$line_n]="$line"
+      fi
+      let line_n+=1
+    done
+
+    while [[ $line_n -lt ${#lines[@]} ]]; do
+      lines[$line_n]="　 ${lines[$line_n]}"
+      let line_n+=1
+    done
+
+    let script_n+=1
+  done
+
+  for line in ${lines[@]+"${lines[@]}"}; do
+    echo "$line"
+  done
+
+  export LANG="$TATE_lang_orig"
+}
+
+function TATE_echo_command_help {
+  {
+    cat <<EOT
+Usage: ${TATE_arg0##*/} [OPTIONS] [SCRIPT ...]
+
+Options:
+ --help
+    Print this message
+ -t, --tweet
+    Tweet in Twitter
+ -s, --read-stdin
+    Read scripts from stdin
+EOT
+  }
+}
+
+function TATE_echo_command {
+  typeset opt
+  typeset read_stdin
+  typeset tweet
+
+  while [[ $# -gt 0 ]]; do
+    opt="$1"; shift
+
+    ## -ovalue → -o value
+    if [[ -z "${opt##-[phf]?*}" ]]; then
+      set -- "${opt#??}" ${1+"$@"}
+      opt="${opt%$1}"
+    ## -abc → -a -bc
+    elif [[ -z "${opt##-[!-]?*}" ]]; then
+      set -- "-${opt#??}" ${1+"$@"}
+      opt="${opt%${1#-}}"
+    ## --option=value → --option value
+    elif [[ -z "${opt##--*=*}" ]]; then
+      set -- "${opt#--*=}" ${1+"$@"}
+      opt="${opt%%=*}"
+    fi
+
+    case "$opt" in
+    --help)
+      TATE_echo_command_help
+      exit 0
+      ;;
+    -s|--read-stdin)
+      read_stdin="set"
+      ;;
+    -t|--tweet)
+      tweet="set"
+      ;;
+    --)
+      break
+      ;;
+    -*)
+      TATE_die "Invalid option: $opt"
+      ;;
+    *)
+      set -- "$opt" ${1+"$@"}
+      break
+      ;;
+    esac
+  done
+
+  typeset -a sd_opts=()
+
+  if [[ -n ${read_stdin-} ]]; then
+    while IFS= read -r line; do
+      set -- ${1+"$@"} "$line"
+    done
+  fi
+
+  if [[ $# -eq 0 ]]; then
+    set -- '突然の死'
+  fi
+
+  typeset sd=$(TATE_echo_vertical ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"})
+
+  if [[ -n ${tweet-} ]]; then
+    if [[ $sd = @( *) ]]; then
+      sd=".${sd# }"
+    elif [[ $sd = @(　*) ]]; then
+      sd="．${sd#　}"
+    fi
+    Tweet_init
+    Tweet_command "$sd"
+  else
+    echo "$sd"
+  fi
+}
+
+function _TATE_escape_html {
+  if [[ -n ${1+set} ]]; then
+    echo "$1"
+  else
+    cat
+  fi \
+  |sed \
+    -e 's/&/\&amp;/g;' \
+    -e 's/</\&lt;/g;' \
+    -e 's/>/\&gt;/g;' \
+  ;
+}
+
+function _TATE_urlencode {
+  ## FIXME: Unsafe?
+  if [[ -n ${1+set} ]]; then
+    echo "$1"
+  else
+    cat
+  fi \
+  |sed \
+    -e 's/%/%25/g;' \
+    -e 's/ /%20/g;' \
+    -e 's/#/%23/g;' \
+    -e 's/&/%26/g;' \
+    -e 's/+/%2B/g;' \
+    -e 's/;/%3B/g;' \
+    -e 's/=/%3D/g;' \
+    -e 's/?/%3F/g;' \
+    -e 's/\\/%5C/g;' \
+    -e 's/\^/%5E/g;' \
+    -e 's/{/%7B/g;' \
+    -e 's/|/%7C/g;' \
+    -e 's/}/%7D/g;' \
+    -e 's/~/%7E/g;' \
+  ;
+}
+
+function _TATE_urldecode {
+  ## FIXME: Support ksh
+  echo -e "$(echo "$1" |sed 's/+/ /g;s/%\(..\)/\\x\1/g;')"
+}
+
+function TATE_echo_cgi {
+  typeset query="${QUERY_STRING-}"
+  typeset param value
+  typeset tweet text
+  typeset -a prefaces=()
+  typeset -a scripts=()
+
+  while [[ -n $query ]]; do
+    param="${query%%&*}"
+    ## '\' is workaround for zsh 4.3.x bug that causes "* not found" error
+    name="$(_TATE_urldecode "${param%%\=*}")"
+    value="$(_TATE_urldecode "${param#*=}")"
+
+    case "$name" in
+    o|options)
+      case "$value" in
+      text)
+	text="checked"
+	;;
+      esac
+      ;;
+    p|prefaces)
+      while IFS= read -r line; do
+	prefaces+=("${line%}")
+      done < <(echo "$value")
+      ;;
+    s|scripts)
+      while IFS= read -r line; do
+	scripts+=("${line%}")
+      done < <(echo "$value")
+      ;;
+    tweet)
+      tweet="set"
+      ;;
+    esac
+
+    if [[ -n ${query##*&*} ]]; then
+      break
+    fi
+    query="${query#*&}"
+  done
+
+  set --;
+  if [[ ${#scripts[@]} -eq 1 ]] && [[ -z ${scripts[0]} ]]; then
+    set -- ${1+"$@"} -- '突然の死'
+  else
+    set -- ${1+"$@"} -- ${scripts[@]+"${scripts[@]}"}
+  fi
+
+  if [[ -n ${tweet-} ]]; then
+    echo -n 'Location: https://twitter.com/intent/tweet?text='
+    TATE_echo_command "$@" \
+    |while IFS= read -r line; do
+      echo -n "$line" |_TATE_urlencode
+      echo -n '%0A'
+    done
+    echo -n 'http://t.co/o9H0oAzcIU' |_TATE_urlencode
+    echo
+    echo
+  elif [[ -n ${text-} ]]; then
+    echo 'Content-Type: text/plain; charset=UTF-8'
+    echo
+    for preface in ${prefaces[@]+"${prefaces[@]}"}; do
+      echo "$preface"
+    done
+    TATE_echo_command "$@"
+  else
+    echo 'Content-Type: text/html; charset=UTF-8'
+    echo
+    echo \
+      '<html>' \
+      '<head><title>＞　突然の死　＜ ジェネレーター</title></head>' \
+      '<style type="text/css"><!--' \
+      '.ul { text-decoration:underline; }' \
+      '--></style>' \
+      '<body><h1>＞　突然の死　＜ ジェネレーター</h1>' \
+      '<form action="./tate" method="GET">' \
+      ;
+    echo -n '<textarea name="scripts" cols="80" rows="4" tabindex="1">'
+    for script in ${scripts[@]+"${scripts[@]}"}; do
+      _TATE_escape_html "$script"
+    done
+    echo '</textarea><br />'
+    echo '<label>' \
+      '<input type="checkbox" name="options" value="text" accesskey="r" ' \
+      ">テキスト形式(<span class='ul'>R</span>)</label>"
+    echo '<br />'
+    echo '<input type="submit" name="generate" value="＞　ジェネレート　＜" tabindex="2">'
+    echo '<input type="submit" name="tweet" value="＞　ツイート　＜" tabindex="2">'
+    echo '<br />'
+    echo '</form>'
+    echo '<!--'
+    echo "[$(_TATE_escape_html "$*")]"
+    echo '-->'
+    echo '<pre>'
+    for preface in ${prefaces[@]+"${prefaces[@]}"}; do
+      _TATE_escape_html "$preface"
+    done
+    TATE_echo_command "$@" |_TATE_escape_html
+    echo '</pre><hr>'
+    _TATE_escape_html "$TATE_copyright"
+    echo '<br />'
+    echo "<a href='$(_TATE_escape_html "$TATE_url")'>$(_TATE_escape_html "$TATE_url")</a>"
+    echo '<br>'
+    echo "${TATE_CGI_FOOTER_HTML-}"
+    echo '</body></html>'
+  fi
+}
+
+## ======================================================================
+
+: ${HOME="/nonexistent"}
+
+TWEET_CONF="${ECHO_TATE_CONF-$HOME/.echo-sd.conf}"
+TWEET_OAUTH_CONSUMER_KEY="${ECHO_TATE_OAUTH_CONSUMER_KEY-qMAuBmchzlryuQahRlnAeg}"
+TWEET_OAUTH_CONSUMER_SECRET="${ECHO_TATE_OAUTH_CONSUMER_SECRET-JNSzHebO5N5h5nOcYFc1IILP8tqGP4fy28vCBBDFCA}"
+
+## Import tweet.sh from https://github.com/fumiyas/Tweet.sh
+
+typeset Tweet_arg0="$0"
+typeset Tweet_lang=''
+typeset Tweet_conf_file="${TWEET_CONF-$HOME/.tweet.conf}"
+typeset Tweet_api_host="api.twitter.com"
+typeset Tweet_api_url="https://$Tweet_api_host/1.1"
+typeset Tweet_api_url_request_token="https://$Tweet_api_host/oauth/request_token"
+typeset Tweet_api_url_authorize_token="https://$Tweet_api_host/oauth/authorize"
+typeset Tweet_api_url_access_token="https://$Tweet_api_host/oauth/access_token"
+typeset Tweet_oauth_consumer_key="${TWEET_OAUTH_CONSUMER_KEY-C7IpNPso1IYdCweXYaJ0Q}"
+typeset Tweet_oauth_consumer_secret="${TWEET_OAUTH_CONSUMER_SECRET-LAsLscqNC4kBaDW8EtmxMIVCkY8nsw07NaN5PNBYuY}"
+typeset Tweet_oauth_access_token=''
+typeset Tweet_oauth_access_token_secret=''
+typeset Tweet_script_limit='140'
+typeset Tweet_c_lf='
+'
+
+function Tweet_error {
+  echo "${Tweet_arg0##*/}: ERROR: $1" 1>&2
+}
+
+function HTTP_browser {
+  typeset url="$1"; shift
+  typeset open=
+
+  case $(uname) in
+  Darwin)
+    open="open"
+    ;;
+  CYGWIN_*)
+    open="cygstart"
+    ;;
+  *)
+    if [[ -f /etc/debian_version ]]; then
+      open="sensible-browser"
+    elif type xdg-open >/dev/null 2>&1; then
+      open="xdg-open"
+    elif [[ ${XDG_CURRENT_DESKTOP-} == GNOME || -n ${GNOME_DESKTOP_SESSION_ID-} ]] ; then
+      open="gnome-open"
+    elif [[ ${XDG_CURRENT_DESKTOP-} == KDE || ${KDE_FULL_SESSION-} == true ]] ; then
+      open="kde-open"
+    else
+      typeset browsers="${BROWSER-}"
+      if [[ -z $browsers ]]; then
+	browsers="www-browser:links2:elinks:links:lynx:w3m"
+	if [[ -n ${DISPLAY-} ]]; then
+	  browsers="x-www-browser:firefox:seamonkey:mozilla:epiphany:konqueror:chromium:chromium-browser:google-chrome:$browsers"
+	fi
+      fi
+
+      typeset ifs_save="$IFS"
+      typeset found=
+      IFS=:
+      for open in $browsers; do
+	if type "$open" >/dev/null 2>&1; then
+	  found=set
+	  break
+	fi
+      done
+      IFS="$ifs_save"
+
+      if [[ -z $found ]]; then
+	## FIXME: Print error message
+	return 1
+      fi
+    fi
+    ;;
+  esac
+
+  "$open" "$url"
+
+  return $?
+}
+
+function HTTP_pencode {
+  if [[ -n ${1+set} ]]; then
+    typeset in="${1-}"; shift
+  else
+    typeset in
+    IFS= read -r in
+  fi
+
+  typeset LC_ALL='C'
+  typeset out=
+  typeset char
+  while [[ -n "$in" ]]; do
+    char="${in:0:1}"
+    case "$char" in
+    [a-zA-Z0-9\-._~])
+      out+="$char"
+      ;;
+    *)
+      out+=$(printf '%%%02X' "'$char")
+      ;;
+    esac
+    in="${in:1}"
+  done
+
+  echo -n "$out"
+}
+
+function HTTP_pdecode {
+  typeset in="${1//\\/\\\\}"; shift
+
+  printf "${in//\%/\\x}"
+}
+
+function HTTPS_request {
+  typeset url="$1"; shift
+  typeset method="$1"; shift
+
+  typeset url_tmp
+  #typeset url_scheme="${url%%://*}"
+  url_tmp="${url#*://}"
+  typeset url_path="/${url_tmp#*/}"
+  url_tmp="${url_tmp%%/*}"
+  typeset url_host="${url_tmp%%:*}"
+  if [[ $url_tmp == @(*:*) ]]; then
+    typeset url_port="${url_tmp#*:}"
+  else
+    typeset url_port='443'
+  fi
+
+  typeset line
+  typeset -l line_lower
+  typeset cert_status= http_ver= rcode= rmessage= content_type= body=
+
+  {
+    while IFS= read -r line; do
+      line="${line%}"
+      if [[ $line == 'verify return:0' ]]; then
+	cert_status='verified'
+	break
+      fi
+    done
+
+    read -r http_ver rcode rmessage
+    while IFS= read -r line; do
+      line="${line%}"
+      [[ -z $line ]] && break
+      line_lower="$line"
+      case "$line_lower" in
+      content-type:*)
+	content_type="${line#*: }"
+	;;
+      esac
+    done
+    while IFS= read -r line; do
+      body+="$line$Tweet_c_lf"
+    done
+    body+="$line"
+  } < <(
+    {
+      echo "$method $url_path HTTP/1.1"
+      echo "Host: $url_host"
+      echo "Connection: close"
+      if [[ $method == 'POST' ]]; then
+	echo 'Content-Type: application/x-www-form-urlencoded'
+      fi
+      while [[ $# -gt 0 ]]; do
+	[[ $1 == '--' ]] && { shift; break; }
+	echo "$1"
+	shift
+      done
+      typeset query="${1-}"
+      typeset LC_ALL='C'
+      echo "Content-Length: ${#query}"
+      echo
+      echo -n "$query"
+    } \
+    |openssl s_client \
+      -connect "$url_host:$url_port" \
+      -servername "$url_host" \
+      -no_ssl2 \
+      -no_ssl3 \
+      -crlf \
+      -quiet \
+      2>&1 \
+      ;
+  )
+
+  typeset ret='0'
+
+  if [[ $cert_status != 'verified' ]]; then
+    rcode='500'
+    rmessage='Invalid server certificate'
+    ret='1'
+  elif [[ $rcode != 200 ]]; then
+    ret='1'
+  fi
+
+  echo "$rcode $rmessage"
+  echo "$content_type"
+  echo
+  echo -n "$body"
+
+  return "$ret"
+}
+
+function HTTP_response_extract {
+  typeset response="$1"; shift
+  typeset name="$1"; shift
+  typeset value=
+
+  value="${response#*\&$name=}"
+  value="${value#$name=}"
+  if [[ $value == "$response" ]]; then
+    return 1
+  fi
+  value="${value%%\&*}"
+
+  echo -n "$value"
+  return 0
+}
+
+function OAuth_nonce {
+  printf '%04x%04x%04x%04x%04x%04x%04x%04x' \
+    $RANDOM \
+    $RANDOM \
+    $RANDOM \
+    $RANDOM \
+    $RANDOM \
+    $RANDOM \
+    $RANDOM \
+    $RANDOM \
+    ;
+}
+
+function OAuth_timestamp {
+  date +%s
+}
+
+function OAuth_generate {
+  typeset realm="$1"; shift
+  typeset consumer_key="$1"; shift
+  typeset consumer_secret="$1"; shift
+  typeset token="$1"; shift
+  typeset token_secret="$1"; shift
+  typeset callback="$1"; shift
+  typeset url="$1"; shift
+  typeset method="$1"; shift
+
+  typeset hmac_key="$consumer_secret&$token_secret"
+  typeset -a oauth=(
+    "oauth_consumer_key=$consumer_key"
+    "oauth_signature_method=HMAC-SHA1"
+    "oauth_version=1.0"
+    "oauth_nonce=$(OAuth_nonce)"
+    "oauth_timestamp=$(OAuth_timestamp)"
+    ${token:+"oauth_token=$token"}
+    ${callback:+"oauth_callback=$callback"}
+  )
+
+  typeset oauth_string
+  oauth_string=$(
+    echo -n "$method&"
+    HTTP_pencode "$url"
+    echo -n '&'
+
+    for pv in "$@" "${oauth[@]}"; do
+      echo "$(HTTP_pencode "${pv%%=*}") $(HTTP_pencode "${pv#*=}")"
+    done \
+    |sort \
+    |sed 's/ /%3D/;s/$/%26/' \
+    |tr -d '\n' \
+    |sed 's/%26$//' \
+    ;
+  )
+  typeset oauth_signature
+  oauth_signature=$(
+    echo -n "$oauth_string" \
+    |openssl sha1 -hmac "$hmac_key" -binary \
+    |openssl base64 \
+    |HTTP_pencode \
+    ;
+  )
+
+  typeset query=
+  while [[ $# -gt 0 ]]; do
+    query+="$1"
+    [[ $# -gt 1 ]] && query+='&'
+    shift
+  done
+
+  echo "Authorization: OAuth${realm:+ realm=$realm,}"
+  typeset pv
+  for pv in "${oauth[@]}"; do
+    echo " $pv,"
+  done
+  echo " oauth_signature=$oauth_signature"
+}
+
+function Tweet_string_length {
+  typeset LC_ALL="$Tweet_lang"
+  echo "${#1}"
+}
+
+function Tweet_init {
+  if [[ -n ${ZSH_VERSION-} ]]; then
+    setopt BTATE_ECHO
+    setopt KSH_GLOB
+    setopt TYPESET_SILENT
+  elif [[ -n ${BASH_VERSION-} ]]; then
+    shopt -u xpg_echo
+  else ## ksh
+    if [[ $(echo -n) == -n ]]; then
+      alias echo='print -r'
+    fi
+  fi
+
+  typeset lang_orig="${LANG-}"
+  typeset locale lang_ja lang
+  if [[ ${lang_orig#*.} != @(UTF-8|utf-8|UTF8|utf8) ]]; then
+    if type locale >/dev/null 2>&1; then
+      while read -r locale; do
+	if [[ ${locale#*.} == @(UTF-8|utf-8|UTF8|utf8) ]]; then
+	  if [[ ${locale%.*} == ja_JP ]]; then
+	    lang_ja="$locale"
+	  else
+	    lang="$locale"
+	  fi
+	fi
+      done < <(locale -a)
+    fi
+  fi
+  Tweet_lang="${lang_ja-${lang-ja_JP.UTF-8}}"
+}
+
+function Tweet_authorize {
+  if [[ -n $Tweet_oauth_access_token && -n $Tweet_oauth_access_token_secret ]]; then
+    return 0
+  fi
+
+  echo "No OAuth access token and/or secret for Twitter access configured."
+  echo
+  echo "I'll open Twitter site by a WWW browser to get OAuth access token"
+  echo "and secret. Please authorize this application and get a PIN code"
+  echo "on Twitter site."
+  echo
+  echo -n "Press Enter key to open Twitter site..."
+  read
+  echo
+
+  typeset oauth
+  oauth=$(
+    OAuth_generate \
+      "$Tweet_api_url" \
+      "$Tweet_oauth_consumer_key" \
+      "$Tweet_oauth_consumer_secret" \
+      '' \
+      '' \
+      '' \
+      "$Tweet_api_url_request_token" \
+      "POST" \
+      ;
+  )
+
+  typeset response
+  response=$(
+    HTTPS_request \
+      "$Tweet_api_url_request_token" \
+      "POST" \
+      "$oauth" \
+      ;
+  )
+  typeset ret="$?"
+  if [[ $ret -ne 0 ]]; then
+    Tweet_error "OAuth request token failed: ${response%%$Tweet_c_lf*}"
+    return 1
+  fi
+
+  typeset body="${response#*$Tweet_c_lf$Tweet_c_lf}"
+  typeset oauth_token=$(HTTP_response_extract "$body" oauth_token)
+  typeset oauth_token_secret=$(HTTP_response_extract "$body" oauth_token_secret)
+
+  HTTP_browser "$Tweet_api_url_authorize_token?oauth_token=$oauth_token"
+
+  echo -n 'Enter PIN code: '
+  typeset pin=
+  read -r pin
+  echo
+
+  typeset oauth
+  oauth=$(
+    OAuth_generate \
+      "$Tweet_api_url" \
+      "$Tweet_oauth_consumer_key" \
+      "$Tweet_oauth_consumer_secret" \
+      "$oauth_token" \
+      "$oauth_token_secret" \
+      '' \
+      "$Tweet_api_url_access_token" \
+      "POST" \
+      "oauth_verifier=$pin" \
+      ;
+  )
+
+  typeset response
+  response=$(
+    HTTPS_request \
+      "$Tweet_api_url_access_token" \
+      "POST" \
+      "$oauth" \
+      -- \
+      "oauth_verifier=$pin" \
+      ;
+  )
+  typeset ret="$?"
+  if [[ $ret -ne 0 ]]; then
+    Tweet_error "OAuth access token failed: ${response%%$Tweet_c_lf*}"
+    return 1
+  fi
+
+  typeset body="${response#*$Tweet_c_lf$Tweet_c_lf}"
+  Tweet_oauth_access_token=$(HTTP_response_extract "$body" oauth_token)
+  Tweet_oauth_access_token_secret=$(HTTP_response_extract "$body" oauth_token_secret)
+
+  if [[ ! -f "$Tweet_conf_file" ]]; then
+    echo "Saving OAuth consumer key and secret into $Tweet_conf_file..."
+    (umask 0077; touch "$Tweet_conf_file") || return 1
+    echo "oauth_consumer_key='$Tweet_oauth_consumer_key'" >>"$Tweet_conf_file"
+    echo "oauth_consumer_secret='$Tweet_oauth_consumer_secret'" >>"$Tweet_conf_file"
+  fi
+  echo "Saving OAuth access token and secret into $Tweet_conf_file..."
+  echo "oauth_access_token='$Tweet_oauth_access_token'" >>"$Tweet_conf_file"
+  echo "oauth_access_token_secret='$Tweet_oauth_access_token_secret'" >>"$Tweet_conf_file"
+
+  return 0
+}
+
+function Tweet_tweet {
+  typeset script="$1"; shift
+
+  typeset script_len=$(Tweet_string_length "$script")
+  if [[ $script_len -gt $Tweet_script_limit ]]; then
+    Tweet_error "Script too long (>$Tweet_script_limit) to tweet: $script_len"
+    return 1
+  fi
+
+  typeset query
+  query="status=$(HTTP_pencode "$script")"
+
+  typeset oauth
+  oauth=$(
+    OAuth_generate \
+      "$Tweet_api_url" \
+      "$Tweet_oauth_consumer_key" \
+      "$Tweet_oauth_consumer_secret" \
+      "$Tweet_oauth_access_token" \
+      "$Tweet_oauth_access_token_secret" \
+      '' \
+      "$Tweet_api_url/statuses/update.json" \
+      "POST" \
+      "$query" \
+      ;
+  )
+
+  typeset response
+  response=$(
+    HTTPS_request \
+      "$Tweet_api_url/statuses/update.json" \
+      "POST" \
+      "$oauth" \
+      -- \
+      "$query" \
+      ;
+  )
+  typeset ret="$?"
+  if [[ $ret -ne 0 ]]; then
+    Tweet_error "Tweet failed: ${response%%$Tweet_c_lf*}"
+    return 1
+  fi
+
+  typeset body="${response#*$Tweet_c_lf$Tweet_c_lf}"
+}
+
+function Tweet_command_help {
+  echo "Usage: $0 SCRIPT"
+  exit 0
+}
+
+function Tweet_command {
+  if [[ $# -ne 1 ]]; then
+    Tweet_command_help
+    exit 0
+  fi
+
+  if [[ -f "$Tweet_conf_file" ]]; then
+    . "$Tweet_conf_file" || exit 1
+  fi
+
+  if [[ -n ${oauth_consumer_key-} ]]; then
+    Tweet_oauth_consumer_key="$oauth_consumer_key"
+  fi
+  if [[ -n ${oauth_consumer_secret-} ]]; then
+    Tweet_oauth_consumer_secret="$oauth_consumer_secret"
+  fi
+  if [[ -n ${oauth_access_token-} ]]; then
+    Tweet_oauth_access_token="$oauth_access_token"
+  fi
+  if [[ -n ${oauth_access_token_secret-} ]]; then
+    Tweet_oauth_access_token_secret="$oauth_access_token_secret"
+  fi
+
+  Tweet_authorize && Tweet_tweet "$@"
+  ## FIXME: Parse reply from Twitter.com
+  return $?
+}
+
+## ======================================================================
+
+if [[ ${0##*/} == tate ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; then
+  TATE_init
+
+  if [[ ${GATEWAY_INTERFACE-} == @(CGI*) ]]; then
+    TATE_echo_cgi "$@"
+  else
+    TATE_echo_command "$@"
+  fi
+  exit $?
+fi
+
+return 0
+
