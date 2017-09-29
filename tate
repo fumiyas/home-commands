@@ -328,7 +328,7 @@ function TATE_echo_command {
   fi
 
   if [[ $# -eq 0 ]]; then
-    set -- '気軽に「殺す」とツイートできる、' 'そんな素敵なソリュションを' 'ご提供！(無保証)'
+    set -- '気軽に「殺す」と' 'ツイートできる、' 'そんな素敵なソリューションを' 'ご提供！(無保証)'
   fi
 
   typeset sd=$(TATE_echo_vertical ${sd_opts[@]+"${sd_opts[@]}"} -- ${1+"$@"})
