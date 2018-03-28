@@ -29,6 +29,8 @@ else
   inotifywait=""
 fi
 
+trap 'rc=$?; trap "" TERM; kill -TERM -$$; exit $rc' EXIT
+
 for pid in "$@"; do
   if ! cd "/proc/$pid" 2>/dev/null; then
     perr "No such process: $pid"
