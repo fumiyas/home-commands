@@ -1,7 +1,7 @@
 #!/bin/sh
 ##
-## Solaris pwait(1) clone for Linux
-## Copyright (c) 2012-2014 SATOH Fumiyasu @ OSS Technology Corp., Japan
+## Solaris pwait(1) clone for Linux, AIX
+## Copyright (c) 2012-2018 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##               <https://github.com/fumiyas/home-commands/blob/master/pwait>
 ##               <https://fumiyas.github.io/>
 ##
@@ -54,4 +54,3 @@ for pid in "$@"; do
 done
 
 wait
-
