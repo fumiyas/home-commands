@@ -39,12 +39,13 @@ for pid in "$@"; do
 
   (
     [ -r exe ] || inotifywait=""
+    if [ -n "$inotifywait" ]; then
+      set -- inotifywait --quiet --event close_nowrite exe
+    else
+      set -- sleep 5
+    fi
     while :; do
-      if [ -n "$inotifywait" ]; then
-	inotifywait --quiet --event close_nowrite exe >/dev/null 2>&1
-      else
-	sleep 5
-      fi
+      "$@" >/dev/null
       if ! cd . 2>/dev/null; then
 	[ -n "$verbose" ] && echo "$pid: terminated"
 	exit 0
