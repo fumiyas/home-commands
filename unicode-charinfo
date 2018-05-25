@@ -22,7 +22,7 @@ if (@ARGV == 0) {
 for my $char (split(//, decode('UTF-8', join('', @ARGV)))) {
   print "$char\n";
   my $charinfo = charinfo(ord($char));
-  for my $key (sort keys $charinfo) {
+  for my $key (sort keys %$charinfo) {
     printf "\t%-15s %s\n", $key, $charinfo->{$key};
   }
 }
