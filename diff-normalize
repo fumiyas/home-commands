@@ -1,0 +1,25 @@
+#!/bin/sh
+##
+## Normalize diff output to diff diff outputs
+## Copyright (c) SATOH Fumiyasu @ OSS Technology Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+
+set -u
+
+sed \
+  -e '/^=/d' \
+  -e '/^index /d' \
+  -e '/^new file mode /d' \
+  -e '/^deleted file mode /d' \
+  -e '/^-- /,/^$/d' \
+  -e 's/^From .*/======================================================================/' \
+  -e 's|^Index: [^/]*\/\(.*\)$|diff --git a/\1 b/\1|' \
+  -e 's|^\(--- .*\)\t.*|\1|' \
+  -e 's|^--- [^/]*/\(.*\)$|--- a/\1|' \
+  -e 's|^\(+++ .*\)\t.*|\1|' \
+  -e 's|^+++ [^/]*/\(.*\)$|+++ b/\1|' \
+  -e 's/^\(@@.*\)(.*/\1/' \
+  "$@" \
+;
