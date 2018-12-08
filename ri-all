@@ -32,5 +32,5 @@ fi
   done \
   |xargs "$ri_cmd" --no-pager \
   ;
-) |"$pager_cmd"
+) |$pager_cmd
 
