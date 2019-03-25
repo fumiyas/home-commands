@@ -7,7 +7,7 @@
 ## Copyright (C) 2013-2019 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##               <https://github.com/fumiyas/home-commands/blob/master/echo-sd>
 ##               <https://fumiyas.github.io/>
-##               <http://www.osstech.co.jp/cgi-bin/echo-sd>
+##               <https://www.osstech.co.jp/cgi-bin/echo-sd>
 ##
 ## License: GNU General Public License version 3
 ##
@@ -82,7 +82,7 @@
 ##
 ## On-line demo site:
 ##
-##   http://www.OSSTech.co.jp/cgi-bin/echo-sd
+##   https://www.OSSTech.co.jp/cgi-bin/echo-sd
 ##
 ## TODO:
 ##
@@ -96,7 +96,7 @@
 ##   * 突然の死ジェネレータ - 純粋関数空間
 ##     http://tanakh.jp/tools/sudden.html
 ##   * 元ネタ
-##     http://dic.nicovideo.jp/a/%E7%AA%81%E7%84%B6%E3%81%AE%E6%AD%BB
+##     https://dic.nicovideo.jp/a/%E7%AA%81%E7%84%B6%E3%81%AE%E6%AD%BB
 ##
 
 if [[ ${0##*/} == echo-sd ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; then
@@ -1046,7 +1046,7 @@ function SD_echo_cgi {
       echo -n "$line" |_SD_urlencode
       echo -n '%0A'
     done
-    echo -n 'http://t.co/o9H0oAzcIU' |_SD_urlencode
+    echo -n "${SD_CGI_FOOTER_TWEET-https://t.co/lNiygmWCSn}" |_SD_urlencode
     echo
     echo
   elif [[ -n ${text-} ]]; then
