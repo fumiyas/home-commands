@@ -1299,7 +1299,6 @@ function HTTPS_request {
     |openssl s_client \
       -connect "$url_host:$url_port" \
       -servername "$url_host" \
-      -no_ssl2 \
       -no_ssl3 \
       -crlf \
       -quiet \
@@ -1649,4 +1648,3 @@ if [[ ${0##*/} == echo-sd ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; 
 fi
 
 return 0
-
