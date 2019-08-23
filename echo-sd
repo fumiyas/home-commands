@@ -1280,6 +1280,7 @@ function HTTPS_request {
       esac
     done
     while IFS= read -r line; do
+      line="${line%}"
       body+="$line$Tweet_c_lf"
     done
     body+="$line"
