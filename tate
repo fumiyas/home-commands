@@ -59,21 +59,19 @@ typeset TATE_copyright='(C) 2017 SATOH Fumiyasu @ OSS Technology Corp., Japan'
 typeset TATE_url='https://github.com/fumiyas/home-commands/blob/master/tate'
 typeset TATE_lang_orig TATE_lang
 typeset -A TATE_vc_map
-typeset TATE_c_lf='
-'
 
 ## ======================================================================
 
 function TATE_die {
   TATE_echo_command "${TATE_arg0##*/}: ERROR: $1" 1>&2
   TATE_echo_command 1>&2
-  exit ${2-1}
+  exit "${2-1}"
 }
 
 function TATE_init {
   if [[ -n ${ZSH_VERSION-} ]]; then
     setopt SH_WORD_SPLIT
-    setopt BTATE_ECHO
+    setopt BSD_ECHO
     setopt KSH_GLOB
     setopt KSH_ARRAYS
   elif [[ -n ${BASH_VERSION-} ]]; then
@@ -123,6 +121,7 @@ function TATE_init {
   TATE_vc_map[／]='＼'
   TATE_vc_map[…]='︙'
   TATE_vc_map[‥]='︰'
+  TATE_vc_map[︙]='…'
   TATE_vc_map[：]='︓'
   TATE_vc_map[:]='︓'
   TATE_vc_map[；]='︔'
@@ -632,18 +631,23 @@ function HTTPS_request {
 
   typeset line
   typeset -l line_lower
-  typeset cert_status= http_ver= rcode= rmessage= content_type= body=
+  typeset cert_verify_error= http_ver= rcode= rmessage= content_type= body=
 
   {
     while IFS= read -r line; do
       line="${line%}"
-      if [[ $line == 'verify return:0' ]]; then
-	cert_status='verified'
+      if [[ $line == HTTP/* ]]; then
+	http_ver="${line%% *}"
+	line="${line#* }"
+	rcode="${line%% *}"
+	rmessage="${line#* }"
 	break
+      fi
+      if [[ $line == 'verify error':* ]]; then
+	cert_verify_error="$line"
       fi
     done
 
-    read -r http_ver rcode rmessage
     while IFS= read -r line; do
       line="${line%}"
       [[ -z $line ]] && break
@@ -655,6 +659,7 @@ function HTTPS_request {
       esac
     done
     while IFS= read -r line; do
+      line="${line%}"
       body+="$line$Tweet_c_lf"
     done
     body+="$line"
@@ -680,22 +685,23 @@ function HTTPS_request {
     |openssl s_client \
       -connect "$url_host:$url_port" \
       -servername "$url_host" \
-      -no_ssl2 \
+      -verify_hostname "$url_host" \
+      -no_tls1 \
       -no_ssl3 \
       -crlf \
       -quiet \
       2>&1 \
-      ;
+    ;
   )
 
-  typeset ret='0'
+  typeset rc='0'
 
-  if [[ $cert_status != 'verified' ]]; then
+  if [[ -n $cert_verify_error ]]; then
     rcode='500'
-    rmessage='Invalid server certificate'
-    ret='1'
+    rmessage="Invalid server certificate: $cert_verify_error"
+    rc='1'
   elif [[ $rcode != 200 ]]; then
-    ret='1'
+    rc='1'
   fi
 
   echo "$rcode $rmessage"
@@ -703,7 +709,7 @@ function HTTPS_request {
   echo
   echo -n "$body"
 
-  return "$ret"
+  return "$rc"
 }
 
 function HTTP_response_extract {
@@ -806,7 +812,7 @@ function Tweet_string_length {
 
 function Tweet_init {
   if [[ -n ${ZSH_VERSION-} ]]; then
-    setopt BTATE_ECHO
+    setopt BSD_ECHO
     setopt KSH_GLOB
     setopt TYPESET_SILENT
   elif [[ -n ${BASH_VERSION-} ]]; then
@@ -872,8 +878,8 @@ function Tweet_authorize {
       "$oauth" \
       ;
   )
-  typeset ret="$?"
-  if [[ $ret -ne 0 ]]; then
+  typeset rc="$?"
+  if [[ $rc -ne 0 ]]; then
     Tweet_error "OAuth request token failed: ${response%%$Tweet_c_lf*}"
     return 1
   fi
@@ -914,8 +920,8 @@ function Tweet_authorize {
       "oauth_verifier=$pin" \
       ;
   )
-  typeset ret="$?"
-  if [[ $ret -ne 0 ]]; then
+  typeset rc="$?"
+  if [[ $rc -ne 0 ]]; then
     Tweet_error "OAuth access token failed: ${response%%$Tweet_c_lf*}"
     return 1
   fi
@@ -974,8 +980,8 @@ function Tweet_tweet {
       "$query" \
       ;
   )
-  typeset ret="$?"
-  if [[ $ret -ne 0 ]]; then
+  typeset rc="$?"
+  if [[ $rc -ne 0 ]]; then
     Tweet_error "Tweet failed: ${response%%$Tweet_c_lf*}"
     return 1
   fi
