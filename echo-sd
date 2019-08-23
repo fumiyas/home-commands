@@ -13,7 +13,7 @@
 ##
 ## Requirements:
 ##   * bash(1) 4.0, ksh(1) 93u or zsh(1) 4.3
-##   * openssl(1) if you use Twitter
+##   * openssl(1) 1.0.2 if you use Twitter
 ##
 ## How to install:
 ##
@@ -1251,18 +1251,24 @@ function HTTPS_request {
 
   typeset line
   typeset -l line_lower
-  typeset cert_status= http_ver= rcode= rmessage= content_type= body=
+  typeset cert_verify_error= http_ver= rcode= rmessage= content_type= body=
 
   {
     while IFS= read -r line; do
       line="${line%}"
-      if [[ $line == 'verify return:0' ]]; then
-	cert_status='verified'
+      if [[ $line == HTTP/* ]]; then
+	http_ver="${line%% *}"
+	line="${line#* }"
+	rcode="${line%% *}"
+	rmessage="${line#* }"
 	break
       fi
+      if [[ $line == 'verify error':* ]]; then
+	cert_verify_error="$line"
+      fi
     done
+    echo "$http_ver / $rcode / $rmessage" 1>&2
 
-    read -r http_ver rcode rmessage
     while IFS= read -r line; do
       line="${line%}"
       [[ -z $line ]] && break
@@ -1299,18 +1305,20 @@ function HTTPS_request {
     |openssl s_client \
       -connect "$url_host:$url_port" \
       -servername "$url_host" \
+      -verify_hostname "$url_host" \
+      -no_tls1 \
       -no_ssl3 \
       -crlf \
       -quiet \
       2>&1 \
-      ;
+    ;
   )
 
   typeset ret='0'
 
-  if [[ $cert_status != 'verified' ]]; then
+  if [[ -n $cert_verify_error ]]; then
     rcode='500'
-    rmessage='Invalid server certificate'
+    rmessage="Invalid server certificate: $cert_verify_error"
     ret='1'
   elif [[ $rcode != 200 ]]; then
     ret='1'
