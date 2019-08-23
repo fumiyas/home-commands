@@ -1267,7 +1267,6 @@ function HTTPS_request {
 	cert_verify_error="$line"
       fi
     done
-    echo "$http_ver / $rcode / $rmessage" 1>&2
 
     while IFS= read -r line; do
       line="${line%}"
@@ -1315,14 +1314,14 @@ function HTTPS_request {
     ;
   )
 
-  typeset ret='0'
+  typeset rc='0'
 
   if [[ -n $cert_verify_error ]]; then
     rcode='500'
     rmessage="Invalid server certificate: $cert_verify_error"
-    ret='1'
+    rc='1'
   elif [[ $rcode != 200 ]]; then
-    ret='1'
+    rc='1'
   fi
 
   echo "$rcode $rmessage"
@@ -1330,7 +1329,7 @@ function HTTPS_request {
   echo
   echo -n "$body"
 
-  return "$ret"
+  return "$rc"
 }
 
 function HTTP_response_extract {
@@ -1499,8 +1498,8 @@ function Tweet_authorize {
       "$oauth" \
       ;
   )
-  typeset ret="$?"
-  if [[ $ret -ne 0 ]]; then
+  typeset rc="$?"
+  if [[ $rc -ne 0 ]]; then
     Tweet_error "OAuth request token failed: ${response%%$Tweet_c_lf*}"
     return 1
   fi
@@ -1541,8 +1540,8 @@ function Tweet_authorize {
       "oauth_verifier=$pin" \
       ;
   )
-  typeset ret="$?"
-  if [[ $ret -ne 0 ]]; then
+  typeset rc="$?"
+  if [[ $rc -ne 0 ]]; then
     Tweet_error "OAuth access token failed: ${response%%$Tweet_c_lf*}"
     return 1
   fi
@@ -1601,8 +1600,8 @@ function Tweet_tweet {
       "$query" \
       ;
   )
-  typeset ret="$?"
-  if [[ $ret -ne 0 ]]; then
+  typeset rc="$?"
+  if [[ $rc -ne 0 ]]; then
     Tweet_error "Tweet failed: ${response%%$Tweet_c_lf*}"
     return 1
   fi
