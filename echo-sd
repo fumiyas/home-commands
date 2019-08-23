@@ -704,10 +704,12 @@ Options:
     Read scripts from stdin
  --stress
     "Stress" mode
- --tanzaku
-    "Tanzaku" mode
  --stream
     Stream mode
+ -b, --border-char CHARACTER
+    Border character
+ --tanzaku
+    "Tanzaku" border
  --center
     Center scripts (not implemented in vertical mode yet)
  -R, --no-round
@@ -727,7 +729,7 @@ EOT
 function SD_echo_command {
   typeset opt
   typeset read_stdin vertical stress stream
-  typeset no_round square tanzaku
+  typeset no_round square tanzaku border_char
   typeset padding padding_top padding_bottom padding_left padding_right
   typeset center
   typeset header= footer=
@@ -737,7 +739,7 @@ function SD_echo_command {
     opt="$1"; shift
 
     ## -ovalue → -o value
-    if [[ -z "${opt##-[phf]?*}" ]]; then
+    if [[ -z "${opt##-[bphf]?*}" ]]; then
       set -- "${opt#??}" ${1+"$@"}
       opt="${opt%$1}"
     ## -abc → -a -bc
@@ -799,6 +801,13 @@ function SD_echo_command {
       esac
       shift
       ;;
+    -b|--bc|--border-char|--border-character)
+      if [[ -z ${1-} ]]; then
+	SD_die "Invalid option value: $opt ${1-UNSPECIFIED}"
+      fi
+      border_char="$1"
+      shift
+      ;;
     --square)
       square="set"
       no_round="set"
@@ -850,14 +859,19 @@ function SD_echo_command {
     ${padding_left:+--padding-left "$padding_left"}
     ${padding_right:+--padding-right "$padding_right"}
   )
-  if [[ -n ${square-} ]]; then
+  if [[ -n ${border_char-} ]]; then
+    sd_opts+=(
+      --bc-tl "$border_char" --bc-t "$border_char" --bc-tr "$border_char"
+      --bc-l  "$border_char" --bc-r "$border_char"
+      --bc-bl "$border_char" --bc-b "$border_char" --bc-br "$border_char"
+    )
+  elif [[ -n ${square-} ]]; then
     sd_opts+=(
       --bc-tl '┌' --bc-t '─' --bc-tr '┐'
       --bc-l '│' --bc-r '│'
       --bc-bl '└' --bc-b '─' --bc-br '┘'
     )
-  fi
-  if [[ -n ${tanzaku-} ]]; then
+  elif [[ -n ${tanzaku-} ]]; then
     sd_opts+=(
       --bc-tc '-┷-'
       --bc-tl '┏' --bc-t '━' --bc-tr '┓'
