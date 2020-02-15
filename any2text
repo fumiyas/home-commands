@@ -1,0 +1,143 @@
+#!/bin/bash
+##
+## Any file contents to text translator
+## Copyright (c) 2020 SATOH Fumiyasu @ OSS Technlogy Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+## Required external commands:
+##   nkf(1)
+##   pdftotext(1) from poppler
+##   wvWare(1)
+##   xlhtml(1)
+##   ppthtml(1) from xlhtml
+##   unzip(1)
+##
+
+set -u
+
+perr()
+{
+  echo "$0: ERROR: $1" 1>&2
+}
+
+pdie()
+{
+  perr "$1"
+  exit "${2-1}"
+}
+
+html2text() {
+  ## FIXME &#XXXX;
+  sed \
+    -e 's/<[^>]*>//g' \
+    -e 's/&nbsp;/ /g' \
+    -e 's/&quot;/"/g' \
+    -e 's/&gt;/>/g' \
+    -e 's/&lt;/</g' \
+    -e 's/&amp;/\&/g' \
+    -e '/^ *$/d' \
+  ;
+}
+
+xml2text() {
+  ## FIXME &#XXXX;
+  sed \
+    -e 's/<[^>]*>//g' \
+    -e 's/&nbsp;/ /g' \
+    -e 's/&quot;/"/g' \
+    -e "s/&apos;/'/g" \
+    -e 's/&gt;/>/g' \
+    -e 's/&lt;/</g' \
+    -e 's/&amp;/\&/g' \
+    -e '/^ *$/d' \
+  ;
+}
+
+odf2text() {
+  unzip -p "$1" 'meta.xml' 'content.xml' \
+  |xml2text \
+  ;
+}
+
+openxml2text() {
+  unzip -p "$@" \
+  |sed \
+    -e 's/<p:txBody>/ /g' \
+    -e 's/<\/t>/ /g' \
+  |xml2text \
+  ;
+}
+
+## ======================================================================
+
+for file_name in "$@"; do
+  file_ext="${file_name##*.}"
+
+  case "$file_ext" in
+  txt)
+    <"$file_name" \
+    nkf -w 
+    ;;
+  html)
+    <"$file_name" \
+    html2text |nkf -w
+    ;;
+  zip)
+    <"$file_name" \
+    unzip -l /dev/stdin |sed '1,3d;/^-/d;$d'
+    ;;
+  o[dt][tspg])
+    <"$file_name" \
+    odf2text /dev/stdin
+    ;;
+  pdf)
+    file_tmp=`mktemp` || exit 1
+    cp "$file_name" >"$file_tmp"
+    pdftotext -enc UTF-8 -nopgbrk "$file_tmp" -
+    ;;
+  doc)
+    #catdoc -d utf-8 -w /dev/stdin
+    <"$file_name" \
+    wvWare --charset=UTF-8 --nographics /dev/stdin \
+    |html2text \
+    ;
+    ;;
+  xls)
+    #xls2csv -q0 /dev/stdin
+    <"$file_name" \
+    xlhtml -a -te -nc -fw /dev/stdin \
+    |sed \
+      -e 's/<TD[^>]*>&nbsp;//g' \
+      -e 's/<TD[^>]*>/ /g' \
+      -e "s/^<meta .*<\/TITLE>//" \
+      -e "s/<I>Spreadsheet's Author:.*xlhtml [^<]*//" \
+    |html2text \
+    ;
+    ;;
+  ppt)
+    <"$file_name" \
+    ppthtml /dev/stdin \
+    |sed \
+      -e 's/^<HTML>.*//' \
+      -e 's/^<hr>.*>pptHtml<.*//' \
+    |html2text \
+    ;
+    ;;
+  do[ct][xm])
+    <"$file_name" \
+    openxml2text /dev/stdin 'word/document.xml'
+    ;;
+  xl[st][xm])
+    <"$file_name" \
+    openxml2text /dev/stdin 'xl/sharedStrings.xml'
+    ;;
+  pp[ts][xm]|pot[xm]|sld[xm])
+    <"$file_name" \
+    openxml2text /dev/stdin 'ppt/slides/slide*.xml'
+    ;;
+  *)
+    pdie "Unknown file type: $file_type ($file_name)"
+    ;;
+  esac
+done
