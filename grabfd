@@ -98,6 +98,7 @@ else
 fi
 
 shift $#
+
 ## FIXME: Only gdb 7.0+ support --eval-command option
 if [ -n "$stdin_f" ]; then
   set -- "$@" --eval-command="print close(0)"
@@ -121,7 +122,7 @@ fi
 
 if type pwait >/dev/null 2>&1; then
   pwait "$pid"
-if type procwait >/dev/null 2>&1; then
+elif type procwait >/dev/null 2>&1; then
   procwait "$pid"
 else
   ## pwait(1) emulation
@@ -147,4 +148,3 @@ else
 fi
 
 exit 0
-
