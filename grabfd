@@ -28,12 +28,12 @@ Options:
   Grab process's stdin too (default: stdout and stderr only)
 "
 
-o_rdonly=00000000
-o_wronly=00000001
+o_rdonly=0x0000
+o_wronly=0x0001
 if [ x"`uname`" = x"Linux" ]; then
-  o_append=00002000
+  o_append=02000
 else
-  o_append=00000008
+  o_append=0x0008
 fi
 
 unset wait_f
@@ -111,6 +111,7 @@ set -- "$@" --eval-command="print open(\"$stderr\", $o_wronly|$o_append)"
 set -- "$@" --eval-command="quit"
 
 gdb_out=`gdb --batch --quiet -p "$pid" "$@" 2>&1`
+
 if [ $? -ne 0 ]; then
   echo "$gdb_out" 1>&2
   pdie "gdb failed"
