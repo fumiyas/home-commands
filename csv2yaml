@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 ## FIXME: Support multi-valued attributes
-## FIXME: Keep attributes order
 
 import sys
 import csv
