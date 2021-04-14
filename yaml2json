@@ -4,7 +4,11 @@ import sys
 import yaml
 import json
 
-yaml_str = open(sys.argv[1]).read()
+try:
+    yaml_str = open(sys.argv[1]).read()
+except IndexError:
+    yaml_str = sys.stdin.read()
+
 for data in yaml.load_all(yaml_str):
     print(data)
     json_str = json.dumps(data, sort_keys=True, indent=2)
