@@ -49,8 +49,8 @@ else
   file1="${args[$args_last]}";
   unset args[$args_last]
 
-  [[ -f $file1 ]] || pdie "No such file: $file1"
-  [[ -f $file2 ]] || pdie "No such file: $file2"
+  [[ -f $file1 ]] || [[ -L $file1 ]] || pdie "No such file: $file1"
+  [[ -f $file2 ]] || [[ -L $file2 ]] || pdie "No such file: $file2"
 
   wdiff \
     ${args+"${args[@]}"} \
