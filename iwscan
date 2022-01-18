@@ -15,7 +15,7 @@ fi
 
 if="${1-wlan0}"; shift
 
-iwlist  "$if" scan \
+iwlist "$if" scan \
 |sed 's/^\( *Cell\) \([0-9]*\) - /\1\t\2\n/;s/^ *\([^:=]*\)[:=] */\1\t/' \
 |awk '
   BEGIN {

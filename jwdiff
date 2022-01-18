@@ -34,7 +34,7 @@ Options:
 "
 
 if [[ ${1-} = -d ]] || [[ ${1-} = --diff-input ]]; then
-    wakati |wdiff "$@" |sed 's/	//g'
+  wakati |wdiff "$@" |sed 's/	//g'
 else
   if [[ $# -lt 2 ]]; then
     echo "$usage" 1>&2
