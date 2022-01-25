@@ -10,10 +10,14 @@ set -u
 
 if [ X"`id |sed 's/).*//;s/.*(//'`" != X"root" ]; then
   exec sudo -u root "$0" ${1+"$@"}
-  exit 1
+  exit $?
 fi
 
-if="${1-wlan0}"; shift
+if [ "${1+set}" ]; then
+  if="$1"; shift
+else
+  if=$(iwconfig 2>/dev/null|sed -n '/^[a-z][a-z0-9]* *IEEE 802\.11/ { s/ .*//; p; q; }')
+fi
 
 iwlist "$if" scan \
 |sed 's/^\( *Cell\) \([0-9]*\) - /\1\t\2\n/;s/^ *\([^:=]*\)[:=] */\1\t/' \
