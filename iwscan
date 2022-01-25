@@ -1,7 +1,7 @@
 #!/bin/sh
 ##
 ## List wireless access points in line-by-line format
-## Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
+## Copyright (c) 2013-2022 SATOH Fumiyasu @ OSSTech Corp., Japan
 ##
 ## License: GNU General Public License version 3
 ##
