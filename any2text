@@ -49,8 +49,8 @@ xml2text() {
     -e "s/&apos;/'/g" \
     -e 's/&gt;/>/g' \
     -e 's/&lt;/</g' \
-    -e 's/&amp;/\&/g' \
     -e 's/&#10;/\n/g' \
+    -e 's/&amp;/\&/g' \
     -e '/^ *$/d' \
   ;
 }
