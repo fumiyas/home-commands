@@ -98,9 +98,10 @@ for file_name in "$@"; do
     odf2text /dev/stdin
     ;;
   pdf)
-    file_tmp=`mktemp` || exit 1
-    cp "$file_name" >"$file_tmp"
-    pdftotext -enc UTF-8 -nopgbrk "$file_tmp" -
+    <"$file_name" \
+    pdftotext -htmlmeta -enc UTF-8 -nopgbrk - - \
+    |html2text \
+    ;
     ;;
   doc)
     #catdoc -d utf-8 -w /dev/stdin
@@ -143,7 +144,7 @@ for file_name in "$@"; do
     openxml2text /dev/stdin 'ppt/slides/slide*.xml'
     ;;
   *)
-    pdie "Unknown file type: $file_type ($file_name)"
+    pdie "Unknown file type: $file_ext ($file_name)"
     ;;
   esac
 done
