@@ -28,8 +28,10 @@ pdie()
 }
 
 html2text() {
-  ## FIXME &#XXXX;
+  ## FIXME: Decode &#XXXX;
   sed \
+    -e ':a' \
+    -e '/<[^>]*$/ { N; ba; }' \
     -e 's/<[^>]*>//g' \
     -e 's/&nbsp;/ /g' \
     -e 's/&quot;/"/g' \
@@ -41,8 +43,10 @@ html2text() {
 }
 
 xml2text() {
-  ## FIXME &#XXXX;
+  ## FIXME: Decode &#XXXX;
   sed \
+    -e ':a' \
+    -e '/<[^>]*$/ { N; ba; }' \
     -e 's/<[^>]*>//g' \
     -e 's/&nbsp;/ /g' \
     -e 's/&quot;/"/g' \
