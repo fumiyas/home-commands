@@ -9,7 +9,7 @@ try:
 except IndexError:
     yaml_str = sys.stdin.read()
 
-for data in yaml.load_all(yaml_str):
+for data in yaml.load_all(yaml_str, Loader=yaml.FullLoader):
     print(data)
     json_str = json.dumps(data, sort_keys=True, indent=2)
     print(json_str)
