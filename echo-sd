@@ -1020,6 +1020,9 @@ function SD_echo_cgi {
 	tanzaku="checked"
 	padding=""
 	;;
+      stress)
+	stress="checked"
+	;;
       esac
       ;;
     p|prefaces)
@@ -1048,6 +1051,7 @@ function SD_echo_cgi {
     ${padding:+--padding 1} \
     ${square:+--square} \
     ${tanzaku:+--tanzaku} \
+    ${stress:+--stress} \
     ;
   if [[ ${#scripts[@]} -eq 1 ]] && [[ -z ${scripts[0]} ]]; then
     set -- ${1+"$@"} -- '突然の死'
@@ -1103,11 +1107,14 @@ function SD_echo_cgi {
       '<input type="radio" name="options" value="" accesskey="n" ' \
       "${square-}>通常(<span class='ul'>N</span>)</label>"
     echo '<label>' \
-      '<input type="radio" name="options" value="square" accesskey="s" ' \
-      "${square-}>四角形(<span class='ul'>S</span>)</label>"
+      '<input type="radio" name="options" value="square" accesskey="4" ' \
+      "${square-}>四角形(<span class='ul'>4</span>)</label>"
     echo '<label>' \
       '<input type="radio" name="options" value="tanzaku" accesskey="t" ' \
       "${tanzaku-}>短冊(<span class='ul'>T</span>)</label>"
+    echo '<label>' \
+      '<input type="radio" name="options" value="stress" accesskey="s" ' \
+      "${stress-}>ストレス(<span class='ul'>S</span>)</label>"
     echo '<br />'
     echo '<input type="submit" name="generate" value="＞　ジェネレート　＜" tabindex="2">'
     echo '<input type="submit" name="tweet" value="＞　ツイート　＜" tabindex="2">'
