@@ -4,7 +4,7 @@
 ## ＿人人人人人人＿
 ## ＞　突然の死　＜ ジェネレーター (Echo "sudden death" message)
 ## ￣Y^Y^Y^Y^Y^Y￣
-## Copyright (C) 2013-2019 SATOH Fumiyasu @ OSS Technology Corp., Japan
+## Copyright (C) 2013-2022 SATOH Fumiyasu @ OSSTech Corp., Japan
 ##               <https://github.com/fumiyas/home-commands/blob/master/echo-sd>
 ##               <https://fumiyas.github.io/>
 ##               <https://www.osstech.co.jp/cgi-bin/echo-sd>
@@ -116,7 +116,7 @@ if [[ ${0##*/} == echo-sd ]] && [[ ${zsh_eval_context-toplevel} == toplevel ]]; 
 fi
 
 typeset SD_arg0="$0"
-typeset SD_copyright='(C) 2013-2019 SATOH Fumiyasu @ OSS Technology Corp., Japan'
+typeset SD_copyright='(C) 2013-2022 SATOH Fumiyasu @ OSSTech Corp., Japan'
 typeset SD_url='https://github.com/fumiyas/home-commands/blob/master/echo-sd'
 typeset SD_lang_orig SD_lang
 typeset SD_bc_tl SD_bc_t SD_bc_tr
