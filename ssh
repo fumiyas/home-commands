@@ -53,5 +53,5 @@ done
 
 set -- "/usr/bin/${0##*/}" "$@"
 
-echo "$*" 1>&2
+echo "$*" |sed 's/ansible.* BECOME-SUCCESS-/& /' 1>&2
 exec "$@"
