@@ -17,6 +17,7 @@
 ##
 
 set -u
+set -o pipefail || exit $?		## bash 3.0+
 
 perr()
 {
