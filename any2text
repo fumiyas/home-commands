@@ -6,6 +6,8 @@
 ## License: GNU General Public License version 3
 ##
 ## Required external commands:
+##   sed(1)
+##   perl(1)
 ##   nkf(1)
 ##   pdftotext(1) from poppler
 ##   wvWare(1)
@@ -68,10 +70,15 @@ odf2text() {
 
 openxml2text() {
   unzip -p "$@" \
-  |sed \
-    -e 's/<p:txBody>/ /g' \
-    -e 's/<\/t>/ /g' \
+  |perl -p \
+    -e 's#<w:del .*?<\/w:del>##g;' \
+    -e 's#<w:tab/># #g;' \
+    -e 's#</?w:tbl>#======================================================================\n#g;' \
+    -e 's#</w:tr>#----------------------------------------------------------------------\n#g;' \
+    -e 's#</w:p>#\n#g;' \
   |xml2text \
+  |sed -E \
+    -e 's/(。)(.)/\1\n\2/g' \
   ;
 }
 
