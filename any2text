@@ -65,6 +65,8 @@ xml2text() {
 
 odf2text() {
   unzip -p "$1" 'meta.xml' 'content.xml' \
+  |perl -p \
+    -e 's#</text:p>#\n#g;' \
   |xml2text \
   |sed -E \
     -e 's/(。)(.)/\1\n\2/g' \
