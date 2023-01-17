@@ -11,8 +11,8 @@
 ##   sudo setcap cap_net_bind_service+ep /usr/bin/socat
 ##
 ## References:
-##   Allowing a regular user to listen to a port below 1024 - Unix & Linux Stack Exchange
-##     https://unix.stackexchange.com/questions/10735/allowing-a-regular-user-to-listen-to-a-port-below-1024
+##   How to ssh forwarding with AllowTcpForwarding set to no? - Unix & Linux Stack Exchange
+##     https://unix.stackexchange.com/questions/406695/how-to-ssh-forwarding-with-allowtcpforwarding-set-to-no
 ##
 
 set -u
