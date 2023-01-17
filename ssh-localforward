@@ -1,0 +1,86 @@
+#!/bin/bash
+##
+## Local port forwarder via sshd without AllowTcpForwarding
+## Copyright 2023 (c) SATOH Fumiyasu @ OSSTech Corp., Japan
+##
+
+## NOTE: Allow socat(1) to bind privileged ports:
+##   sudo setcap cap_net_bind_service+ep /usr/bin/socat
+
+set -u
+
+## ----------------------------------------------------------------------
+
+_cmds_at_exit=()
+
+# shellcheck disable=SC2317
+cmds_at_exit() {
+  local cmd
+
+  for cmd in "${_cmds_at_exit[@]}"; do
+    "$cmd"
+  done
+}
+
+trap 'cmds_at_exit' EXIT
+for signal in HUP INT TERM; do
+  trap 'trap - EXIT '$signal'; cmds_at_exit; kill -'$signal' -$$' $signal
+done
+
+## ======================================================================
+
+ssh="ssh"
+
+if [[ $# -lt 2 || ${1//[!:]/} != '::' ]]; then
+  echo "Usage: $0 LOCAL_PORT:REMOTE_HOST:REMOTE_PORT SSH_ARGUMENTS"
+  exit 1
+fi
+
+conn="$1"; shift
+
+remote_port="${conn##*:}"
+conn="${conn%:*}"
+remote_host="${conn##*:}"
+conn="${conn%:*}"
+local_port="$conn"
+
+## ======================================================================
+
+cleanup() {
+  if [[ -n ${ssh_master_pid-} ]]; then
+    kill -TERM "$ssh_master_pid"
+    wait "$ssh_master_pid"
+  fi
+}
+_cmds_at_exit+=(cleanup)
+
+ssh_control_path="$HOME/.ssh/${0##*/}-%r@%h:%p"
+"$ssh" \
+  -T \
+  -o ControlMaster=yes \
+  -o ControlPersist=no \
+  -o ControlPath="$ssh_control_path" \
+  "$@" \
+  sleep 99999 \
+&
+ssh_master_pid=$!
+
+ssh_slave=(
+  "$ssh"
+  -T
+  -o ControlMaster=no
+  -o ControlPath="${ssh_control_path}"
+  "$@"
+  $(
+    printf \''if type nc >/dev/null 2>&1; then exec nc -w 60 %s %s; else exec bash -c \'\''"exec 2>/dev/null 9<>/dev/tcp/%s/%s; cat <&9 & cat >&9"; fi\'\'\' \
+      "$remote_host" \
+      "$remote_port" \
+      "$remote_host" \
+      "$remote_port" \
+    ;
+  )
+)
+socat \
+  "tcp-listen:$local_port,reuseaddr,fork" \
+  "exec:${ssh_slave[*]//:/\\\:}" \
+;
