@@ -73,6 +73,8 @@ ssh_control_path="$HOME/.ssh/${0##*/}-%r@%h:%p"
 &
 ssh_master_pid=$!
 
+# shellcheck disable=SC2207 # Prefer mapfile or read -a to split command output
+# shellcheck disable=SC1003 # Want to escape a single quote?
 ssh_slave=(
   "$ssh"
   -T
