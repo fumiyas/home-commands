@@ -3,9 +3,13 @@
 ## Local port forwarder via sshd without AllowTcpForwarding
 ## Copyright 2023 (c) SATOH Fumiyasu @ OSSTech Corp., Japan
 ##
-
+## Requirements:
+##   Local: ssh(1), socat(1)
+##   Remote: nc(1) or bash(1)
+##
 ## NOTE: Allow socat(1) to bind privileged ports:
 ##   sudo setcap cap_net_bind_service+ep /usr/bin/socat
+##
 
 set -u
 
