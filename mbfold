@@ -1,0 +1,30 @@
+#!/usr/bin/gawk -f
+##
+## mbfold: fold(1)-like filter with multibyte characters support
+## Copyright (c) 2023 SATOH Fumiyasu @ OSSTech Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+
+BEGIN {
+  FS = ORS = ""
+  fold_width = ("MBFOLD_WIDTH" in ENVIRON) ? ENVIRON["MBFOLD_WIDTH"] : 80
+}
+
+{
+  chars_n = split($0, chars, //)
+  line_width = 0
+  for (chars_i = 1; chars_i <= chars_n; chars_i++) {
+    char = chars[chars_i]
+    char_width = match(char, /[\001-\177]/) ? 1 : 2
+    ## Debug
+    #printf("[%s / %d / %d]\n", char, char_width, line_width)
+    if (line_width + char_width > fold_width) {
+      print("\n")
+      line_width = 0
+    }
+    print(char)
+    line_width += char_width
+  }
+  print("\n")
+}
