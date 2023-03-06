@@ -1,5 +1,8 @@
 # 自分用コマンド群
 
+* any2text (bash, sed, perl, unzip, pdftotext)
+    * 様々な文書ファイルをテキストに変換。
+* csv2yaml, csv2json (Python 3)
 * echo-sd (bash 4 or ksh 93u or zsh 4.3)
     * ＞　突然の死　＜ ジェネレーター
     * ＞突然の死＜ジェネレーター - 拡張 POSIX シェルスクリプト Advent Calendar 2013 - ダメ出し Blog
@@ -22,8 +25,13 @@
     * アクセスポイントをスキャンして概要を一覧表示
 * jwdiff (sh, mecab, wdiff)
     * 日本語対応 wdiff(1) (単語単位の差分表示)
+* ldaperror (sh, ldap.h)
+    * ldaperror で、LDAP のエラーコードをすばやくしらべる!
 * ls-path (bash or ksh)
     * 指定したパスとパスまでの途中のディレクトリをすべて ls で表示
+* mbfold (GNU awk)
+    * マルチバイト文字対応の fold(1) みたいなもの。
+    * ASCII 文字は幅 1、それ以外は幅 2 として扱う雑なもの。
 * movie2audio (sh, FFmpeg)
     * 動画ファイルから音声ファイルに変換
 * pwait (sh, inotifywait (オプション), Linux)
@@ -35,6 +43,8 @@
 * ri-all (sh, Ruby ri)
     * Ruby の ri コマンドラッパー
     * 例えばクラスを指定するとクラスの概要説明だけなく全メソッドの説明も表示する
+* ssh-localforward (bash, ssh, socat, nc or scocat or bash)
+    * sshd で AllowTcpForwarding を許可してない環境でローカルフォワード。
 * sumnum (awk)
     * テキストデータ中の数字をすべて加算して表示
 * tail-fp (ksh or zsh)
