@@ -15,20 +15,10 @@ domain=$(sed -n 's/^domain \(.*\)$/\1/p' /etc/resolv.conf)
 
 ## ----------------------------------------------------------------------
 
-case "$uname" in
-SunOS)
-  uname="Solaris"
-  urel="${urel#*.}"
-  ;;
-*)
-  urel="${urel%%.*}"
-  ;;
-esac
-
 case "$domain" in
-lan.osstech.co.jp)
-  domain="osstech"
-  ;;
+#lan.osstech.co.jp)
+#  domain="osstech"
+#  ;;
 lan.sfo.jp)
   domain="sfo"
   ;;
@@ -53,5 +43,20 @@ done
 
 set -- "/usr/bin/${0##*/}" "$@"
 
-echo "$*" |sed 's/ansible.* BECOME-SUCCESS-/& /' 1>&2
+if [ -f /usr/lib/libkeepalive.so ]; then
+  set -- \
+    env \
+    LD_PRELOAD="/usr/lib/libkeepalive.so${LD_PRELOAD:+:$LD_PRELOAD}"  \
+    KEEPIDLE=60 \
+    KEEPINTVL=30 \
+    KEEPCNT=3 \
+    "$@" \
+  ;
+fi
+
+## ----------------------------------------------------------------------
+
+## Interpolate `echo BECOME-SUCCESS-*` to avoid confusing Ansible
+echo "$$: ${*//echo BECOME-SUCCESS-/echo BECOME-SUCCESS-XXX-}" 1>&2
+
 exec "$@"
