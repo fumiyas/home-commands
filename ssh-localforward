@@ -17,6 +17,15 @@
 
 set -u
 
+perr() {
+  echo "$0: ERROR: $1" 1>&2
+}
+
+pdie() {
+  perr "$1"
+  exit "${2-1}"
+}
+
 ## ----------------------------------------------------------------------
 
 _cmds_at_exit=()
@@ -39,7 +48,7 @@ done
 
 ssh="ssh"
 
-if [[ $# -lt 2 || ${1//[!:]/} != '::' ]]; then
+if [[ $# -lt 2 ]]; then
   echo "Usage: $0 LOCAL_PORT:REMOTE_HOST:REMOTE_PORT SSH_ARGUMENTS"
   exit 1
 fi
@@ -48,9 +57,32 @@ conn="$1"; shift
 
 remote_port="${conn##*:}"
 conn="${conn%:*}"
-remote_host="${conn##*:}"
-conn="${conn%:*}"
+if [[ $remote_port == *[!\-_A-Za-z0-9]* ]]; then
+  pdie "Invalid remote port specified: $remote_port"
+fi
+
+if [[ $conn == *:\[*\] ]]; then
+  ## IPv6 address
+  remote_host="${conn##*:\[}"
+  remote_host="${remote_host%\]}"
+  remote_host_escaped="[$remote_host]"
+  conn="${conn%:\[*}"
+else
+  remote_host="${conn##*:}"
+  remote_host_escaped="$remote_host"
+  conn="${conn%:*}"
+fi
+if [[ $remote_host == *[!\-_.:A-Za-z0-9]* ]]; then
+  pdie "Invalid remote host specified: $remote_port"
+fi
+
 local_port="$conn"
+if [[ $local_port == *[!\-_A-Za-z0-9]* ]]; then
+  pdie "Invalid local port specified: $local_port"
+fi
+
+## FIXME: Support $local_host in argument (localhost by default)
+local_host="localhost"
 
 ## ======================================================================
 
@@ -82,7 +114,8 @@ ssh_slave=(
   -o ControlPath="${ssh_control_path}"
   "$@"
   $(
-    printf \''if type nc >/dev/null 2>&1; then exec nc -w 60 %s %s; elif type socat >/dev/null 2>&1; then exec socat - tcp:%s:%s else exec bash -c \'\''"exec 2>/dev/null 9<>/dev/tcp/%s/%s; cat <&9 & cat >&9"; fi\'\'\' \
+    ## FIXME: Support IPv6 (socat - "tcp6:...")
+    printf \''if type nc >/dev/null 2>&1; then exec nc -w 60 %s %s; elif type socat >/dev/null 2>&1; then exec socat - tcp:%s:%s else exec bash -c \'\''"exec 2>/dev/null 3<>/dev/tcp/%s/%s; cat <&3 & cat >&3"; fi\'\'\' \
       "$remote_host" \
       "$remote_port" \
       "$remote_host" \
@@ -92,7 +125,9 @@ ssh_slave=(
     ;
   )
 )
+
+## FIXME: Support IPv6 (socat "tcp6-listen:..."
 socat \
-  "tcp-listen:$local_port,reuseaddr,fork" \
+  "tcp-listen:$local_port,bind=$local_host,reuseaddr,fork" \
   "exec:${ssh_slave[*]//:/\\\:}" \
 ;
