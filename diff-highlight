@@ -1,0 +1,64 @@
+#!/bin/sh
+##
+## Search and use a diff-highlight implementation
+## Copyright (c) 2023 SATOH Fumiyasu @ OSSTech Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+
+set -u
+
+if [ -n "${BASH+set}" ]; then
+  # shellcheck disable=SC3044 # In POSIX sh, 'shopt' is undefined
+  shopt -s lastpipe 2>/dev/null ## Bash 4.2+ for `exec ... |exec ...`
+fi
+
+if type perl >/dev/null 2>&1; then
+  if [ -n "${GIT_EXEC_PATH+set}" ]; then
+    git_prefix="${GIT_EXEC_PATH%/*}/../share"
+  else
+    git_prefix="/usr/share"
+  fi
+  git_diff_highlight_dir=$(echo "${git_prefix}"/doc/*git*/contrib/diff-highlight)
+  if [ -d "$git_diff_highlight_dir" ]; then
+    # shellcheck disable=SC3043 # In POSIX sh, 'local' is undefined
+    # shellcheck disable=SC2155 # Declare and assign separately to avoid masking return values
+    diff_highlight() {
+      local reset="$(tput sgr0)"
+      local ul="$(tput smul)"
+      local add="$(tput setaf 2)"
+      local remove="$(tput setaf 1)"
+      local tailspace="$(tput setab 1)"
+      exec perl \
+	-I"$git_diff_highlight_dir" \
+        -MDiffHighlight \
+        -e '$SIG{PIPE} = "DEFAULT"; DiffHighlight::highlight_stdin(); exit 0;' \
+      |exec sed -E \
+        -e "/^diff /,/^\+\+\+ / { s/^/$ul/; s/$/$reset/ }" \
+        -e "/^\+.*/ { s/( |　)+$/$tailspace&/; s/^/$add/; s/$/$reset/; }" \
+        -e "s/^-.*/$remove&$reset/" \
+      ;
+    }
+  fi
+fi
+
+if type diff_highlight >/dev/null 2>&1; then
+  diff_highlight
+  exit $?
+fi
+
+for n in diff-highlight colordiff; do
+  for p in /usr/local/bin /usr/bin; do
+    c="$p/$n"
+    if [ -x "$c" ]; then
+      if type nkf >/dev/null 2>&1; then
+	exec nkf -x -m0 |exec "$c" "$@"
+      else
+	exec "$c" "$@"
+      fi
+      exit $?
+    fi
+  done
+done
+
+exec cat
