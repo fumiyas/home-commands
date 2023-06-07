@@ -1,6 +1,6 @@
 #!/bin/bash
 ##
-## Run a command with OpenSSL libssl legacy provider
+## Run a command with OpenSSL 3+'s libssl legacy provider
 ## Copyright (c) 2023 SATOH Fumiyasu @ OSSTech Corp., Japan
 ##
 ## License: GNU General Public License version 3
