@@ -1,0 +1,43 @@
+#!/bin/bash
+##
+## Run a command with OpenSSL libssl legacy provider
+## Copyright (c) 2023 SATOH Fumiyasu @ OSSTech Corp., Japan
+##
+## License: GNU General Public License version 3
+##
+
+set -u
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: $0 <openssl(1)-command ...>"
+  echo "Usage: $0 <command-build-with-libssl ...>"
+  exit 1
+fi
+
+if ! type "$1" >/dev/null 2>&1; then
+  set -- "openssl" "$@"
+fi
+
+if [[ -f /etc/debian_version ]]; then
+  openssl_default_conf='/etc/ssl/openssl.cnf'
+elif [[ -f /etc/redhat-release ]]; then
+  openssl_default_conf='/etc/pki/tls/openssl.cnf'
+else
+  echo "$0: ERROR: Unknown platform" 1>&2
+  exit 1
+fi
+
+openssl_conf="\
+.include = $openssl_default_conf
+[openssl_init]
+providers = provider_sect
+[provider_sect]
+default = default_sect
+legacy = legacy_sect
+[default_sect]
+activate = 1
+[legacy_sect]
+activate = 1
+"
+
+exec env OPENSSL_CONF=<(echo "$openssl_conf") "$@"
