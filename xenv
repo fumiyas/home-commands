@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -u
+
+#modeline=($(cvt --reduced 3200 2000 |sed -E -n 's/^Modeline "([^"]+)"/\1/p'))
+#modeline=($(cvt --reduced 3040 1900 |sed -E -n 's/^Modeline "([^"]+)"/\1/p'))
+#modeline=($(cvt --reduced 2880 1800 |sed -E -n 's/^Modeline "([^"]+)"/\1/p'))
+modeline=($(cvt --reduced 2560 1600 |sed -E -n 's/^Modeline "([^"]+)"/\1/p'))
+
+xrandr --newmode "${modeline[@]}"
+xrandr --addmode eDP-1 "${modeline[0]}"
+xrandr --output eDP-1 --mode "${modeline[0]}"
