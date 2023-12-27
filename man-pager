@@ -1,0 +1,11 @@
+#!/bin/sh
+##
+## Adjust manpages
+##
+
+## FIXME: Use python3-unidecode ?
+sed -E \
+  -e '/^ +(┌|├|└)/ { s/(─|┬|┴)/-/g; s/┼/+/g; }' \
+  -e '/^ +│/ { s/([^│]+)│(.)/\1|\2/g; s/^( +)\|/\1│/; }' \
+|$PAGER \
+;
