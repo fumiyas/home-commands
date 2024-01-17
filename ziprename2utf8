@@ -1,0 +1,35 @@
+#!/bin/bash
+##
+##  Convert filename encoding in ZIP archive
+##  Copyright (c) 2024 SATOH Fumiyasu @ OSSTech Corp., Japan
+##
+##  License: GNU General Public License version 3
+##
+##  Requirements:
+##  * zipinfo(1)
+##  * ziptool(1)
+##  * iconv(1)
+##
+
+set -u
+set -o pipefail || exit $?
+
+if [[ $# -lt 1 || $# -gt 3 ]]; then
+  echo "Usage: $0 ZIP_FILENAME [FILENAME_ENCODING [TO_ENCODING]]"
+  exit
+fi
+
+zip_filename="$1"; shift
+encoding_from="${1-CP932}"; ${1+shift}
+encoding_to="${1-UTF-8}"; ${1+shift}
+
+index=0
+
+LC_ALL='C' zipinfo -1 "$zip_filename" \
+|iconv -f "$encoding_from" -t "$encoding_to" \
+|while IFS= read -r name; do
+  printf 'rename\0%s\0%s\0' "$index" "$name"
+  ((index++))
+done \
+|xargs -0r ziptool "$zip_filename" \
+;
