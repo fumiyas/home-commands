@@ -23,6 +23,9 @@ zip_filename="$1"; shift
 encoding_from="${1-CP932}"; ${1+shift}
 encoding_to="${1-UTF-8}"; ${1+shift}
 
+arg_path_max="$(( $(getconf ARG_MAX) / $(getconf PATH_MAX /) - 1 ))" || exit $?
+xargs_max=$(( arg_path_max - (arg_path_max % 3) ))
+
 index=0
 
 LC_ALL='C' zipinfo -1 "$zip_filename" \
@@ -31,5 +34,5 @@ LC_ALL='C' zipinfo -1 "$zip_filename" \
   printf 'rename\0%s\0%s\0' "$index" "$name"
   ((index++))
 done \
-|xargs -0r ziptool "$zip_filename" \
+|xargs -0 -r -n "$xargs_max" ziptool "$zip_filename" \
 ;
