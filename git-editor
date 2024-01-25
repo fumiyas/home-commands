@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -u
+
+{
+  echo
+  echo '# ------------------------ >8 ------------------------'
+  echo '# Previous git log'
+  git log |head -n 1000
+} >> "${@: -1}"
+
+exec "$EDITOR" "$@"
