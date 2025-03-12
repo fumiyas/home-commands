@@ -1,7 +1,4 @@
-#!/bin/bash
-## or
-#!/bin/ksh
-#!/bin/zsh
+#!/bin/sh
 ##
 ## httpstatus.sh で、HTTP のステータスコードをすばやくしらべる!
 ##      by SATOH Fumiyasu @ OSS Technology Corp., Japan
@@ -25,12 +22,9 @@
 ##      http://d.hatena.ne.jp/hasegawayosuke/20130221/p1
 ##      http://blog.yappo.jp/yappo/archives/000805.html
 
-## For zsh
-builtin emulate -R ksh 2>/dev/null
-
 set -u
 
-latest() {
+data_latest() {
   curl \
     --silent \
     --fail-with-body \
@@ -48,7 +42,35 @@ latest() {
   ;
 }
 
-httpstatus="\
+if [ "${1-}" = "--update-data" ]; then
+  sed -i "/^cat <<'__DATA__'"'$/,$d' "$0"
+  {
+    echo "cat <<'__DATA__'"
+    data_latest
+    echo '__DATA__'
+  } >> "$0"
+  exit 0
+fi
+
+key="$*"
+case "$key" in
+[1-5][0-9][0-9])
+  re="^$key "
+  ;;
+[1-5][0-9]|[1-5])
+  re="^$key"
+  ;;
+*)
+  re="$key"
+  ;;
+esac
+
+sed -e "1,/^cat <<'__DATA__'"'$/d' -e '$d' <"$0"|grep -i "$re"
+
+exit $?
+
+# shellcheck disable=SC2317 # Command appears to be unreachable
+cat <<'__DATA__'
 100 Continue
 101 Switching Protocols
 102 Processing (WebDAV; RFC 2518)
@@ -112,36 +134,4 @@ httpstatus="\
 508 Loop Detected (WebDAV; RFC 5842)
 510 Not Extended (RFC 2774)
 511 Network Authentication Required (RFC 6585)
-"
-
-if [ $# -eq 0 ]; then
-  echo "$httpstatus"
-elif [ "$1" = "-" ]; then
-  latest
-else
-  key_in="$*"
-  case "$key_in" in
-  [1-5][0-9][0-9])
-    key="$key_in *"
-    ;;
-  [1-5][0-9]|[1-5])
-    key="$key_in*"
-    ;;
-  *)
-    typeset -l key
-    key="*$key_in*"
-    ;;
-  esac
-
-  typeset -l line_lc
-
-  echo "$httpstatus" \
-  |while read -r line; do
-    line_lc="$line"
-    case "$line_lc" in
-    $key)
-      echo "$line"
-      ;;
-    esac
-  done
-fi
+__DATA__
