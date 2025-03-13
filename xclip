@@ -1,0 +1,32 @@
+#!/bin/sh
+
+mode="in"
+selection_set=""
+for argv in "$@"; do
+  case "$argv" in
+  -i|-in)
+    mode="in"
+    ;;
+  -o|-out)
+    mode="out"
+    ;;
+  -selection)
+    selection_set="set"
+    ;;
+  esac
+done
+
+if [ -n "$selection_set" ]; then
+  exec /usr/bin/xclip "$@"
+fi
+
+case "$mode" in
+in)
+  ## Remove the last new line character
+  mawk 'NR>1 { print prev } { prev=$0 } END { printf("%s", prev) }' \
+  |setsid /usr/bin/xclip -in -selection clipboard "$@"
+  ;;
+*)
+  /usr/bin/xclip -selection clipboard "$@"
+  ;;
+esac
