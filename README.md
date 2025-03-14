@@ -49,6 +49,9 @@
     * テキストデータ中の数字をすべて加算して表示
 * tail-fp (ksh or zsh)
     * 指定したパターンが現われるまで tail -f する
+* ts (mawk or awk)
+    * moreutils ts(1) クローン
+    * 標準入力に現在日時、起動時からの経過時間 (秒)、前の行からの経過時間 (秒) を追加して出力
 * unicode-charinfo (Perl)
     * Unicode 文字の情報を表示する
 * zbr (sh)
