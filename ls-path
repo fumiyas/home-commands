@@ -8,17 +8,17 @@
 
 set -u
 
-typeset -a opts
+typeset -a ls_opts
 while [[ $# -gt 0 ]]; do
   [[ -n "${1##-*}" ]] && break
-  opts=(${opts[@]+"${opts[@]}"} "$1")
+  ls_opts=(${ls_opts[@]+"${ls_opts[@]}"} "$1")
   shift
 done
 
 for fname in "$@"; do
   if [[ -n "${fname##/*}" ]]; then
     ## Convert a relative path to an absolute path
-    fname="${cwd=`pwd`}/$fname"
+    fname="$PWD/$fname"
     ## "/path/to/." -> "/path/to/./"
     fname="${fname/%\/.//./}"
     ## "/path/./to/./dir" -> "/path/to/dir"
@@ -39,12 +39,11 @@ for fname in "$@"; do
   fname="${fname%/}"
 
   while :; do
-    echo "${fname:-/}"
+    printf '%s\0' "${fname:-/}"
     fname_tmp="${fname%/*}"
     [[ "$fname_tmp" = "$fname" ]] && break
     fname="$fname_tmp"
   done
 done \
-|sort -u \
-|xargs ls -d ${opts[@]+"${opts[@]}"} --
-
+|xargs -0 ls -d ${ls_opts[@]+"${ls_opts[@]}"} -- \
+;
