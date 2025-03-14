@@ -40,6 +40,7 @@ for fname in "$@"; do
 
   while :; do
     printf '%s\0' "${fname:-/}"
+    [[ -e "${fname:-/}" ]] || break
     fname_tmp="${fname%/*}"
     [[ "$fname_tmp" = "$fname" ]] && break
     fname="$fname_tmp"
