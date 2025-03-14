@@ -10,6 +10,7 @@ set -u
 
 typeset -a ls_opts
 while [[ $# -gt 0 ]]; do
+  [[ $1 == -- ]] && { shift; break; }
   [[ -n "${1##-*}" ]] && break
   ls_opts=(${ls_opts[@]+"${ls_opts[@]}"} "$1")
   shift
@@ -42,7 +43,7 @@ for fname in "$@"; do
     printf '%s\0' "${fname:-/}"
     [[ -e "${fname:-/}" ]] || break
     fname_tmp="${fname%/*}"
-    [[ "$fname_tmp" = "$fname" ]] && break
+    [[ "$fname_tmp" == "$fname" ]] && break
     fname="$fname_tmp"
   done
 done \
