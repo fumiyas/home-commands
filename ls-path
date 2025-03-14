@@ -1,13 +1,9 @@
 #!/bin/bash
-# or
-#!/bin/ksh
-# or
-#!/bin/zsh
 ##
 ## List specified files and all parent directories
-## Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
 ##
-## License: GNU General Public License version 3
+## SPDX-FileCopyrightText: 2013-2025 SATOH Fumiyasu @ OSSTech Corp., Japan
+## SPDX-License-Identifier: GPL-3.0-or-later
 ##
 
 set -u
