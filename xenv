@@ -2,6 +2,10 @@
 
 set -u
 
+if [ "${XDG_SESSION_TYPE-}" = wayland ]; then
+  exit 0
+fi
+
 #modeline=($(cvt --reduced 3200 2000 |sed -E -n 's/^Modeline "([^"]+)"/\1/p'))
 #modeline=($(cvt --reduced 3040 1900 |sed -E -n 's/^Modeline "([^"]+)"/\1/p'))
 #modeline=($(cvt --reduced 2880 1800 |sed -E -n 's/^Modeline "([^"]+)"/\1/p'))
