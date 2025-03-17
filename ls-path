@@ -10,12 +10,13 @@ set -u
 
 typeset -a ls_opts
 while [[ $# -gt 0 ]]; do
-  [[ $1 == -- ]] && { shift; break; }
+  [[ $1 == "--" ]] && { shift; break; }
   [[ -n "${1##-*}" ]] && break
   ls_opts=(${ls_opts[@]+"${ls_opts[@]}"} "$1")
   shift
 done
 
+declare -A fnames
 for fname in "$@"; do
   if [[ -n "${fname##/*}" ]]; then
     ## Convert a relative path to an absolute path
@@ -29,7 +30,7 @@ for fname in "$@"; do
     while :; do
       ## "/path/to/../dir" -> "/path/to"
       fname_left="${fname%%/../*}"
-      [[ "$fname_left" = "$fname" ]] && break
+      [[ "$fname_left" == "$fname" ]] && break
       ## "/path/to/../dir" -> "dir"
       fname_right="${fname#*/../}"
       ## -> "/path/dir"
@@ -40,11 +41,14 @@ for fname in "$@"; do
   fname="${fname%/}"
 
   while :; do
-    printf '%s\0' "${fname:-/}"
-    [[ -e "${fname:-/}" ]] || break
+    if [[ -z ${fnames["$fname"]-} ]]; then
+      fnames["$fname"]="set"
+      printf '%s\0' "${fname:-}"
+    fi
+    [[ $fname == "/" ]] && break
     fname_tmp="${fname%/*}"
-    [[ "$fname_tmp" == "$fname" ]] && break
-    fname="$fname_tmp"
+    [[ $fname_tmp == "$fname" ]] && break
+    fname="${fname_tmp:-/}"
   done
 done \
 |xargs -0 ls -d ${ls_opts[@]+"${ls_opts[@]}"} -- \
