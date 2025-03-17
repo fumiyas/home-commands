@@ -8,7 +8,14 @@
 
 set -u
 
-typeset -a ls_opts
+ls="ls"
+ls_opts=(-d)
+if [[ ${1-} == --ls=* ]]; then
+  ls="${1#--ls=}"
+  ls_opts=()
+  shift
+fi
+
 while [[ $# -gt 0 ]]; do
   [[ $1 == "--" ]] && { shift; break; }
   [[ -n "${1##-*}" ]] && break
@@ -17,7 +24,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ $# -eq 0 ]]; then
-  echo "Usage: $0 [ls(1)-options] FILE [...]"
+  echo "Usage: $0 [--ls=COMMAND] [ls(1)-options] FILE [...]"
   exit 1
 fi
 
@@ -34,5 +41,5 @@ for fname in "$@"; do
     fname="${fname_tmp:-/}"
   done
 done \
-|xargs -0 ls -d ${ls_opts[@]+"${ls_opts[@]}"} -- \
+|xargs -0 "$ls" ${ls_opts[@]+"${ls_opts[@]}"} -- \
 ;
