@@ -27,7 +27,7 @@
     * 日本語対応 wdiff(1) (単語単位の差分表示)
 * ldaperror (sh, ldap.h)
     * ldaperror で、LDAP のエラーコードをすばやくしらべる!
-* ls-path (bash or ksh)
+* ls-origin (bash)
     * 指定したパスとパスまでの途中のディレクトリをすべて ls で表示
 * mbfold (GNU awk)
     * マルチバイト文字対応の fold(1) みたいなもの。
