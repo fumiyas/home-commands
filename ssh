@@ -57,6 +57,6 @@ fi
 ## ----------------------------------------------------------------------
 
 ## Interpolate `echo BECOME-SUCCESS-*` to avoid confusing Ansible
-echo "$$: ${*//echo BECOME-SUCCESS-/echo BECOME-SUCCESS-XXX-}" 1>&2
+echo "ssh: $$: Invoking ${*//echo BECOME-SUCCESS-/echo BECOME-SUCCESS-XXX-}" 1>&2
 
 exec "$@"
