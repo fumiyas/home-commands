@@ -1,6 +1,6 @@
 #!/bin/bash
 ##
-## List specified files and all parent directories
+## List specified files and all origin directories
 ##
 ## SPDX-FileCopyrightText: 2013-2025 SATOH Fumiyasu @ OSSTech Corp., Japan
 ## SPDX-License-Identifier: GPL-3.0-or-later
@@ -16,32 +16,15 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
+if [[ $# -eq 0 ]]; then
+  echo "Usage: $0 [ls(1)-options] FILE [...]"
+  exit 1
+fi
+
 declare -A fnames
 for fname in "$@"; do
-  if [[ -n "${fname##/*}" ]]; then
-    ## Convert a relative path to an absolute path
-    fname="$PWD/$fname"
-    ## "/path/to/." -> "/path/to/./"
-    fname="${fname/%\/.//./}"
-    ## "/path/./to/./dir" -> "/path/to/dir"
-    fname="${fname//\/.\///}"
-    ## "/path/to/.." -> "/path/to/../"
-    fname="${fname/%\/..//../}"
-    while :; do
-      ## "/path/to/../dir" -> "/path/to"
-      fname_left="${fname%%/../*}"
-      [[ "$fname_left" == "$fname" ]] && break
-      ## "/path/to/../dir" -> "dir"
-      fname_right="${fname#*/../}"
-      ## -> "/path/dir"
-      fname="${fname_left%/*}/$fname_right"
-    done
-  fi
-  ## "/path/to/dir/" -> "/path/to/dir"
-  fname="${fname%/}"
-
   while :; do
-    if [[ -z ${fnames["$fname"]-} ]]; then
+    if [[ -z ${fnames["$fname"]+set} ]]; then
       fnames["$fname"]="set"
       printf '%s\0' "${fname:-}"
     fi
