@@ -1,0 +1,127 @@
+#!/bin/bash
+#
+# Convert a movie file into MP4 for X.com (Twitter)
+#
+# SPDX-FileCopyrightText: 2025 SATOH Fumiyasu @ OSSTech Corp., Japan
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# References:
+# * jffmpeg コマンドラインツール入門 第1回 - Morpho Tech Blog
+#   https://techblog.morphoinc.com/entry/2020/07/13/100058
+# * FFmpegベンチマーク&おまけ
+#   https://zenn.dev/ykesamaru/articles/8be613537cbccc
+#
+
+set -u
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: ${0##*/} FILE"
+  exit 1
+fi
+
+input="$1"
+output="${input%.*}.mp4"
+
+rm ${output:+-f "$output"}
+
+log_level="warning"
+#strict="experimental"
+movie_flags="+faststart"
+preset="medium"  # {ultra,super,very}fast faster fast medium slow slower veryslow
+#time_start=""  # [[HH:]MM:]SS[.SSSS]
+#time_end=""  # [[HH:]MM:]SS[.SSSS]
+#time_duration=""  # [[HH:]MM:]SS[.SSSS]
+video_none_p=""
+#video_constant_rate_factor="23"  # 51 .. 0 (better: 18, default: 23)
+video_codec="libx264"  # libx265 copy
+video_pixel_format="yuv420p"  # yuv422p yuv444p ...10le
+#video_bit_rate="1024k"
+#video_bit_rate_min="$video_bit_rate"
+#video_bit_rate_max="$video_bit_rate"
+#video_bit_rate_buffer="$video_bit_rate"
+# Make width and height divisible by 2 to avoid the error:
+# [libx264 @ <...>] height not divisible by 2 (<WIDTH>x<HEIGHT>)
+video_frame_graph="pad=ceil(iw/2)*2:ceil(ih/2)*2"
+#video_fps="30"
+audio_none_p=""
+#audio_codec="aac"  # opus copy
+#audio_bit_rate="64k"
+#audio_frequency="44100"
+#audio_channels="2"
+subtitle_none_p=""
+#subtitle_codec="dvdsub"  # dvdsub copy
+
+ff_options=(
+  -hide_banner
+  ${log_level:+-loglevel "$log_level"}
+)
+
+ffmpeg_options=(
+  "${ff_options[@]}"
+  ${strict:+-strict "$strict"}
+  ${movie_flags:+-movflags "$movie_flags"}
+  ${preset:+-preset "$preset"}
+  ${time_start:+-ss "$time_start"}
+  ${time_end:+-to "$time_end"}
+  ${time_duration:+-t "$time_duration"}
+  #-t 2:20 FIXME
+)
+
+ffprobe_options=(
+  -hide_banner
+  -print_format flat
+  "${ff_options[@]}"
+)
+
+if [[ -n ${video_none_p:+set} ]]; then
+  ffmpeg_options+=(-vn)
+else
+  ffmpeg_options+=(
+    ${video_codec:+-vcodec "$video_codec"}
+    ${video_pixel_format:+-pix_fmt "$video_pixel_format"}
+    ${video_constant_rate_factor:+-crf "$video_constant_rate_factor"}
+    ${video_fps:+-r "$video_fps"}
+    ${video_frame_graph:+-vf "$video_frame_graph"}
+    ${video_bit_rate:+-vb "$video_bit_rate"}
+    ${video_bit_rate_min:+-minrate "$video_bit_rate_min"}
+    ${video_bit_rate_max:+-maxrate "$video_bit_rate_max"}
+    ${video_bit_rate_buffer:+-bufsize "$video_bit_rate_buffer"}
+  )
+fi
+
+if [[ -n ${audio_none_p:+set} ]]; then
+  ffmpeg_options+=(-an)
+else
+  ffmpeg_options+=(
+    ${audio_codec:+-acodec "$audio_codec"}
+    ${audio_bit_rate:+${audio_bit_rate:+-ab "$audio_bit_rate"}}
+    ${audio_frequency:+-ar "$audio_frequency"}
+    ${audio_channels:+-ac "$audio_channels"}
+  )
+fi
+
+if [[ -n ${subtitle_none_p:+set} ]]; then
+  ffmpeg_options+=(-sn)
+else
+  ffmpeg_options+=(
+    ${subtitle_codec:+-scodec "$subtitle_codec"}
+  )
+fi
+
+ffprobe \
+  -i "$input" \
+  -show_format \
+  "${ffprobe_options[@]}" \
+;
+
+ffmpeg \
+  -i "$input" \
+  "${ffmpeg_options[@]}" \
+  "$output" \
+;
+
+ffprobe -hide_banner \
+  -i "$output" \
+  -show_format \
+  "${ffprobe_options[@]}" \
+;

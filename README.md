@@ -34,6 +34,8 @@
     * ASCII 文字は幅 1、それ以外は幅 2 として扱う雑なもの。
 * movie2audio (sh, FFmpeg)
     * 動画ファイルから音声ファイルに変換
+* movie2mp4twitter (bash, FFmpeg)
+    * 動画ファイルを Twitter (X.com) にポストできる形式に変換
 * pwait (sh, inotifywait (オプション), Linux)
     * 指定したプロセス ID が終了するまで待つ
 * qrcode-aa (Ruby, qrcode gem)
