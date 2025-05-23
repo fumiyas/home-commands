@@ -63,6 +63,7 @@ xml2text() {
   ;
 }
 
+## OpenDocument Format
 odf2text() {
   unzip -p "$1" 'meta.xml' 'content.xml' \
   |sed -E \
@@ -74,10 +75,12 @@ odf2text() {
   ;
 }
 
-openxml2text() {
+## Office Open XML
+ooxml2text() {
   unzip -p "$@" \
   |perl -p \
     -e 's#<(wp:(?:align|posOffset))[ >].*?</\1>##g;' \
+    -e 's#<(wp14:pct(?:Width|Height))[ >].*?</\1>##g;' \
     -e 's#<(w:(?:del|instrText))[ >].*?</\1>##g;' \
     -e 's#<w:tab/># #g;' \
     -e 's#</?w:tbl>#======================================================================\n#g;' \
@@ -149,15 +152,15 @@ for file_name in "$@"; do
     ;;
   do[ct][xm])
     <"$file_name" \
-    openxml2text /dev/stdin 'word/document.xml'
+    ooxml2text /dev/stdin 'word/document.xml'
     ;;
   xl[st][xm])
     <"$file_name" \
-    openxml2text /dev/stdin 'xl/sharedStrings.xml'
+    ooxml2text /dev/stdin 'xl/sharedStrings.xml'
     ;;
   pp[ts][xm]|pot[xm]|sld[xm])
     <"$file_name" \
-    openxml2text /dev/stdin 'ppt/slides/slide*.xml'
+    ooxml2text /dev/stdin 'ppt/slides/slide*.xml'
     ;;
   *)
     pdie "Unknown file type: $file_ext ($file_name)"
