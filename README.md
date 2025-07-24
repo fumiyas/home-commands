@@ -42,6 +42,8 @@
     * 指定した文字列を QR コードに変換してアスキーアートで表示
     * 参考: QR code generator for text terminals (ASCII art, Sixel)
         * <https://github.com/fumiyas/qrc>
+* s (sh, KDE)
+    * シェル端末から現在の作業ディレクトリ上で GUI アプリケーションを起動
 * ri-all (sh, Ruby ri)
     * Ruby の ri コマンドラッパー
     * 例えばクラスを指定するとクラスの概要説明だけなく全メソッドの説明も表示する
