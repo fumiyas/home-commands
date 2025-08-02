@@ -1081,14 +1081,19 @@ function SD_echo_cgi {
     echo
     echo \
       '<html>' \
-      '<head><title>＞　突然の死　＜ ジェネレーター</title></head>' \
+      '<head>' \
+      '<meta name="viewport" content="width=device-width, initial-scale=1" />' \
+      '<title>＞　突然の死　＜ ジェネレーター</title>' \
       '<style type="text/css"><!--' \
+      'h1 {	word-break: keep-all; }' \
+      'textarea { width: 100%; max-width: 600px; }' \
       '.ul { text-decoration:underline; }' \
       '--></style>' \
-      '<body><h1>＞　突然の死　＜ ジェネレーター</h1>' \
+      '</head>' \
+      '<body><h1>＞　突然の死　＜ <wbr />ジェネレーター</h1>' \
       '<form action="./echo-sd" method="GET">' \
       ;
-    echo -n '<textarea name="scripts" cols="80" rows="4" tabindex="1">'
+    echo -n '<textarea name="scripts" rows="4" tabindex="1">'
     for script in ${scripts[@]+"${scripts[@]}"}; do
       _SD_escape_html "$script"
     done
