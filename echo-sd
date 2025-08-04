@@ -1128,7 +1128,9 @@ function SD_echo_cgi {
       _SD_escape_html "$preface"
     done
     SD_echo_command "$@" |_SD_escape_html
-    echo '</pre><hr>'
+    echo '</pre>'
+    echo '<input type="button" onclick="navigator.clipboard.writeText(document.getElementsByTagName('\''pre'\'')[0].textContent.trim())" value="＞　コピー　＜">'
+    echo '<hr>'
     _SD_escape_html "$SD_copyright"
     echo '<br />'
     echo "<a href='$(_SD_escape_html "$SD_url")'>$(_SD_escape_html "$SD_url")</a>"
