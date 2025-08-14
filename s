@@ -8,6 +8,6 @@
 
 set -u
 
-export OLDPWD="$PWD"
+export START_WD="$PWD"
 
-exec kstart sh -- -c 'cd "$OLDPWD" && exec "$@"' "$0 (sh wrapper)" "$@"
+exec kstart sh -- -c 'cd "$START_WD" && exec "$@"' "$0 (sh wrapper)" "$@"
