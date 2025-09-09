@@ -8,23 +8,27 @@
 
 set -u
 
-ls="ls"
-ls_opts=(-d)
-if [[ ${1-} == --ls=* ]]; then
-  ls="${1#--ls=}"
-  ls_opts=()
+cmd="ls"
+cmd_opts=()
+
+if [[ ${1-} == --command=* ]]; then
+  cmd="${1#--command=}"
   shift
+fi
+
+if [[ ${cmd##*/} == "ls" ]]; then
+  cmd_opts+=(-d)
 fi
 
 while [[ $# -gt 0 ]]; do
   [[ $1 == "--" ]] && { shift; break; }
   [[ -n "${1##-*}" ]] && break
-  ls_opts=(${ls_opts[@]+"${ls_opts[@]}"} "$1")
+  cmd_opts+=("$1")
   shift
 done
 
 if [[ $# -eq 0 ]]; then
-  echo "Usage: $0 [--ls=COMMAND] [ls(1)-options] FILE [...]"
+  echo "Usage: $0 [--command=COMMAND] [COMMAND OPTIONS --] FILE [...]"
   exit 1
 fi
 
@@ -41,5 +45,5 @@ for fname in "$@"; do
     fname="${fname_tmp:-/}"
   done
 done \
-|xargs -0 "$ls" ${ls_opts[@]+"${ls_opts[@]}"} -- \
+|xargs -0 "$cmd" ${cmd_opts[@]+"${cmd_opts[@]}"} -- \
 ;
