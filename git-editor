@@ -2,10 +2,12 @@
 
 set -u
 
+git_comment_str=$(git config get core.commentString)
+
 {
   echo
-  echo '# ------------------------ >8 ------------------------'
-  echo '# Previous git log'
+  echo "$git_comment_str ------------------------ >8 ------------------------"
+  echo "$git_comment_str Previous git log"
   git log |head -n 1000
 } >> "${@: -1}"
 
