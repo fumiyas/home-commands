@@ -23,6 +23,8 @@
     * IMAP UTF-7 (Modified UTF-7) エンコーダー/デコーダー
 * `iwscan` (sh, iwlist)
     * アクセスポイントをスキャンして概要を一覧表示
+* `jsonl2files` (Python 3)
+    * JSON Lines 入力を指定したキーの値のファイル名に振り分け
 * `jwdiff` (sh, mecab, wdiff)
     * 日本語対応 `wdiff`(1) (単語単位の差分表示)
 * `ldaperror` (sh, ldap.h)
