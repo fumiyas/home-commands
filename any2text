@@ -59,7 +59,6 @@ xml2text() {
     -e 's/&lt;/</g' \
     -e 's/&#10;/\n/g' \
     -e 's/&amp;/\&/g' \
-    -e '/^ *$/d' \
   ;
 }
 
@@ -67,12 +66,29 @@ xml2text() {
 odf2text() {
   unzip -p "$1" 'meta.xml' 'content.xml' \
   |sed -E \
-    -e 's#(<text:tab/>|</text:p></table:table-cell>)#\t#g' \
-    -e 's#<table:table-cell [^>]*><text:p[ /][^>]*>##g' \
-    -e 's#(<text:line-break/>|<text:p [^>]*>|</(text:[hp]|table:table-row)>)#\n#g' \
-  |xml2text \
+    -e 's@<table:table( [^ >]+)*>@\n@g' \
+    -e 's@(<text:(line-break|p [^/>]+)/>|</text:p>)?(<\/table:table-cell>)@\3@g' \
+    -e 's@</table:table-cell><table:table-cell[^>]*>@ │ @g' \
+    -e 's@<table:table-row( [^ >]+)*>@│ @g' \
+    -e 's@</table:table-row>@ │\n@g' \
+    -e 's@<text:list-item>@* @g' \
+    -e 's@<text:list( [^ >]+)*>@\n@g' \
+    -e 's@<\/text:([ph]|list|table-of-content)>@&\n@g' \
+    -e 's@<text:s text:c="2"/>@  @g' \
+    -e 's@<text:s text:c="3"/>@   @g' \
+    -e 's@<text:s text:c="4"/>@    @g' \
+    -e 's@<text:s text:c="5"/>@     @g' \
+    -e 's@<text:s text:c="6"/>@      @g' \
+    -e 's@<text:s text:c="7"/>@       @g' \
+    -e 's@<text:s text:c="8"/>@        @g' \
   |sed -E \
-    -e 's/(。)(.)/\1\n\2/g' \
+    -e 's@<text:h( [^ >]+)* text:outline-level="1"( [^ >]+)*>(.*)@\3\n======================================================================\n@g' \
+    -e 's@<text:h( [^ >]+)* text:outline-level="2"( [^ >]+)*>(.*)@\3\n----------------------------------------------------------------------\n@g' \
+    -e 's@<text:h( [^ >]+)* text:outline-level="3"( [^ >]+)*>(.*)@### \3\n@g' \
+    -e 's@<text:h( [^ >]+)* text:outline-level="4"( [^ >]+)*>(.*)@#### \3\n@g' \
+    -e 's@(<text:tab/>|</text:p></table:table-cell>)@\t@g' \
+    -e 's@<text:(line-break|p [^/>]+)/>@\n@g' \
+  |xml2text \
   ;
 }
 
