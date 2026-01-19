@@ -126,7 +126,7 @@ ssh_slave=(
   )
 )
 
-## FIXME: Support IPv6 (socat "tcp6-listen:..."
+## FIXME: Support IPv6 (socat "tcp6-listen:...")
 socat \
   "tcp-listen:$local_port,bind=$local_host,reuseaddr,fork" \
   "exec:${ssh_slave[*]//:/\\\:}" \
