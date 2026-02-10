@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 ##
 ## ssh: Use environment-specific ssh_config(5) in $HOME/.ssh if available
 ## Copyright (c) 2015 SATOH Fumiyasu @ OSS Technology Corp., Japan
