@@ -21,6 +21,31 @@ pdie() {
   exit "${2-1}"
 }
 
+if [[ -t 1 ]]; then
+    c_reset=$'\x1b[m'
+    c_red=$'\x1b[31m'
+    c_green=$'\x1b[32m'
+    c_yellow=$'\x1b[33m'
+    c_blue=$'\x1b[34m'
+    c_magenta=$'\x1b[35m'
+    c_cyan=$'\x1b[36m'
+else
+    c_reset=
+    c_red=
+    c_green=
+    c_yellow=
+    c_blue=
+    c_magenta=
+    c_cyan=
+fi
+
+p_section() {
+    echo "${c_green}$*${c_reset}:"
+}
+p_item() {
+  echo "  ${c_cyan}$1${c_reset}${2+	$2}${3+ ${c_blue}($3)${c_reset}}"
+}
+
 tags=(
 'v	required	-	Version'
 'p	required	-	Policy'
@@ -71,30 +96,30 @@ for v in ${rr_data//\"/}; do
 done
 
 if [[ "$lookup_cmd" != "cat" ]]; then
-    echo 'Command:'
-    echo "  ${lookup_cmd[*]}"
+    p_section 'Command'
+    p_item "${lookup_cmd[*]}"
 fi
-echo 'DMARC DNS RR:'
-echo "  Name	$rr_name"
-echo "  TTL	$rr_ttl"
-echo "  Class	$rr_class"
-echo "  Type	$rr_type"
-echo "  Data	$rr_data"
-echo 'Explicit DMARC Policy:'
+p_section 'DMARC DNS RR'
+p_item "Name" "$rr_name"
+p_item "TTL" "$rr_ttl"
+p_item "Class" "$rr_class"
+p_item "Type" "$rr_type"
+p_item "Data" "$rr_data"
+p_section 'Explicit DMARC Policy'
 for tag_name in "${!tag_required[@]}"; do
     if [[ -z ${tag_value[$tag_name]+set} ]]; then
         pdie "No required tag in the DMARC policy: $tag_name"
     fi
-    echo "  $tag_name	${tag_value[$tag_name]}	${tag_description[$tag_name]}"
+    p_item "$tag_name" "${tag_value[$tag_name]}" "${tag_description[$tag_name]}"
 done
 for tag_name in "${!tag_value[@]}"; do
     if [[ -n "${tag_required[$tag_name]+set}" ]]; then
         continue
     fi
-    echo "  $tag_name	${tag_value[$tag_name]}	${tag_description[$tag_name]}"
+    p_item "$tag_name" "${tag_value[$tag_name]}" "${tag_description[$tag_name]}"
 done
 
-echo 'Implicit DMARC Policy:'
+p_section 'Implicit DMARC Policy'
 for tag_name in "${!tag_default[@]}"; do
     if [[ -n ${tag_value[$tag_name]+set} ]]; then
         continue
@@ -103,5 +128,5 @@ for tag_name in "${!tag_default[@]}"; do
     if [[ "$default" == "->"* ]]; then
         default="${tag_value[${default#->}]-?}"
     fi
-    echo "  $tag_name	$default	${tag_description[$tag_name]}"
+    p_item "$tag_name" "$default" "${tag_description[$tag_name]}"
 done
