@@ -1,0 +1,107 @@
+#!/bin/bash
+#
+# DNS: Query and inspect a DMARC policy
+#
+# SPDX-FileCopyrightText: 2026 SATOH Fumiyasu @ OSSTech Corp., Japan
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+set -u
+set -o pipefail || exit $?
+shopt -s lastpipe || exit $?
+
+set -f  # noglob
+
+perr() {
+  echo "$0: ERROR: $1" 1>&2
+}
+
+pdie() {
+  perr "$1"
+  exit "${2-1}"
+}
+
+tags=(
+'v	required	-	Version'
+'p	required	-	Policy'
+'sp	optional	->p	Subdomain Policy'
+'pct	optional	100	Percentage'
+'adkim	optional	r	Alignment mode for DKIM'
+'aspf	optional	r	Alignment mode for SPF'
+'rua	optional	-	Reporting URI for Aggregate data'
+'ruf	optional	-	Reporting URI for Forensic data'
+'fo	optional	0	Failure Reporting Options'
+'rf	optional	afrf	Reporting Format'
+'ri	optional	86400	Reporting Interval'
+)
+
+typeset -A tag_required=() tag_default=() tag_description=()
+for tag in "${tags[@]}"; do
+    IFS=$'\t' read -r name required default description <<<"$tag"
+    if [[ $required == "required" ]]; then
+        tag_required[$name]="set"
+    fi
+    tag_default[$name]="$default"
+    tag_description[$name]="$description"
+done
+
+if [[ $# -lt 1 ]]; then
+    echo "Usage: $0 DOMAIN [NAMESERVER]"
+    exit 64  ## EX_USAGE
+fi
+
+domain_name="$1"; shift
+if [[ $domain_name == "-" ]]; then
+    lookup_cmd=(cat)
+else
+    dmarc_name="_dmarc.${domain_name%.}"
+    lookup_cmd=(dig +noall +answer -t txt ${1+"@$1"} "$dmarc_name")
+fi
+
+rr=$("${lookup_cmd[@]}")
+if [[ -z "$rr" ]]; then
+    pdie "No DMARC policy found"
+fi
+
+typeset -A tag_value=()
+IFS=$' \t' read -r rr_name rr_ttl rr_class rr_type rr_data <<<"$rr"
+IFS=' ;'
+for v in ${rr_data//\"/}; do
+    tag_value["${v%%=*}"]="${v#*=}"
+done
+
+if [[ "$lookup_cmd" != "cat" ]]; then
+    echo 'Command:'
+    echo "  ${lookup_cmd[*]}"
+fi
+echo 'DMARC DNS RR:'
+echo "  Name	$rr_name"
+echo "  TTL	$rr_ttl"
+echo "  Class	$rr_class"
+echo "  Type	$rr_type"
+echo "  Data	$rr_data"
+echo 'Explicit DMARC Policy:'
+for tag_name in "${!tag_required[@]}"; do
+    if [[ -z ${tag_value[$tag_name]+set} ]]; then
+        pdie "No required tag in the DMARC policy: $tag_name"
+    fi
+    echo "  $tag_name	${tag_value[$tag_name]}	${tag_description[$tag_name]}"
+done
+for tag_name in "${!tag_value[@]}"; do
+    if [[ -n "${tag_required[$tag_name]+set}" ]]; then
+        continue
+    fi
+    echo "  $tag_name	${tag_value[$tag_name]}	${tag_description[$tag_name]}"
+done
+
+echo 'Implicit DMARC Policy:'
+for tag_name in "${!tag_default[@]}"; do
+    if [[ -n ${tag_value[$tag_name]+set} ]]; then
+        continue
+    fi
+    default="${tag_default[$tag_name]}"
+    if [[ "$default" == "->"* ]]; then
+        default="${tag_value[${default#->}]-?}"
+    fi
+    echo "  $tag_name	$default	${tag_description[$tag_name]}"
+done
