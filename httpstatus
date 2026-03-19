@@ -34,7 +34,7 @@ data_latest() {
   |sed -E -n \
     -e '/Unofficial codes<\/h[1-6]>/,$d' \
     -e 's!^<dl>!!' \
-    -e 's!</dt>$!!' \
+    -e 's!</dt>(</dl>)?$!!' \
     -e 's!</span>(<span [^>]+></span>)* ?!!' \
     -e 's!<a [^>]+>([^<]+)</a>!\1!g' \
     -e 's!^<dt><span class="anchor" id="([1-5][0-9][0-9])">\1 ([^<(]+)!\1 \2!p' \
@@ -87,7 +87,7 @@ cat <<'__DATA__'
 226 IM Used (RFC 3229)
 300 Multiple Choices
 301 Moved Permanently
-302 Found (Previously 'Moved temporarily')
+302 Found
 303 See Other (since HTTP/1.1)
 304 Not Modified
 305 Use Proxy (since HTTP/1.1)
@@ -107,7 +107,7 @@ cat <<'__DATA__'
 410 Gone
 411 Length Required
 412 Precondition Failed
-413 Payload Too Large
+413 Content Too Large
 414 URI Too Long
 415 Unsupported Media Type
 416 Range Not Satisfiable
