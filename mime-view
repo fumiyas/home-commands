@@ -1,0 +1,62 @@
+#!/usr/bin/env perl
+
+use strict;
+use Switch;
+use File::Basename;
+
+$ENV{'LANG'} = 'ja_JP.UTF-8';
+$ENV{'PAGER'} = 'lv';
+
+my $shell = 'bash';
+my @term = qw(wezterm start --always-new-process -- bash -lc);
+my $pre_script = 'ttitle "$1"; shift; ';
+
+my $file = shift;
+$file =~ s/\\//g;
+my $basename = basename($file);
+
+my @dumper = ();
+switch ($file) {
+  case /\.pdf$/i {
+    exec('okular', $file);
+  }
+  case /\.html?$/i {
+    exec('firefox', $file);
+  }
+  #case /\/[^.]+$/ { exec('firefox', $file); }
+  case /\.((doc|doc|xls|ppt)x?|o[dt][tspbcgm]|s[xt][wcid])$/i {
+    my $file2 = $file;
+    $file2 =~ s/[\s()]//g;
+    link($file, $file2) if ($file ne $file2);
+    system('libreoffice', $file2);
+    sleep(2);
+    unlink($file2) if ($file ne $file2);
+    exit(0);
+  }
+  case /\.(bmp|jpe?g|gif|png|tiff?)$/i {
+    exec('imv-wayland', $file);
+  }
+  case /.(hdr|rpm)$/ {
+    @dumper = ('rpm', '-qip', $file);
+  }
+}
+
+if (@dumper) {
+  exec(
+    @term,
+    "$pre_script" . '$PAGER < <("$@" 2>&1)',
+    $shell,
+    "mime-view: $dumper[0] $basename",
+    @dumper,
+    $file
+  );
+}
+else {
+  exec(
+    @term,
+    "$pre_script" . '$PAGER -- "$@"',
+    $shell,
+    "mime-view: $basename",
+    $file
+  );
+}
